@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>تقرير الربحية وضغط الكاش فلو — 2025/2026</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+* { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:'Segoe UI',Tahoma,Arial,sans-serif; background:#f0f2f5; color:#1a1a2e; direction:rtl; font-size:14px; }
+
+.header { background:linear-gradient(135deg,#0f3460,#16213e); color:white; padding:36px 48px; }
+.header h1 { font-size:1.8rem; font-weight:700; margin-bottom:6px; }
+.header p { opacity:.7; font-size:.95rem; }
+.header .tags { margin-top:14px; display:flex; gap:10px; flex-wrap:wrap; }
+.tag { background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.2); border-radius:20px; padding:4px 14px; font-size:.78rem; }
+
+.nav-tabs { background:white; border-bottom:2px solid #e5e7eb; display:flex; gap:0; padding:0 40px; }
+.nav-tab { padding:16px 28px; cursor:pointer; font-size:.9rem; font-weight:600; color:#6b7280; border-bottom:3px solid transparent; margin-bottom:-2px; transition:.2s; }
+.nav-tab.active { color:#0f3460; border-bottom-color:#0f3460; }
+.nav-tab:hover { color:#0f3460; }
+
+.tab-content { display:none; }
+.tab-content.active { display:block; }
+
+.container { max-width:1400px; margin:0 auto; padding:28px 24px; }
+
+/* KPI strip */
+.kpi-strip { display:grid; grid-template-columns:repeat(5,1fr); gap:14px; margin-bottom:28px; }
+.kpi { background:white; border-radius:14px; padding:18px 16px; box-shadow:0 2px 10px rgba(0,0,0,.05); border-top:3px solid #0f3460; text-align:center; }
+.kpi.green { border-top-color:#10b981; }
+.kpi.red { border-top-color:#ef4444; }
+.kpi.orange { border-top-color:#f59e0b; }
+.kpi.purple { border-top-color:#8b5cf6; }
+.kpi-val { font-size:1.4rem; font-weight:700; color:#111; }
+.kpi-lbl { font-size:.72rem; color:#9ca3af; margin-top:4px; text-transform:uppercase; letter-spacing:.04em; }
+
+/* Chart cards */
+.card { background:white; border-radius:16px; padding:24px; box-shadow:0 2px 10px rgba(0,0,0,.05); margin-bottom:20px; }
+.card h3 { font-size:.95rem; font-weight:700; color:#374151; margin-bottom:18px; padding-bottom:10px; border-bottom:1px solid #f3f4f6; }
+.card-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+.card-grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:20px; }
+
+/* Tables */
+.tbl { width:100%; border-collapse:collapse; font-size:.82rem; }
+.tbl th { background:#f8fafc; padding:10px 12px; text-align:center; color:#64748b; font-weight:600; border-bottom:2px solid #e2e8f0; white-space:nowrap; }
+.tbl td { padding:9px 12px; text-align:center; border-bottom:1px solid #f1f5f9; }
+.tbl tr:hover td { background:#fafbfc; }
+.tbl .lbl { font-weight:700; color:#0f3460; text-align:right; white-space:nowrap; }
+.profit { color:#10b981; font-weight:700; }
+.loss { color:#ef4444; font-weight:700; }
+.neutral { color:#6b7280; }
+.warn { background:rgba(245,158,11,.08); color:#92400e; font-weight:600; }
+.highlight-green { background:rgba(16,185,129,.06); }
+.highlight-red { background:rgba(239,68,68,.05); }
+.section-divider { font-size:.75rem; color:#0f3460; font-weight:700; background:#eff6ff; padding:8px 14px; text-align:right; letter-spacing:.05em; }
+
+/* Insight boxes */
+.insight { border-radius:12px; padding:14px 18px; margin:10px 0; font-size:.85rem; line-height:1.7; }
+.insight.warn { background:#fffbeb; border:1px solid #fcd34d; }
+.insight.danger { background:#fef2f2; border:1px solid #fca5a5; }
+.insight.good { background:#f0fdf4; border:1px solid #86efac; }
+.insight.info { background:#eff6ff; border:1px solid #93c5fd; }
+.insight-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+
+/* Expense bars */
+.exp-bar-row { display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+.exp-bar-lbl { width:90px; font-size:.78rem; color:#374151; text-align:right; }
+.exp-bar-track { flex:1; height:18px; background:#f1f5f9; border-radius:9px; overflow:hidden; }
+.exp-bar-fill { height:100%; border-radius:9px; }
+.exp-bar-val { width:80px; font-size:.78rem; color:#6b7280; }
+
+/* Problem cards */
+.problem-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }
+.problem-card { border-radius:14px; padding:20px; }
+.problem-card.critical { background:#fef2f2; border:1px solid #fca5a5; }
+.problem-card.warning { background:#fffbeb; border:1px solid #fde68a; }
+.problem-card.info { background:#eff6ff; border:1px solid #bfdbfe; }
+.problem-card.good { background:#f0fdf4; border:1px solid #bbf7d0; }
+.problem-card h4 { font-size:.88rem; font-weight:700; margin-bottom:8px; }
+.problem-card .score { font-size:1.6rem; font-weight:800; margin-bottom:6px; }
+.problem-card p { font-size:.78rem; line-height:1.6; color:#555; }
+.problem-card.critical h4,.problem-card.critical .score { color:#dc2626; }
+.problem-card.warning h4,.problem-card.warning .score { color:#d97706; }
+.problem-card.info h4,.problem-card.info .score { color:#2563eb; }
+.problem-card.good h4,.problem-card.good .score { color:#16a34a; }
+
+footer { text-align:center; padding:20px; color:#9ca3af; font-size:.75rem; border-top:1px solid #e5e7eb; margin-top:12px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>📊 تقرير الربحية وضغط الكاش فلو</h1>
+  <p>محلات العائلة — يناير 2025 إلى فبراير 2026</p>
+  <div class="tags">
+    <span class="tag">هامش ربح إجمالي 15%</span>
+    <span class="tag">الجمعية مستبعدة من المصاريف</span>
+    <span class="tag">مصاريف العائلة مفصولة</span>
+    <span class="tag">14 شهراً</span>
+  </div>
+</div>
+
+<div class="nav-tabs">
+  <div class="nav-tab active" onclick="showTab('pl')">📋 قائمة الربح والخسارة</div>
+  <div class="nav-tab" onclick="showTab('cash')">💧 ضغط الكاش فلو</div>
+  <div class="nav-tab" onclick="showTab('expenses')">📦 تفصيل المصاريف</div>
+  <div class="nav-tab" onclick="showTab('diagnosis')">🔍 تشخيص المشاكل</div>
+</div>
+
+<!-- ===== TAB 1: P&L ===== -->
+<div id="tab-pl" class="tab-content active">
+<div class="container">
+
+  <div class="kpi-strip" id="plKpiStrip">
+    <div class="kpi green"><div class="kpi-val" id="kpiTotalProfit">—</div><div class="kpi-lbl">مجموع الأرباح (أشهر الربح)</div></div>
+    <div class="kpi red"><div class="kpi-val" id="kpiTotalLoss">—</div><div class="kpi-lbl">مجموع الخسائر (أشهر الخسارة)</div></div>
+    <div class="kpi orange"><div class="kpi-val" id="kpiNet">—</div><div class="kpi-lbl">صافي النتيجة التشغيلية</div></div>
+    <div class="kpi purple"><div class="kpi-val" id="kpiProfitMonths">—</div><div class="kpi-lbl">أشهر ربح تشغيلي</div></div>
+    <div class="kpi"><div class="kpi-val" id="kpiAvgMargin">—</div><div class="kpi-lbl">متوسط هامش صافي</div></div>
+  </div>
+
+  <div class="card">
+    <h3>قائمة الربح والخسارة الشهرية — بالريال والنسبة</h3>
+    <p style="font-size:.78rem;color:#9ca3af;margin-bottom:14px;">
+      ⬤ الفائدة = 15% من الإيرادات (هامش ربح إجمالي تقديري) &nbsp;|&nbsp;
+      مصاريف تشغيلية = رواتب + إيجار + مرافق + بنكية + نقل + تراخيص &nbsp;|&nbsp;
+      مصاريف عائلة = مرافق البيت &nbsp;|&nbsp;
+      الجمعية مستبعدة
+    </p>
+    <div style="overflow-x:auto">
+    <table class="tbl" id="plTable"></table>
+    </div>
+  </div>
+
+  <div class="card-grid">
+    <div class="card">
+      <h3>الربح / الخسارة الشهرية — الإيجار الفعلي</h3>
+      <div style="height:260px"><canvas id="profitActualChart"></canvas></div>
+    </div>
+    <div class="card">
+      <h3>الربح / الخسارة — بعد توزيع الإيجار (÷3 ربعياً)</h3>
+      <div style="height:260px"><canvas id="profitSpreadChart"></canvas></div>
+    </div>
+  </div>
+
+  <div class="insight-grid">
+    <div class="insight warn">
+      <strong>🏠 الإيجار يصنع الخسارة لا البيع:</strong>
+      أشهر الخسارة الكبيرة (يناير 25، يوليو 25، يناير 26) ترتبط مباشرة بدفع الإيجار الربعي. عند توزيع الإيجار شهرياً تتحول معظمها لأرباح صغيرة.
+    </div>
+    <div class="insight danger">
+      <strong>📉 سبتمبر وأكتوبر — ضعف هيكلي:</strong>
+      حتى بعد توزيع الإيجار، هذان الشهران يحققان خسارة لأن الإيرادات (~181K) لا تكفي لتغطية هامش الرواتب والمصاريف الثابتة.
+    </div>
+    <div class="insight good">
+      <strong>✅ فبراير ومايو ونوفمبر وديسمبر:</strong>
+      هي الأشهر الرابحة بوضوح. رمضان والموسم الشتوي هما المحركان الرئيسيان للربحية.
+    </div>
+    <div class="insight info">
+      <strong>👨‍👩‍👧 مصاريف العائلة في بعض الأشهر:</strong>
+      تظهر في يوليو، أغسطس، سبتمبر، نوفمبر، ديسمبر. تراوحت بين 1,684 و7,389 ريال/شهر. تأثيرها محدود لكن فصلها ضروري لقياء ربح المحلات بمعزل.
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ===== TAB 2: CASH FLOW ===== -->
+<div id="tab-cash" class="tab-content">
+<div class="container">
+
+  <div class="kpi-strip">
+    <div class="kpi green"><div class="kpi-val">5.06M</div><div class="kpi-lbl">إجمالي الإيرادات</div></div>
+    <div class="kpi red"><div class="kpi-val">3.50M</div><div class="kpi-lbl">مدفوع للموردين (كاش)</div></div>
+    <div class="kpi orange"><div class="kpi-val">880K</div><div class="kpi-lbl">إجمالي المصاريف التشغيلية</div></div>
+    <div class="kpi purple"><div class="kpi-val">2.47M</div><div class="kpi-lbl">إجمالي المشتريات (بضاعة)</div></div>
+    <div class="kpi red"><div class="kpi-val">−1.0M</div><div class="kpi-lbl">فجوة الدفع للموردين</div></div>
+  </div>
+
+  <div class="card">
+    <h3>تحليل الكاش فلو الشهري — أين يذهب كل ريال من الإيراد؟</h3>
+    <div style="height:300px"><canvas id="cashFlowChart"></canvas></div>
+  </div>
+
+  <div class="card-grid">
+    <div class="card">
+      <h3>الفائض النقدي الشهري بعد كل المدفوعات</h3>
+      <div style="height:240px"><canvas id="surplusChart"></canvas></div>
+    </div>
+    <div class="card">
+      <h3>المدفوع للموردين مقابل المشتريات الفعلية</h3>
+      <div style="height:240px"><canvas id="supVsPurchChart"></canvas></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>جدول ضغط الكاش فلو الشهري</h3>
+    <div style="overflow-x:auto"><table class="tbl" id="cashTable"></table></div>
+  </div>
+
+  <div class="insight-grid">
+    <div class="insight danger">
+      <strong>🔴 المشكلة الأولى — الموردون يُدفعون أكثر من المشتريات:</strong>
+      في نوفمبر 25 مثلاً، دُفع للموردين 408K بينما المشتريات 113K فقط — يعني 295K كانت سداداً لديون أشهر سابقة. هذا يستنزف الكاش في أشهر الدخل العالي.
+    </div>
+    <div class="insight warn">
+      <strong>🟡 المشكلة الثانية — تراكم الدين في المواسم:</strong>
+      مارس وأبريل ومايو (رمضان والعيد): المشتريات تتجاوز 300-400K بينما الدفع أقل → يتراكم الدين → ثم يُسدَّد لاحقاً في أشهر ضعيفة.
+    </div>
+    <div class="insight danger">
+      <strong>🔴 المشكلة الثالثة — سبتمبر بلا فائض:</strong>
+      سبتمبر 25 كان الشهر الوحيد بفائض نقدي سلبي (−1,407 ريال). أي طارئ في هذا الشهر يحتاج تمويلاً خارجياً.
+    </div>
+    <div class="insight info">
+      <strong>💡 الفرصة — ديسمبر 25 كان قريباً من الصفر (+48 ريال):</strong>
+      رغم كونه شهراً جيداً في الإيرادات (399K)، الفائض كان صفرياً. السبب: مدفوعات موردين ضخمة (356K) هي سداد لمشتريات رمضان القادم.
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ===== TAB 3: EXPENSES ===== -->
+<div id="tab-expenses" class="tab-content">
+<div class="container">
+  <div class="card-grid">
+    <div class="card">
+      <h3>توزيع المصاريف التشغيلية الكلية (14 شهر)</h3>
+      <div style="height:280px"><canvas id="expPieChart"></canvas></div>
+    </div>
+    <div class="card">
+      <h3>تطور أكبر بنود المصاريف شهرياً</h3>
+      <div style="height:280px"><canvas id="expTrendChart"></canvas></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>تفصيل المصاريف التشغيلية شهرياً (مكدّس)</h3>
+    <div style="height:320px"><canvas id="expStackChart"></canvas></div>
+  </div>
+
+  <div class="card">
+    <h3>أكبر بند مصروف في كل شهر</h3>
+    <div style="overflow-x:auto"><table class="tbl" id="expTopTable"></table></div>
+  </div>
+
+  <div class="insight-grid">
+    <div class="insight danger">
+      <strong>🔴 الرواتب البند الأثقل دائماً:</strong>
+      تتراوح بين 15K و40K شهرياً، وكثير منها متأخرة (راتب شهر 9 يُدفع في شهر 10). هذا يُصعّب قراءة الأرقام الحقيقية لكل شهر.
+    </div>
+    <div class="insight warn">
+      <strong>🟡 الإيجار غير منتظم = ضغط ربعي:</strong>
+      3 دفعات ضخمة في يناير، يوليو، يناير 2026. الحل: تحويل الإيجار لدفعات شهرية أصغر أو بناء احتياطي مخصص.
+    </div>
+    <div class="insight warn">
+      <strong>🟡 رسوم بنكية في مارس 25 شاذة (23K):</strong>
+      رسوم بنكية في مارس كانت 23,368 ريال — أعلى من المعتاد (1-9K). يحتاج مراجعة لمعرفة السبب.
+    </div>
+    <div class="insight good">
+      <strong>✅ مرافق واتصالات تحت السيطرة:</strong>
+      تتراوح بين 1K و11K. يوليو كان الأعلى بسبب ارتفاع الكهرباء صيفاً. لا توجد تجاوزات مقلقة.
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ===== TAB 4: DIAGNOSIS ===== -->
+<div id="tab-diagnosis" class="tab-content">
+<div class="container">
+
+  <div class="problem-grid" style="margin-bottom:24px">
+    <div class="problem-card critical">
+      <h4>🔴 ضغط الكاش — حرج</h4>
+      <div class="score">عالي</div>
+      <p>المدفوع للموردين يتجاوز الإيرادات في 3 أشهر. الفائض النقدي لا يكفي لشراء مخزون المواسم القادمة.</p>
+    </div>
+    <div class="problem-card warning">
+      <h4>🟡 توقيت الإيجار — تحذير</h4>
+      <div class="score">ربعي</div>
+      <p>دفع الإيجار دفعة واحدة (47-77K) يصنع أشهر خسارة ضخمة مصطنعة ويربك قراءة الأداء الحقيقي.</p>
+    </div>
+    <div class="problem-card critical">
+      <h4>🔴 ضعف الموسم المنخفض — حرج</h4>
+      <div class="score">سبتمبر/أكتوبر</div>
+      <p>إيرادات ~181K في شهرين متتاليين. الأدنى في السنة. الهامش لا يغطي الرواتب الثابتة فقط.</p>
+    </div>
+    <div class="problem-card warning">
+      <h4>🟡 دين الخياطين — مزمن</h4>
+      <div class="score">~62K</div>
+      <p>دين متراكم للخياطين لم يتصفّر طوال السنة. يشير لعدم التوازن بين أجرة العمل والمدفوع.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>خريطة المشاكل — كل شهر ووضعه</h3>
+    <div style="overflow-x:auto"><table class="tbl" id="diagTable"></table></div>
+  </div>
+
+  <div class="card-grid">
+    <div class="card">
+      <h3>نسبة كل بند من الإيراد الشهري</h3>
+      <div style="height:280px"><canvas id="ratioChart"></canvas></div>
+    </div>
+    <div class="card">
+      <h3>فجوة الموردين (مدفوع − مشتريات) — تراكم الدين</h3>
+      <div style="height:280px"><canvas id="gapChart"></canvas></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>🛠️ التوصيات المبنية على البيانات</h3>
+    <div class="insight-grid">
+      <div class="insight danger">
+        <strong>1. إيجار موزّع شهرياً:</strong>
+        التفاوض مع المؤجر على دفعات شهرية بدل ربعية — أو بناء احتياطي شهري (~20K) في أشهر الربح لتغطية أشهر الإيجار.
+      </div>
+      <div class="insight danger">
+        <strong>2. احتياطي موسم المنخفض:</strong>
+        سبتمبر وأكتوبر يحتاجان ~35K إضافية لتغطية مصاريفهما. يجب بناء هذا من أرباح نوفمبر وديسمبر.
+      </div>
+      <div class="insight warn">
+        <strong>3. جدولة سداد الموردين:</strong>
+        في أشهر المواسم (نوفمبر، ديسمبر) دُفع للموردين 408K و357K — وهذا استنزف الكاش المتاح لشراء بضاعة جديدة. جدولة السداد تحسن السيولة.
+      </div>
+      <div class="insight warn">
+        <strong>4. تصفية دين الخياطين تدريجياً:</strong>
+        في أشهر الربح (فبراير، مايو، نوفمبر) يمكن تسريع السداد للخياطين وتقليص الدين المتراكم (~62K).
+      </div>
+      <div class="insight info">
+        <strong>5. مراجعة رسوم بنكية مارس 25:</strong>
+        23K ريال رسوم في شهر واحد يحتاج تفسيراً. مقارنةً بـ 1-4K في بقية الأشهر.
+      </div>
+      <div class="insight info">
+        <strong>6. تتبع الرواتب المتأخرة:</strong>
+        بعض الرواتب تُدفع بتأخير 2-3 أشهر. تسجيلها في شهر الاستحقاق (لا الدفع) يعطي صورة أدق لتكاليف كل شهر.
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<footer>تقرير الربحية وضغط الكاش فلو · يناير 2025 — فبراير 2026 · 14 شهراً من البيانات</footer>
+
+<script>
+const months = ['يناير 25','فبراير 25','مارس 25','أبريل 25','مايو 25','يونيو 25','يوليو 25','أغسطس 25','سبتمبر 25','أكتوبر 25','نوفمبر 25','ديسمبر 25','يناير 26','فبراير 26'];
+const revenue     = [285038,548674,532048,288658,450582,417150,316654,267659,182358,181199,468087,399272,253649,467264];
+const faida       = revenue.map(v=>Math.round(v*0.15));
+const salaries    = [20108,28722,39782,18297,23509,21125,15787,20851,18528,19076,26278,24495,19766,36019];
+const rent_actual = [47420,0,11160,840,2000,0,38888,0,3000,9500,0,3400,77135,10500];
+const rent_spread = [15807,15807,26967,840,2000,0,20446,20446,23446,9500,0,3400,25712,36212];
+const utilities   = [757,1203,2358,3313,4189,1058,3889,3519,5700,4258,5039,7093,1028,2530];
+const banking     = [2595,4383,23368,2918,4681,8326,2351,7900,9761,1206,1478,1176,1467,4542];
+const transport   = [1855,1705,1885,1355,1125,1945,1180,1620,380,610,1445,1610,955,995];
+const licensing   = [3550,3407,2737,3212,3438,1861,660,785,3023,3542,3815,248,248,3298];
+const family      = [0,0,0,0,0,0,7389,3392,1684,0,4310,2841,0,0];
+const other       = [10078,14681,28589,9375,10396,32079,12046,6442,7193,1768,1781,3962,1939,6262];
+const suppliers_paid=[190459,478948,419377,232995,391082,341935,209885,216985,134496,139915,408390,356595,142172,385266];
+const purchases   = [173491,119085,413550,0,303697,206858,188271,243113,151015,96265,112969,185888,209915,266151];
+
+// Compute opex
+const opex_actual = months.map((_,i)=>salaries[i]+rent_actual[i]+utilities[i]+banking[i]+transport[i]+licensing[i]+other[i]);
+const opex_spread = months.map((_,i)=>salaries[i]+rent_spread[i]+utilities[i]+banking[i]+transport[i]+licensing[i]+other[i]);
+const profit_actual = months.map((_,i)=>faida[i]-opex_actual[i]);
+const profit_spread = months.map((_,i)=>faida[i]-opex_spread[i]);
+const profit_pct = months.map((_,i)=>+(profit_actual[i]/revenue[i]*100).toFixed(1));
+const profit_spread_pct = months.map((_,i)=>+(profit_spread[i]/revenue[i]*100).toFixed(1));
+const cash_surplus = months.map((_,i)=>revenue[i]-suppliers_paid[i]-opex_actual[i]-family[i]);
+const supplier_gap = months.map((_,i)=>suppliers_paid[i]-purchases[i]);
+
+// === حساب KPI الربح والخسارة بشكل ديناميكي ===
+(function(){
+  let totalProfit = 0, totalLoss = 0, profitMonths = 0;
+  profit_actual.forEach(p => {
+    if(p >= 0){ totalProfit += p; profitMonths++; }
+    else { totalLoss += p; }
+  });
+  const net = totalProfit + totalLoss;
+  const avgMargin = profit_actual.reduce((s,p,i)=>s+(p/revenue[i]*100),0)/months.length;
+  const fmt = v => {
+    const abs = Math.abs(v), sign = v >= 0 ? '+' : '−';
+    if(abs >= 1000000) return sign+(abs/1000000).toFixed(2)+'M';
+    if(abs >= 1000) return sign+Math.round(abs/1000)+'K';
+    return sign+abs.toLocaleString();
+  };
+  document.getElementById('kpiTotalProfit').textContent  = '+'+Math.round(totalProfit/1000)+'K';
+  document.getElementById('kpiTotalLoss').textContent    = '−'+Math.round(Math.abs(totalLoss)/1000)+'K';
+  document.getElementById('kpiNet').textContent          = fmt(net);
+  document.getElementById('kpiProfitMonths').textContent = profitMonths+' / '+months.length;
+  document.getElementById('kpiAvgMargin').textContent    = (avgMargin>=0?'+':'')+avgMargin.toFixed(1)+'%';
+})();
+
+const C = { blue:'rgba(15,52,96,.85)', bluelt:'rgba(15,52,96,.12)', green:'rgba(16,185,129,.85)', greenlt:'rgba(16,185,129,.12)', orange:'rgba(245,158,11,.85)', orangelt:'rgba(245,158,11,.12)', red:'rgba(239,68,68,.85)', redlt:'rgba(239,68,68,.1)', purple:'rgba(139,92,246,.85)' };
+const font = { family:'Segoe UI,Tahoma,Arial,sans-serif', size:10 };
+
+function profitColors(arr){ return arr.map(v=>v>=0?C.green:C.red); }
+
+// ===== P&L TABLE =====
+const plTbl = document.getElementById('plTable');
+const plHead = `<thead><tr>
+  <th>الشهر</th><th>الإيرادات</th><th>الهامش 15%</th>
+  <th>رواتب</th><th>إيجار</th><th>مرافق</th><th>بنكية</th><th>أخرى</th>
+  <th>مصاريف عائلة</th><th>إجمالي تشغيلي</th>
+  <th>ربح/خسارة (إيجار فعلي)</th><th>%</th>
+  <th>ربح/خسارة (موزّع)</th><th>%</th>
+</tr></thead>`;
+let plBody = '<tbody>';
+months.forEach((m,i)=>{
+  const isHighRev = revenue[i]>=400000, isLowRev=revenue[i]<=200000;
+  const rowClass = isHighRev?'highlight-green':isLowRev?'highlight-red':'';
+  const pCls = profit_actual[i]>=0?'profit':'loss';
+  const psCls = profit_spread[i]>=0?'profit':'loss';
+  const rentClass = rent_actual[i]>40000?'warn':'';
+  plBody+=`<tr class="${rowClass}">
+    <td class="lbl">${m}</td>
+    <td>${revenue[i].toLocaleString()}</td>
+    <td>${faida[i].toLocaleString()}</td>
+    <td>${salaries[i].toLocaleString()}</td>
+    <td class="${rentClass}">${rent_actual[i].toLocaleString()}</td>
+    <td>${utilities[i].toLocaleString()}</td>
+    <td>${banking[i]>10000?'<span class="loss">'+banking[i].toLocaleString()+'</span>':banking[i].toLocaleString()}</td>
+    <td>${(transport[i]+licensing[i]+other[i]).toLocaleString()}</td>
+    <td class="${family[i]>0?'neutral':''}">${family[i]>0?family[i].toLocaleString():'—'}</td>
+    <td><strong>${opex_actual[i].toLocaleString()}</strong></td>
+    <td class="${pCls}">${profit_actual[i]>=0?'+':''}${profit_actual[i].toLocaleString()}</td>
+    <td class="${pCls}">${profit_pct[i]}%</td>
+    <td class="${psCls}">${profit_spread[i]>=0?'+':''}${profit_spread[i].toLocaleString()}</td>
+    <td class="${psCls}">${profit_spread_pct[i]}%</td>
+  </tr>`;
+});
+plBody+='</tbody>';
+plTbl.innerHTML = plHead+plBody;
+
+// P&L Charts
+new Chart(document.getElementById('profitActualChart'),{type:'bar',data:{labels:months,datasets:[{label:'ربح/خسارة',data:profit_actual,backgroundColor:profitColors(profit_actual),borderRadius:5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.raw.toLocaleString()} ريال`}}},scales:{y:{ticks:{callback:v=>(v/1000)+'K',font},grid:{color:'#f1f5f9'}},x:{ticks:{font:{...font,size:9}}}}}});
+new Chart(document.getElementById('profitSpreadChart'),{type:'bar',data:{labels:months,datasets:[{label:'ربح/خسارة (موزّع)',data:profit_spread,backgroundColor:profitColors(profit_spread),borderRadius:5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.raw.toLocaleString()} ريال`}}},scales:{y:{ticks:{callback:v=>(v/1000)+'K',font},grid:{color:'#f1f5f9'}},x:{ticks:{font:{...font,size:9}}}}}});
+
+// ===== CASH TABLE =====
+const cashTbl = document.getElementById('cashTable');
+const cashHead=`<thead><tr><th>الشهر</th><th>الإيرادات</th><th>المدفوع للموردين</th><th>المصاريف التشغيلية</th><th>مصاريف العائلة</th><th>الفائض النقدي</th><th>% من الإيراد</th><th>المشتريات</th><th>فجوة الموردين</th></tr></thead>`;
+let cashBody='<tbody>';
+months.forEach((m,i)=>{
+  const surp=cash_surplus[i], gap=supplier_gap[i];
+  const surpCls=surp>5000?'profit':surp<0?'loss':'neutral';
+  const gapCls=gap>50000?'loss':gap<-50000?'profit':'neutral';
+  cashBody+=`<tr>
+    <td class="lbl">${m}</td>
+    <td>${revenue[i].toLocaleString()}</td>
+    <td>${suppliers_paid[i].toLocaleString()}</td>
+    <td>${opex_actual[i].toLocaleString()}</td>
+    <td>${family[i]>0?family[i].toLocaleString():'—'}</td>
+    <td class="${surpCls}">${surp>=0?'+':''}${surp.toLocaleString()}</td>
+    <td class="${surpCls}">${(surp/revenue[i]*100).toFixed(1)}%</td>
+    <td>${purchases[i]>0?purchases[i].toLocaleString():'—'}</td>
+    <td class="${gapCls}">${gap>=0?'+':''}${gap.toLocaleString()}</td>
+  </tr>`;
+});
+cashBody+='</tbody>';
+cashTbl.innerHTML=cashHead+cashBody;
+
+// Cash Flow stacked chart
+new Chart(document.getElementById('cashFlowChart'),{type:'bar',data:{labels:months,datasets:[
+  {label:'موردون',data:suppliers_paid,backgroundColor:'rgba(239,68,68,.75)',borderRadius:0},
+  {label:'مصاريف تشغيل',data:opex_actual,backgroundColor:'rgba(245,158,11,.75)',borderRadius:0},
+  {label:'عائلة',data:family,backgroundColor:'rgba(139,92,246,.7)',borderRadius:0},
+  {label:'فائض',data:cash_surplus.map(v=>Math.max(v,0)),backgroundColor:'rgba(16,185,129,.7)',borderRadius:3},
+]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{font}}},scales:{x:{stacked:true,ticks:{font:{...font,size:9}}},y:{stacked:true,ticks:{callback:v=>(v/1000)+'K',font},grid:{color:'#f1f5f9'}}}}});
+
+new Chart(document.getElementById('surplusChart'),{type:'bar',data:{labels:months,datasets:[{label:'فائض نقدي',data:cash_surplus,backgroundColor:profitColors(cash_surplus),borderRadius:5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>(v/1000)+'K',font},grid:{color:'#f1f5f9'}},x:{ticks:{font:{...font,size:9}}}}}});
+
+new Chart(document.getElementById('supVsPurchChart'),{type:'bar',data:{labels:months,datasets:[
+  {label:'مدفوع للموردين',data:suppliers_paid,backgroundColor:C.red,borderRadius:4},
+  {label:'مشتريات فعلية',data:purchases,backgroundColor:C.orange,borderRadius:4}
+]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{font}}},scales:{y:{ticks:{callback:v=>(v/1000)+'K',font},grid:{color:'#f1f5f9'}},x:{ticks:{font:{...font,size:9}}}}}});
+
+// ===== EXPENSE PIE =====
+const expTotals={رواتب:salaries.reduce((a,b)=>a+b),إيجار:rent_actual.reduce((a,b)=>a+b),مرافق:utilities.reduce((a,b)=>a+b),'رسوم بنكية':banking.reduce((a,b)=>a+b),نقل:transport.reduce((a,b)=>a+b),تراخيص:licensing.reduce((a,b)=>a+b),أخرى:other.reduce((a,b)=>a+b)};
+new Chart(document.getElementById('expPieChart'),{type:'doughnut',data:{labels:Object.keys(expTotals),datasets:[{data:Object.values(expTotals),backgroundColor:[C.blue,C.red,C.orange,C.purple,'rgba(34,197,94,.8)','rgba(20,184,166,.8)','rgba(107,114,128,.7)'],borderWidth:2,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{font,padding:12}},tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.raw.toLocaleString()} ريال`}}}}});
+
+new Chart(document.getElementById('expTrendChart'),{type:'line',data:{labels:months,datasets:[
+  {label:'رواتب',data:salaries,borderColor:C.blue,fill:false,tension:.3,pointRadius:3},
+  {label:'إيجار',data:rent_actual,borderColor:C.red,fill:false,tension:.3,pointRadius:4},
+  {label:'رسوم بنكية',data:banking,borderColor:C.purple,fill:false,tension:.3,pointRadius:3},
+]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{font}}},scales:{y:{ticks:{callback:v=>(v/1000)+'K',font},grid:{color:'#f1f5f9'}},x:{ticks:{font:{...font,size:9}}}}}});
+
+new Chart(document.getElementById('expStackChart'),{type:'bar',data:{labels:months,datasets:[
+  {label:'رواتب',data:salaries,backgroundColor:C.blue,borderRadius:0},
+  {label:'إيجار',data:rent_actual,backgroundColor:C.red,borderRadius:0},
+  {label:'مرافق',data:utilities,backgroundColor:C.orange,borderRadius:0},
+  {label:'رسوم بنكية',data:banking,backgroundColor:C.purple,borderRadius:0},
+  {label:'أخرى',data:other.map((v,i)=>v+transport[i]+licensing[i]),backgroundColor:'rgba(107,114,128,.6)',borderRadius:3},
+]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{font,padding:10}}},scales:{x:{stacked:true,ticks:{font:{...font,size:9}}},y:{stacked:true,ticks:{callback:v=>(v/1000)+'K',font},grid:{color:'#f1f5f9'}}}}});
+
+// Top expense table
+const expTopTbl=document.getElementById('expTopTable');
+const topCats=['رواتب','إيجار','مرافق','رسوم بنكية','أخرى'];
+const expHead2=`<thead><tr><th>الشهر</th>${topCats.map(c=>`<th>${c}</th>`).join('')}<th>أكبر بند</th></tr></thead>`;
+const expRows=[salaries,rent_actual,utilities,banking,other.map((v,i)=>v+transport[i]+licensing[i])];
+let expBody='<tbody>';
+months.forEach((m,i)=>{
+  const vals=expRows.map(r=>r[i]);
+  const maxIdx=vals.indexOf(Math.max(...vals));
+  expBody+=`<tr><td class="lbl">${m}</td>`;
+  vals.forEach((v,j)=>{ expBody+=`<td ${j===maxIdx?'class="warn"':''}>${v.toLocaleString()}</td>`; });
+  expBody+=`<td class="warn"><strong>${topCats[maxIdx]}</strong></td></tr>`;
+});
+expBody+='</tbody>';
+expTopTbl.innerHTML=expHead2+expBody;
+
+// ===== DIAGNOSIS =====
+const diagTbl=document.getElementById('diagTable');
+const diagHead=`<thead><tr><th>الشهر</th><th>الإيرادات</th><th>ربح/خسارة</th><th>%</th><th>ضغط الكاش</th><th>الإيجار</th><th>الرواتب/الهامش</th><th>التقييم</th></tr></thead>`;
+let diagBody='<tbody>';
+months.forEach((m,i)=>{
+  const p=profit_actual[i], surp=cash_surplus[i];
+  const rentLoad=(rent_actual[i]/revenue[i]*100).toFixed(0);
+  const salLoad=(salaries[i]/faida[i]*100).toFixed(0);
+  let status='', statusClass='';
+  if(revenue[i]<200000&&p<0){status='⚠️ ضعيف هيكلي';statusClass='loss';}
+  else if(rent_actual[i]>40000){status='🏠 شهر إيجار';statusClass='warn';}
+  else if(p>15000){status='✅ جيد';statusClass='profit';}
+  else if(p>0){status='➕ هامشي';statusClass='neutral';}
+  else{status='🔴 خسارة';statusClass='loss';}
+  diagBody+=`<tr>
+    <td class="lbl">${m}</td>
+    <td>${revenue[i].toLocaleString()}</td>
+    <td class="${p>=0?'profit':'loss'}">${p>=0?'+':''}${p.toLocaleString()}</td>
+    <td class="${p>=0?'profit':'loss'}">${profit_pct[i]}%</td>
+    <td class="${surp>5000?'profit':surp<1000?'loss':'neutral'}">${surp.toLocaleString()}</td>
+    <td class="${rent_actual[i]>40000?'warn':''}">${rentLoad}%</td>
+    <td class="${+salLoad>100?'loss':+salLoad>70?'warn':''}">${salLoad}%</td>
+    <td class="${statusClass}"><strong>${status}</strong></td>
+  </tr>`;
+});
+diagBody+='</tbody>';
+diagTbl.innerHTML=diagHead+diagBody;
+
+// Ratio chart
+new Chart(document.getElementById('ratioChart'),{type:'line',data:{labels:months,datasets:[
+  {label:'موردون/إيراد',data:suppliers_paid.map((v,i)=>+(v/revenue[i]*100).toFixed(1)),borderColor:C.red,fill:false,tension:.3,pointRadius:3},
+  {label:'مصاريف/إيراد',data:opex_actual.map((v,i)=>+(v/revenue[i]*100).toFixed(1)),borderColor:C.orange,fill:false,tension:.3,pointRadius:3},
+  {label:'هامش 15%',data:months.map(()=>15),borderColor:C.green,borderDash:[5,5],fill:false,pointRadius:0},
+]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{font}}},scales:{y:{ticks:{callback:v=>v+'%',font},grid:{color:'#f1f5f9'},min:0},x:{ticks:{font:{...font,size:9}}}}}});
+
+// Gap chart
+new Chart(document.getElementById('gapChart'),{type:'bar',data:{labels:months,datasets:[{label:'فجوة (مدفوع−مشتريات)',data:supplier_gap,backgroundColor:supplier_gap.map(v=>v>0?C.red:C.green),borderRadius:5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.raw>0?'سداد ديون قديمة: ':'استدانة جديدة: '}${Math.abs(ctx.raw).toLocaleString()} ريال`}}},scales:{y:{ticks:{callback:v=>(v/1000)+'K',font},grid:{color:'#f1f5f9'}},x:{ticks:{font:{...font,size:9}}}}}});
+
+// Tab switching
+function showTab(id){
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  event.target.classList.add('active');
+}
+</script>
+</body>
+</html>
