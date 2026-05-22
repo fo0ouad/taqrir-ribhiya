@@ -1046,6 +1046,7 @@
 </div>
 
 <script>
+
 const MONTHS = ["يناير 25", "فبراير 25", "مارس 25", "أبريل 25", "مايو 25", "يونيو 25", "يوليو 25", "أغسطس 25", "سبتمبر 25", "أكتوبر 25", "نوفمبر 25", "ديسمبر 25", "يناير 26", "فبراير 26", "مارس 26", "أبريل 26"];
 const REVENUES = [285038, 548674, 532048, 288659, 450582, 417150, 316654, 267659, 182358, 181199, 468087, 399272, 253649, 467264, 297333, 236283];
 const GROSS_MARGINS = [42756, 82301, 79807, 43299, 67587, 62573, 47498, 40149, 27354, 27180, 65052, 56408, 37987, 70022, 44600, 35442];
@@ -1065,8 +1066,7 @@ const CUSTOMERS = [{"name": "متعب العتيبي", "branch_m": 0, "branch_h"
 const SUPPLIERS = [{"name": "ثوب السفير - سند امر", "opening_balance": 28448.34, "paid": 24000.0, "discount": 4448.34, "remaining": 0.0, "status": "تم التصفية", "notes": "تم السداد", "monthly_payment": 0, "total_paid": 24000.0}, {"name": "مؤسسة غريفين", "opening_balance": 4189.77, "paid": 1700.0, "discount": 2489.77, "remaining": 0.0, "status": "تم التصفية", "notes": "تم السداد", "monthly_payment": 0.0, "total_paid": 1700.0}, {"name": "أبو شام السوري", "opening_balance": 6560.0, "paid": 4500.0, "discount": 2060.0, "remaining": 0.0, "status": "تم التصفية", "notes": "تم السداد", "monthly_payment": 0.0, "total_paid": 4500.0}, {"name": "شركة كروزا للتجارة", "opening_balance": 567.0, "paid": 500.0, "discount": 67.0, "remaining": 0.0, "status": "تم التصفية", "notes": "تم السداد", "monthly_payment": 0.0, "total_paid": 500.0}, {"name": "مؤسسة أصالة الأنيق للمحلابس - فتحي", "opening_balance": 1000.0, "paid": 500.0, "discount": 500.0, "remaining": 0.0, "status": "تم التصفية", "notes": "تم السداد", "monthly_payment": 0, "total_paid": 500.0}, {"name": "مؤسسة قلوب الاخوين", "opening_balance": 700.0, "paid": 500.0, "discount": 200.0, "remaining": 0.0, "status": "تم التصفية", "notes": "تم السداد", "monthly_payment": 0, "total_paid": 500.0}, {"name": "شركة خيوط الفخامة التجارية", "opening_balance": 5475.0, "paid": 3900.0, "discount": 1575.0, "remaining": 0.0, "status": "تم التصفية", "notes": "تم السداد", "monthly_payment": 0.0, "total_paid": 3900.0}, {"name": "شركة إسدام العربية", "opening_balance": 1293.0, "paid": 1290.0, "discount": 3.0, "remaining": 0.0, "status": "تم التصفية", "notes": "تم السداد", "monthly_payment": 0.0, "total_paid": 1290.0}, {"name": "مؤسسة نجاح الشمري - زكريا", "opening_balance": 15795.0, "paid": 10500.0, "discount": 5295.0, "remaining": 0.0, "status": "تم التصفية", "notes": "تم السداد", "monthly_payment": 0.0, "total_paid": 10500.0}, {"name": "عبدالعزيز عتين", "opening_balance": 2240.0, "paid": 1900.0, "discount": 340.0, "remaining": 0.0, "status": "تم التصفية", "notes": "تم السداد", "monthly_payment": 0.0, "total_paid": 1900.0}, {"name": "مؤسسة خالد زعيل للتجارة", "opening_balance": 2141.0, "paid": 2000.0, "discount": 141.0, "remaining": 0.0, "status": "تم التصفية", "notes": "تم السداد", "monthly_payment": 0.0, "total_paid": 2000.0}, {"name": "ايكاف", "opening_balance": 1094.0, "paid": 1000.0, "discount": 94.0, "remaining": 0.0, "status": "تم التصفية", "notes": "تم السداد", "monthly_payment": 0, "total_paid": 1000.0}, {"name": "شركة أبناء محمد السعد العجلان - البسام", "opening_balance": 3766.0, "paid": 3766.0, "discount": 0, "remaining": 0.0, "status": "تم التصفية", "notes": "تم السداد", "monthly_payment": 0.0, "total_paid": 3766.0}, {"name": "العجلان - سند الامر", "opening_balance": 100736.56, "paid": 5000.0, "discount": 0, "remaining": 95736.56, "status": "اشعار", "notes": "تم رفع سند الامر وعرض خصم قدره 25%", "monthly_payment": 0.0, "total_paid": 5000.0}, {"name": "ثوب الأصيل - سند الامر", "opening_balance": 40468.0, "paid": 21000.0, "discount": 0, "remaining": 19468.0, "status": "اشعار", "notes": "تم سداد هذا المبلغ من أبو نواف", "monthly_payment": 0.0, "total_paid": 21000.0}, {"name": "مؤسسة دنيا الجوارب", "opening_balance": 3216.9, "paid": 1125.0, "discount": 0, "remaining": 2091.9, "status": "عدم اشعار", "notes": "يأخذ دفع كل شهرين 300", "monthly_payment": 0.0, "total_paid": 1125.0}, {"name": "شركة الإمتياز المحدودة - سند الامر", "opening_balance": 16152.0, "paid": 4120.0, "discount": 0, "remaining": 12032.0, "status": "اشعار", "notes": "يأخذ دفع كل شهر 300 ريال", "monthly_payment": 0.0, "total_paid": 4120.0}, {"name": "شركة زهرة بيرحا للتجارة", "opening_balance": 23300.0, "paid": 15000.0, "discount": 8300.0, "remaining": 0.0, "status": "اشعار", "notes": "تم السداد", "monthly_payment": 0.0, "total_paid": 15000.0}, {"name": "مؤسسة بصمة إمتياز", "opening_balance": 8964.5, "paid": 0.0, "discount": 0, "remaining": 8964.5, "status": "عدم اشعار", "notes": "لم يأخذ دفع و لا يمانع 500 ريال شهريا", "monthly_payment": 0.0, "total_paid": 0.0}, {"name": "شركة الخياطة العربية", "opening_balance": 1300.0, "paid": 1300.0, "discount": 0, "remaining": 0.0, "status": "عدم اشعار", "notes": "تم السداد", "monthly_payment": 0, "total_paid": 1300.0}, {"name": "شركة قطونيل", "opening_balance": 1575.3299999999988, "paid": 1575.33, "discount": 0, "remaining": -1.1368683772161603e-12, "status": "عدم اشعار", "notes": "تم السداد", "monthly_payment": 0.0, "total_paid": 1575.33}, {"name": "شركة ملبوسات الإبداع", "opening_balance": 900.0, "paid": 0.0, "discount": 0, "remaining": 900.0, "status": "تصفية حساب", "notes": " لا يمانع من سداده عن طريق الدفع", "monthly_payment": 0.0, "total_paid": 0.0}, {"name": "مؤسسة عالم التذكار", "opening_balance": 1050.0, "paid": 1000.0, "discount": 50.0, "remaining": 0.0, "status": "عدم اشعار", "notes": "تم السداد", "monthly_payment": 0.0, "total_paid": 1000.0}, {"name": "مؤسسة الرجل الأنيق - سند الامر", "opening_balance": 20000.0, "paid": 4500.0, "discount": 0, "remaining": 15500.0, "status": "خصم بتصفية", "notes": "لم يأخذ دفع و لا يمانع 1000 ريال شهريا", "monthly_payment": 0.0, "total_paid": 4500.0}, {"name": "شركة ردائي الدولية", "opening_balance": 4090.0, "paid": 4040.0, "discount": 50.0, "remaining": 0.0, "status": "اشعار", "notes": "تم السداد", "monthly_payment": 0.0, "total_paid": 4040.0}, {"name": "شركة نخبة العود التجارية - العسلي", "opening_balance": 1159.5, "paid": 0.0, "discount": 0, "remaining": 1159.5, "status": "عدم اشعار", "notes": "لم يأخذ دفع و لا يمانع 200 ريال شهريا", "monthly_payment": 0.0, "total_paid": 0.0}, {"name": "مؤسسة منى اليامي - الخياط فيصل", "opening_balance": 5200.0, "paid": 3520.0, "discount": 0, "remaining": 1680.0, "status": "اشعار", "notes": "يأخذ دفع كل شهر 300", "monthly_payment": 0.0, "total_paid": 3520.0}, {"name": "شركة دنيا الأصواف للتجارة المحدودة -الشياكة - سند امر", "opening_balance": 66717.58, "paid": 30600.0, "discount": 0, "remaining": 36117.58, "status": "اشعار", "notes": "له سند خارجي ب 11535 ريال", "monthly_payment": 0.0, "total_paid": 30600.0}, {"name": "مؤسسة تميز المنتجات الحديثة للتجارة - سند امر", "opening_balance": 26936.0, "paid": 9050.0, "discount": 7386.0, "remaining": 10500.0, "status": "اشعار", "notes": "تم الاتفاق معه على خصم 3836 ريال", "monthly_payment": 0.0, "total_paid": 9050.0}, {"name": "شركة محمد سراج عطار واخويه - سند امر", "opening_balance": 9407.0, "paid": 1000.0, "discount": 0, "remaining": 8407.0, "status": "اشعار", "notes": "لم يأخذ دفع و لا يمانع 500 ريال شهريا", "monthly_payment": 0.0, "total_paid": 1000.0}, {"name": "شركة الدفة - سند امر", "opening_balance": 51368.62, "paid": 46164.0, "discount": 5204.62, "remaining": 0.0, "status": "اشعار", "notes": "تم السداد", "monthly_payment": 0.0, "total_paid": 46164.0}, {"name": "شركة نماء العربية للألبسة المحدودة - سند امر - مرفوع", "opening_balance": 39457.65, "paid": 0.0, "discount": 0, "remaining": 39457.65, "status": "مرفوع", "notes": "رفع سند الامر وعرض خصم قدره 9457 ريال", "monthly_payment": 0, "total_paid": 0.0}, {"name": "نجاح الشمري _ محمد", "opening_balance": 1100.0, "paid": 1000.0, "discount": 100.0, "remaining": 0.0, "status": "تصفية حساب", "notes": "تم السداد", "monthly_payment": 0, "total_paid": 1000.0}, {"name": "مؤسسة لباس الأصلية للتجارة", "opening_balance": 2880.0, "paid": 500.0, "discount": 0, "remaining": 2380.0, "status": "عدم اشعار", "notes": " يعطي ل المهندس طارق 2000 ريال دفعه مسبقا للمورد أما المتبقي 380 يريد خصم 80 ريال", "monthly_payment": 0.0, "total_paid": 500.0}, {"name": "شركة مجمع الشنط الراقية المحدودة", "opening_balance": 3831.68, "paid": 1925.0, "discount": 0, "remaining": 1906.6799999999998, "status": "اشعار", "notes": "لم يأخذ دفع و لا يمانع 300 ريال شهريا", "monthly_payment": 0.0, "total_paid": 1925.0}, {"name": "مؤسسة سيف التجارية", "opening_balance": 11639.0, "paid": 7580.0, "discount": 0, "remaining": 4059.0, "status": "اشعار", "notes": "يأخذ دفع كل شهر 500 ريال", "monthly_payment": 0.0, "total_paid": 7580.0}, {"name": "مؤسسة الجمال الحقيقي", "opening_balance": 769.5, "paid": 700.0, "discount": 69.5, "remaining": 0.0, "status": "تصفية حساب", "notes": "تم السداد", "monthly_payment": 0.0, "total_paid": 700.0}, {"name": "مؤسسة هدف الثقة", "opening_balance": 1242.0, "paid": 1150.0, "discount": 92.0, "remaining": 0.0, "status": "اشعار", "notes": "تم السداد", "monthly_payment": 0.0, "total_paid": 1150.0}, {"name": "أرجنتوا", "opening_balance": 750.0, "paid": 750.0, "discount": 0, "remaining": 0, "status": "", "notes": "تم السداد", "monthly_payment": 0, "total_paid": 750.0}];
 const CATS = ["رواتب", "مصاريف المشغل", "إيجار", "رسوم بنكية", "عمولات مشتركة", "نقل", "مصاريف حكومية", "رسوم مرافقين", "مصاريف عائلة", "الزكاة والدخل", "تأمينات", "كهرباء الفروع", "اتصالات", "مستحقات سابقة رجالي", "أخرى"];
 const CAT_COLORS = {"رواتب": "#3B82F6", "مصاريف المشغل": "#8B5CF6", "إيجار": "#EF4444", "رسوم بنكية": "#F59E0B", "عمولات مشتركة": "#F97316", "نقل": "#EC4899", "مصاريف حكومية": "#10B981", "رسوم مرافقين": "#06B6D4", "مصاريف عائلة": "#6B7280", "الزكاة والدخل": "#7C3AED", "تأمينات": "#14B8A6", "كهرباء الفروع": "#84CC16", "اتصالات": "#F43F5E", "مستحقات سابقة رجالي": "#DC2626", "أخرى": "#9CA3AF"};
-
-// ===== TABS =====
+</script>
 
 <!-- ===== TAB 5: التقرير التحليلي الشامل ===== -->
 <div id="tab-report" class="tab-content">
@@ -1423,6 +1423,166 @@ const CAT_COLORS = {"رواتب": "#3B82F6", "مصاريف المشغل": "#8B5C
     </div>
   </div>
 
+  <!-- القسم 7: تحليل شهر أبريل 2026 -->
+  <div class="table-card" style="border-right: 4px solid #7c3aed">
+    <h3>7️⃣ 📅 تحليل شهر أبريل 2026</h3>
+
+    <!-- بطاقات KPI -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:18px">
+      <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:14px;text-align:center">
+        <div style="font-size:0.75rem;color:#166534;margin-bottom:4px">إجمالي الإيرادات</div>
+        <div style="font-size:1.4rem;font-weight:800;color:#15803d">236,283 ر</div>
+      </div>
+      <div style="background:#fff1f2;border:1px solid #fecdd3;border-radius:10px;padding:14px;text-align:center">
+        <div style="font-size:0.75rem;color:#9f1239;margin-bottom:4px">الربح التقديري</div>
+        <div style="font-size:1.4rem;font-weight:800;color:#dc2626">−21,389 ر</div>
+        <div style="font-size:0.7rem;color:#9f1239">−9.1% من الإيراد</div>
+      </div>
+      <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:14px;text-align:center">
+        <div style="font-size:0.75rem;color:#92400e;margin-bottom:4px">المصاريف</div>
+        <div style="font-size:1.4rem;font-weight:800;color:#b45309">56,831 ر</div>
+        <div style="font-size:0.7rem;color:#92400e">24.1% من الإيراد</div>
+      </div>
+      <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:14px;text-align:center">
+        <div style="font-size:0.75rem;color:#1e40af;margin-bottom:4px">المدفوع للموردين</div>
+        <div style="font-size:1.4rem;font-weight:800;color:#1d4ed8">180,385 ر</div>
+      </div>
+      <div style="background:#faf5ff;border:1px solid #e9d5ff;border-radius:10px;padding:14px;text-align:center">
+        <div style="font-size:0.75rem;color:#6b21a8;margin-bottom:4px">المشتريات</div>
+        <div style="font-size:1.4rem;font-weight:800;color:#7c3aed">88,826 ر</div>
+      </div>
+    </div>
+
+    <!-- 1. الربحية -->
+    <h4 style="color:#1e3a5f;border-bottom:2px solid #e2e8f0;padding-bottom:6px;margin-bottom:10px">💰 الربحية</h4>
+    <div style="background:#fff7ed;border-right:4px solid #f97316;padding:12px 14px;border-radius:6px;font-size:0.88rem;color:#7c2d12;margin-bottom:14px;line-height:1.8">
+      الربح التقديري لأبريل <strong>سالب (−21,389 ر)</strong> بسبب عاملين رئيسيين:<br>
+      • <strong>رواتب متأخرة:</strong> دُفعت رواتب 5 موظفين عن أشهر سابقة (مارس وفبراير ويناير) بإجمالي <strong>9,800 ر</strong> — لو استُبعدت لأصبح الربح التقديري <strong>−11,589 ر</strong>.<br>
+      • <strong>مصاريف الإقامة والمرافقين:</strong> 12,750 ر في شهر واحد (تجديد إقامتين + رسوم مرافقين) — هذه مصاريف دورية لكنها تضغط على الأشهر التي تقع فيها.<br>
+      • <strong>الفائض التشغيلي الفعلي</strong> (إيراد − مصاريف) = <strong>+179,452 ر</strong> — المحل يولّد نقداً جيداً، لكن الهامش المحسوب (15%) لا يغطي المصاريف المرتفعة هذا الشهر.
+    </div>
+
+    <!-- 2. السيولة -->
+    <h4 style="color:#1e3a5f;border-bottom:2px solid #e2e8f0;padding-bottom:6px;margin-bottom:10px">💧 السيولة النقدية</h4>
+    <table style="margin-bottom:14px">
+      <thead><tr><th>البند</th><th>القيمة</th><th>الملاحظة</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>الفائض التشغيلي</td>
+          <td style="color:#15803d;font-weight:700">+179,452 ر</td>
+          <td>إيرادات − مصاريف</td>
+        </tr>
+        <tr>
+          <td>المدفوع للموردين</td>
+          <td style="color:#dc2626">−180,385 ر</td>
+          <td>أكثر من المشتريات بـ 91,559 ر (سداد ديون)</td>
+        </tr>
+        <tr style="background:#fff1f2">
+          <td><strong>الفائض النقدي الصافي</strong></td>
+          <td style="color:#dc2626;font-weight:700">−933 ر</td>
+          <td>شبه تعادل — السيولة ضيقة جداً</td>
+        </tr>
+        <tr>
+          <td>فجوة الموردين</td>
+          <td style="color:#dc2626">−91,559 ر</td>
+          <td>دُفع للموردين أكثر من المشتريات (سداد ديون سابقة)</td>
+        </tr>
+      </tbody>
+    </table>
+    <div style="background:#f0f9ff;border-right:4px solid #0ea5e9;padding:10px 14px;border-radius:6px;font-size:0.85rem;color:#0c4a6e;margin-bottom:14px">
+      <strong>📌 ملاحظة السيولة:</strong> الفائض النقدي شبه صفر (−933 ر) رغم إيرادات 236 ألف ريال، والسبب هو دفع 180 ألف للموردين — منها 91 ألف سداد لديون قديمة. هذا النمط يتكرر منذ 2025 وهو المسبب الرئيسي لضيق السيولة.
+    </div>
+
+    <!-- 3. المبيعات والنمو -->
+    <h4 style="color:#1e3a5f;border-bottom:2px solid #e2e8f0;padding-bottom:6px;margin-bottom:10px">📈 المبيعات والمقارنة</h4>
+    <table style="margin-bottom:14px">
+      <thead><tr><th>المقارنة</th><th>القيمة السابقة</th><th>أبريل 26</th><th>التغيير</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>مقابل مارس 2026</td>
+          <td>297,333 ر</td>
+          <td>236,283 ر</td>
+          <td style="color:#dc2626;font-weight:700">▼ 61,050 ر (−20.5%)</td>
+        </tr>
+        <tr>
+          <td>مقابل أبريل 2025</td>
+          <td>288,659 ر</td>
+          <td>236,283 ر</td>
+          <td style="color:#dc2626;font-weight:700">▼ 52,376 ر (−18.1%)</td>
+        </tr>
+        <tr>
+          <td>مصاريف مقابل مارس 26</td>
+          <td>65,880 ر</td>
+          <td>56,831 ر</td>
+          <td style="color:#15803d">▼ 9,049 ر (−13.7%) ✅</td>
+        </tr>
+        <tr>
+          <td>مصاريف مقابل أبريل 2025</td>
+          <td>48,810 ر</td>
+          <td>56,831 ر</td>
+          <td style="color:#dc2626">▲ 8,021 ر (+16.4%)</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- 4. تحليل المصاريف -->
+    <h4 style="color:#1e3a5f;border-bottom:2px solid #e2e8f0;padding-bottom:6px;margin-bottom:10px">📊 تحليل المصاريف (56,831 ر)</h4>
+    <table style="margin-bottom:14px">
+      <thead><tr><th>الفئة</th><th>المبلغ</th><th>النسبة</th><th>الملاحظة</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>رواتب (شاملة المتأخرة)</td>
+          <td>24,160 ر</td>
+          <td>42.5%</td>
+          <td style="color:#dc2626">مرتفعة — تشمل رواتب 3 أشهر سابقة</td>
+        </tr>
+        <tr>
+          <td>رسوم مرافقين وإقامة</td>
+          <td>12,750 ر</td>
+          <td>22.4%</td>
+          <td>دورية — تقع كل تجديد إقامة</td>
+        </tr>
+        <tr>
+          <td>مصاريف عائلة (سحوبات)</td>
+          <td>9,974 ر</td>
+          <td>17.6%</td>
+          <td>ماء البيت + كهرباء + الجمعية</td>
+        </tr>
+        <tr>
+          <td>ربح تمويل</td>
+          <td>3,800 ر</td>
+          <td>6.7%</td>
+          <td>تكلفة تمويل</td>
+        </tr>
+        <tr>
+          <td>بنك وعمولات</td>
+          <td>1,939 ر</td>
+          <td>3.4%</td>
+          <td>طبيعي</td>
+        </tr>
+        <tr>
+          <td>أخرى (نقل، اتصالات، صيانة، إلخ)</td>
+          <td>4,208 ر</td>
+          <td>7.4%</td>
+          <td>—</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- 5. الخلاصة والتوقعات -->
+    <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:16px;margin-top:4px">
+      <div style="font-size:0.95rem;font-weight:800;color:#15803d;margin-bottom:10px">🎯 خلاصة أبريل وتوقعات مايو</div>
+      <div style="font-size:0.88rem;color:#374151;line-height:1.9">
+        أبريل 2026 شهر <strong>ضعيف في المبيعات</strong> (−18% عن أبريل 2025) لكن <strong>مقبول في المصاريف</strong> (−13.7% عن مارس). الخسارة التقديرية مبالغ فيها بسبب تراكم الرواتب المتأخرة والإقامات في شهر واحد.<br><br>
+        <strong>ما يستحق الانتباه:</strong><br>
+        • المبيعات لا تزال دون مستوى 2025 في نفس الشهر — هذا الاتجاه يحتاج مراقبة.<br>
+        • المشتريات (88,826 ر) جيدة — هذا يعني تجديد المخزون بعد الانخفاض الكبير.<br>
+        • إذا استمر سداد الديون بهذا المعدل (91 ألف فوق المشتريات)، ستتحسن السيولة تدريجياً.<br><br>
+        <strong>توقع مايو:</strong> مايو تاريخياً أقوى من أبريل (450 ألف في 2025). إذا تحسنت المبيعات مع تجديد المخزون، يُتوقع عودة الربح التقديري للإيجابية.
+      </div>
+    </div>
+  </div>
+
   <!-- خلاصة ختامية -->
   <div style="background:linear-gradient(135deg,#f0fdf4,#eff6ff);border:1px solid #bbf7d0;border-radius:12px;padding:20px;margin-top:4px">
     <div style="font-size:1rem;font-weight:800;color:#1e3a5f;margin-bottom:10px">🎯 الخلاصة النهائية</div>
@@ -1433,6 +1593,7 @@ const CAT_COLORS = {"رواتب": "#3B82F6", "مصاريف المشغل": "#8B5C
 
 </div>
 
+<script>
 function switchTab(id) {
   document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
