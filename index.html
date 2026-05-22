@@ -189,19 +189,21 @@
           <th onclick="sortTable('summary-table',0)">الشهر ↕</th>
           <th onclick="sortTable('summary-table',1)">الإيراد ↕</th>
           <th onclick="sortTable('summary-table',2)">هامش 15% ↕</th>
-          <th onclick="sortTable('summary-table',3)">المصاريف ↕</th>
-          <th onclick="sortTable('summary-table',4)" title="هامش 15% − مصاريف" style="background:#1a4a7a;cursor:help">ربح تقديري ↕ ℹ️</th>
-          <th onclick="sortTable('summary-table',5)" title="مبيعات − مصاريف" style="background:#1a4a7a;cursor:help">فائض تشغيلي ↕ ℹ️</th>
-          <th onclick="sortTable('summary-table',6)" title="مبيعات − مصاريف − موردين مدفوع" style="background:#1a4a7a;cursor:help">فائض نقدي ↕ ℹ️</th>
-          <th onclick="sortTable('summary-table',7)">موردين مدفوع ↕</th>
-          <th onclick="sortTable('summary-table',8)">مشتريات ↕</th>
-          <th onclick="sortTable('summary-table',9)">فجوة الموردين ↕</th>
+          <th onclick="sortTable('summary-table',2.5)" title="نسبة الهامش من الإيراد" style="background:#1a4a7a;cursor:help">هامش % ↕ ℹ️</th>
+          <th onclick="sortTable('summary-table',4)">المصاريف ↕</th>
+          <th onclick="sortTable('summary-table',5)" title="هامش 15% − مصاريف" style="background:#1a4a7a;cursor:help">ربح تقديري ↕ ℹ️</th>
+          <th onclick="sortTable('summary-table',6)" title="مبيعات − مصاريف" style="background:#1a4a7a;cursor:help">فائض تشغيلي ↕ ℹ️</th>
+          <th onclick="sortTable('summary-table',7)" title="مبيعات − مصاريف − موردين مدفوع" style="background:#1a4a7a;cursor:help">فائض نقدي ↕ ℹ️</th>
+          <th onclick="sortTable('summary-table',8)">موردين مدفوع ↕</th>
+          <th onclick="sortTable('summary-table',9)">مشتريات ↕</th>
+          <th onclick="sortTable('summary-table',10)">فجوة الموردين ↕</th>
         </tr>
       </thead>
       <tbody id="summary-tbody"><tr onclick="openMonthDetail('يناير 25')">
 <td style="font-weight:600;color:#1e3a5f;text-decoration:underline;text-underline-offset:3px">يناير 25</td>
 <td>285,038</td>
 <td>42,756</td>
+<td style="color:#15803d;font-weight:700">15.0%</td>
 <td>91,363</td>
 <td style="color:#dc2626;font-weight:700">-48,607</td>
 <td style="color:#16a34a;font-weight:700">+193,675</td>
@@ -213,6 +215,7 @@
 <td style="font-weight:600;color:#1e3a5f;text-decoration:underline;text-underline-offset:3px">فبراير 25</td>
 <td>548,674</td>
 <td>82,301</td>
+<td style="color:#15803d;font-weight:700">15.0%</td>
 <td>67,611</td>
 <td style="color:#16a34a;font-weight:700">+14,690</td>
 <td style="color:#16a34a;font-weight:700">+481,063</td>
@@ -224,6 +227,7 @@
 <td style="font-weight:600;color:#1e3a5f;text-decoration:underline;text-underline-offset:3px">مارس 25</td>
 <td>532,048</td>
 <td>79,807</td>
+<td style="color:#15803d;font-weight:700">15.0%</td>
 <td>124,379</td>
 <td style="color:#dc2626;font-weight:700">-44,572</td>
 <td style="color:#16a34a;font-weight:700">+407,669</td>
@@ -235,6 +239,7 @@
 <td style="font-weight:600;color:#1e3a5f;text-decoration:underline;text-underline-offset:3px">أبريل 25</td>
 <td>288,659</td>
 <td>43,299</td>
+<td style="color:#15803d;font-weight:700">15.0%</td>
 <td>48,810</td>
 <td style="color:#dc2626;font-weight:700">-5,511</td>
 <td style="color:#16a34a;font-weight:700">+239,849</td>
@@ -246,6 +251,7 @@
 <td style="font-weight:600;color:#1e3a5f;text-decoration:underline;text-underline-offset:3px">مايو 25</td>
 <td>450,582</td>
 <td>67,587</td>
+<td style="color:#15803d;font-weight:700">15.0%</td>
 <td>59,338</td>
 <td style="color:#16a34a;font-weight:700">+8,249</td>
 <td style="color:#16a34a;font-weight:700">+391,244</td>
@@ -257,6 +263,7 @@
 <td style="font-weight:600;color:#1e3a5f;text-decoration:underline;text-underline-offset:3px">يونيو 25</td>
 <td>417,150</td>
 <td>62,573</td>
+<td style="color:#15803d;font-weight:700">15.0%</td>
 <td>80,794</td>
 <td style="color:#dc2626;font-weight:700">-18,221</td>
 <td style="color:#16a34a;font-weight:700">+336,356</td>
@@ -268,6 +275,7 @@
 <td style="font-weight:600;color:#1e3a5f;text-decoration:underline;text-underline-offset:3px">يوليو 25</td>
 <td>316,654</td>
 <td>47,498</td>
+<td style="color:#15803d;font-weight:700">15.0%</td>
 <td>104,640</td>
 <td style="color:#dc2626;font-weight:700">-57,142</td>
 <td style="color:#16a34a;font-weight:700">+212,014</td>
@@ -279,6 +287,7 @@
 <td style="font-weight:600;color:#1e3a5f;text-decoration:underline;text-underline-offset:3px">أغسطس 25</td>
 <td>267,659</td>
 <td>40,149</td>
+<td style="color:#15803d;font-weight:700">15.0%</td>
 <td>49,409</td>
 <td style="color:#dc2626;font-weight:700">-9,260</td>
 <td style="color:#16a34a;font-weight:700">+218,250</td>
@@ -290,6 +299,7 @@
 <td style="font-weight:600;color:#1e3a5f;text-decoration:underline;text-underline-offset:3px">سبتمبر 25</td>
 <td>182,358</td>
 <td>27,354</td>
+<td style="color:#15803d;font-weight:700">15.0%</td>
 <td>50,369</td>
 <td style="color:#dc2626;font-weight:700">-23,015</td>
 <td style="color:#16a34a;font-weight:700">+131,989</td>
@@ -301,6 +311,7 @@
 <td style="font-weight:600;color:#1e3a5f;text-decoration:underline;text-underline-offset:3px">أكتوبر 25</td>
 <td>181,199</td>
 <td>27,180</td>
+<td style="color:#15803d;font-weight:700">15.0%</td>
 <td>40,460</td>
 <td style="color:#dc2626;font-weight:700">-13,280</td>
 <td style="color:#16a34a;font-weight:700">+140,739</td>
@@ -312,6 +323,7 @@
 <td style="font-weight:600;color:#1e3a5f;text-decoration:underline;text-underline-offset:3px">نوفمبر 25</td>
 <td>468,087</td>
 <td>65,052</td>
+<td style="color:#b45309;font-weight:700">13.9%</td>
 <td>48,745</td>
 <td style="color:#16a34a;font-weight:700">+16,307</td>
 <td style="color:#16a34a;font-weight:700">+419,342</td>
@@ -323,6 +335,7 @@
 <td style="font-weight:600;color:#1e3a5f;text-decoration:underline;text-underline-offset:3px">ديسمبر 25</td>
 <td>399,272</td>
 <td>56,408</td>
+<td style="color:#b45309;font-weight:700">14.1%</td>
 <td>46,429</td>
 <td style="color:#16a34a;font-weight:700">+9,979</td>
 <td style="color:#16a34a;font-weight:700">+352,843</td>
@@ -334,6 +347,7 @@
 <td style="font-weight:600;color:#1e3a5f;text-decoration:underline;text-underline-offset:3px">يناير 26</td>
 <td>253,649</td>
 <td>37,987</td>
+<td style="color:#15803d;font-weight:700">15.0%</td>
 <td>108,598</td>
 <td style="color:#dc2626;font-weight:700">-70,611</td>
 <td style="color:#16a34a;font-weight:700">+145,051</td>
@@ -345,6 +359,7 @@
 <td style="font-weight:600;color:#1e3a5f;text-decoration:underline;text-underline-offset:3px">فبراير 26</td>
 <td>467,264</td>
 <td>70,022</td>
+<td style="color:#15803d;font-weight:700">15.0%</td>
 <td>83,246</td>
 <td style="color:#dc2626;font-weight:700">-13,224</td>
 <td style="color:#16a34a;font-weight:700">+384,018</td>
@@ -356,6 +371,7 @@
 <td style="font-weight:600;color:#1e3a5f;text-decoration:underline;text-underline-offset:3px">مارس 26</td>
 <td>297,333</td>
 <td>44,600</td>
+<td style="color:#15803d;font-weight:700">15.0%</td>
 <td>69,880</td>
 <td style="color:#dc2626;font-weight:700">-25,280</td>
 <td style="color:#16a34a;font-weight:700">+227,453</td>
@@ -368,6 +384,7 @@
 <td style="font-weight:600;color:#1e3a5f;text-decoration:underline;text-underline-offset:3px">أبريل 26</td>
 <td>236,283</td>
 <td>35,442</td>
+<td style="color:#15803d;font-weight:700">15.0%</td>
 <td>56,831</td>
 <td style="color:#dc2626;font-weight:700">-21,389</td>
 <td style="color:#16a34a;font-weight:700">+179,452</td>
