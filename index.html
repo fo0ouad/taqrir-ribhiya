@@ -124,6 +124,7 @@
   <button class="tab-btn" onclick="switchTab('tab-suppliers')">🏪 الموردين</button>
   <button class="tab-btn" onclick="switchTab('tab-customers')">👥 عملاء النسائي</button>
   <button class="tab-btn" onclick="switchTab('tab-report')">📋 التقرير التحليلي</button>
+  <button class="tab-btn" onclick="switchTab('tab-women-suppliers')" id="btn-tab-women-suppliers">👗 موردين النسائي</button>
 </div>
 
 <!-- KPI Cards -->
@@ -397,6 +398,719 @@
   </div>
 </div>
 
+
+
+<!-- ===== تبويب موردين النسائي ===== -->
+<div id="tab-women-suppliers" class="tab-content" style="display:none">
+
+  <!-- بطاقات الإجمالي -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px">
+    <div class="kpi-card" style="border-right:4px solid #dc2626">
+      <div class="kpi-label">إجمالي الديون</div>
+      <div class="kpi-value" style="color:#dc2626">1,333,155</div>
+      <div class="kpi-sub">ريال سعودي — حتى 23/05/2026</div>
+    </div>
+    <div class="kpi-card" style="border-right:4px solid #1e3a5f">
+      <div class="kpi-label">فرع محمد</div>
+      <div class="kpi-value" style="color:#1e3a5f">890,804</div>
+      <div class="kpi-sub">66.8% من الإجمالي</div>
+    </div>
+    <div class="kpi-card" style="border-right:4px solid #0369a1">
+      <div class="kpi-label">فرع هاني</div>
+      <div class="kpi-value" style="color:#0369a1">442,351</div>
+      <div class="kpi-sub">33.2% من الإجمالي</div>
+    </div>
+    <div class="kpi-card" style="border-right:4px solid #15803d">
+      <div class="kpi-label">عدد الموردين</div>
+      <div class="kpi-value" style="color:#15803d">85</div>
+      <div class="kpi-sub">27 مورد بضاعة + 58 مشغل خياطة</div>
+    </div>
+  </div>
+
+  <!-- أزرار الفلترة -->
+  <div style="display:flex;gap:8px;margin-bottom:16px;align-items:center;flex-wrap:wrap">
+    <span style="font-size:0.85rem;color:#64748b;font-weight:600">تصفية حسب الفرع:</span>
+    <button id="ws-filter-all" onclick="filterWomenSuppliers('all')"
+      style="padding:5px 14px;border-radius:20px;border:1.5px solid #1e3a5f;background:#1e3a5f;color:#fff;font-size:0.82rem;cursor:pointer;font-family:inherit">
+      الكل (85)
+    </button>
+    <button id="ws-filter-m" onclick="filterWomenSuppliers('m')"
+      style="padding:5px 14px;border-radius:20px;border:1.5px solid #1e3a5f;background:#fff;color:#1e3a5f;font-size:0.82rem;cursor:pointer;font-family:inherit">
+      فرع محمد فقط
+    </button>
+    <button id="ws-filter-h" onclick="filterWomenSuppliers('h')"
+      style="padding:5px 14px;border-radius:20px;border:1.5px solid #1e3a5f;background:#fff;color:#1e3a5f;font-size:0.82rem;cursor:pointer;font-family:inherit">
+      فرع هاني فقط
+    </button>
+    <button id="ws-filter-both" onclick="filterWomenSuppliers('both')"
+      style="padding:5px 14px;border-radius:20px;border:1.5px solid #15803d;background:#fff;color:#15803d;font-size:0.82rem;cursor:pointer;font-family:inherit">
+      الفرعين معاً
+    </button>
+  </div>
+
+  <!-- جدول موردين البضاعة -->
+  <div class="table-card" style="margin-bottom:24px">
+    <h3 style="margin-bottom:12px">🏪 موردين البضاعة
+      <span style="font-size:0.85rem;font-weight:400;color:#64748b;margin-right:8px">
+        (27 مورد — إجمالي: <strong style="color:#dc2626">833,416 ر</strong>)
+      </span>
+    </h3>
+    <div style="overflow-x:auto">
+      <table id="goods-suppliers-table" style="width:100%;border-collapse:collapse;font-size:0.88rem">
+        <thead>
+          <tr>
+            <th onclick="sortWomenTable('goods-suppliers-table',0)" style="cursor:pointer">اسم المورد ↕</th>
+            <th onclick="sortWomenTable('goods-suppliers-table',1)" class="branch-m-col" style="cursor:pointer;color:#1e3a5f">فرع محمد ↕</th>
+            <th onclick="sortWomenTable('goods-suppliers-table',2)" class="branch-h-col" style="cursor:pointer;color:#0369a1">فرع هاني ↕</th>
+            <th onclick="sortWomenTable('goods-suppliers-table',3)" style="cursor:pointer">الإجمالي ↕</th>
+            <th>خطة السداد</th>
+          </tr>
+        </thead>
+        <tbody id="goods-suppliers-body">
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">شركة درة النسيج</td>
+<td class="branch-m-col">262,272</td>
+<td class="branch-h-col">37,950</td>
+<td style="color:#dc2626;font-weight:700">300,222</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 4000</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">مؤسسة الشريعة و الحياة</td>
+<td class="branch-m-col">59,350</td>
+<td class="branch-h-col">118,000</td>
+<td style="color:#dc2626;font-weight:700">177,350</td>
+<td style="font-size:0.82rem;color:#64748b">حساب جاري</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">مؤسسة المدى المحدودة - معمر</td>
+<td class="branch-m-col">28,500</td>
+<td class="branch-h-col">28,000</td>
+<td style="color:#dc2626;font-weight:700">56,500</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 1000</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مايك - التل البوشية</td>
+<td class="branch-m-col">34,616</td>
+<td class="branch-h-col">—</td>
+<td style="color:#b45309;font-weight:700">34,616</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 1000</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">مؤسسة يوسف البارقي</td>
+<td class="branch-m-col">11,000</td>
+<td class="branch-h-col">21,000</td>
+<td style="color:#b45309;font-weight:700">32,000</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 2000</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مؤسسة أمان أمنه -عمران</td>
+<td class="branch-m-col">31,400</td>
+<td class="branch-h-col">—</td>
+<td style="color:#b45309;font-weight:700">31,400</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 2000</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">شركة نواف الذهبية - سلفة خليل</td>
+<td class="branch-m-col">29,555</td>
+<td class="branch-h-col">—</td>
+<td style="color:#b45309;font-weight:700">29,555</td>
+<td style="font-size:0.82rem;color:#64748b">لم يطلبها</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">شركة لمسات الهدى - عبدالباسط</td>
+<td class="branch-m-col">9,585</td>
+<td class="branch-h-col">18,150</td>
+<td style="color:#b45309;font-weight:700">27,735</td>
+<td style="font-size:0.82rem;color:#64748b">لم يطلبها </td>
+</tr>
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">مؤسسة منى اليامي - امتياز</td>
+<td class="branch-m-col">7,800</td>
+<td class="branch-h-col">15,000</td>
+<td style="color:#b45309;font-weight:700">22,800</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 500</td>
+</tr>
+<tr data-branch-m="false" data-branch-h="true">
+<td style="font-weight:600">مؤسسة بصمة وفاء</td>
+<td class="branch-m-col">—</td>
+<td class="branch-h-col">21,476</td>
+<td style="color:#b45309;font-weight:700">21,476</td>
+<td style="font-size:0.82rem;color:#64748b">—</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">فنون الموضه</td>
+<td class="branch-m-col">19,350</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">19,350</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 1000</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">جوهرة التوفير - عبدالاله</td>
+<td class="branch-m-col">6,010</td>
+<td class="branch-h-col">7,360</td>
+<td style="color:#15803d;font-weight:700">13,370</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 500</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">منير المهري - سوق القدس</td>
+<td class="branch-m-col">12,570</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">12,570</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 1400</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">المشيطي</td>
+<td class="branch-m-col">9,123</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">9,123</td>
+<td style="font-size:0.82rem;color:#64748b">حسب شراءه</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مؤسسة نصف القمر- عبدالله جده</td>
+<td class="branch-m-col">7,660</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">7,660</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 1500</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">معرض الكلف - باغازي - جده</td>
+<td class="branch-m-col">6,629</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">6,629</td>
+<td style="font-size:0.82rem;color:#64748b">لم يطلبها</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">ريتاج</td>
+<td class="branch-m-col">6,335</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">6,335</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 400</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">عثمان - هامات</td>
+<td class="branch-m-col">4,470</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">4,470</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 300</td>
+</tr>
+<tr data-branch-m="false" data-branch-h="true">
+<td style="font-weight:600">الشاطر للأقمشة</td>
+<td class="branch-m-col">—</td>
+<td class="branch-h-col">4,000</td>
+<td style="color:#15803d;font-weight:700">4,000</td>
+<td style="font-size:0.82rem;color:#64748b">—</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">بامخش - جده</td>
+<td class="branch-m-col">3,860</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">3,860</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 500</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">شركة سيزار المحدودة</td>
+<td class="branch-m-col">3,000</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">3,000</td>
+<td style="font-size:0.82rem;color:#64748b">واجب السداد</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">شركة نسائم الشرق - الأبي</td>
+<td class="branch-m-col">2,485</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">2,485</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 300</td>
+</tr>
+<tr data-branch-m="false" data-branch-h="true">
+<td style="font-weight:600">عدة مشاغل</td>
+<td class="branch-m-col">—</td>
+<td class="branch-h-col">2,200</td>
+<td style="color:#15803d;font-weight:700">2,200</td>
+<td style="font-size:0.82rem;color:#64748b">—</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">الوديان</td>
+<td class="branch-m-col">1,500</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">1,500</td>
+<td style="font-size:0.82rem;color:#64748b">لم يطلبها</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">عبدالرزاق - كلف</td>
+<td class="branch-m-col">1,240</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">1,240</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 300</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">عباس - هامات</td>
+<td class="branch-m-col">1,220</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">1,220</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 100</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مؤسسة صالح البديوي</td>
+<td class="branch-m-col">750</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">750</td>
+<td style="font-size:0.82rem;color:#64748b">لم يطلبها</td>
+</tr>
+        </tbody>
+        <tfoot>
+          <tr style="background:#1e3a5f;color:#fff;font-weight:700">
+            <td>الإجمالي</td>
+            <td class="branch-m-col" id="goods-total-m">560,280</td>
+            <td class="branch-h-col" id="goods-total-h">273,136</td>
+            <td style="color:#fbbf24">833,416</td>
+            <td></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+
+  <!-- جدول مشاغل الخياطة -->
+  <div class="table-card">
+    <h3 style="margin-bottom:12px">✂️ مشاغل الخياطة
+      <span style="font-size:0.85rem;font-weight:400;color:#64748b;margin-right:8px">
+        (58 مشغل — إجمالي: <strong style="color:#dc2626">499,739 ر</strong>)
+      </span>
+    </h3>
+    <div style="overflow-x:auto">
+      <table id="workshops-suppliers-table" style="width:100%;border-collapse:collapse;font-size:0.88rem">
+        <thead>
+          <tr>
+            <th onclick="sortWomenTable('workshops-suppliers-table',0)" style="cursor:pointer">اسم المشغل ↕</th>
+            <th onclick="sortWomenTable('workshops-suppliers-table',1)" class="branch-m-col" style="cursor:pointer;color:#1e3a5f">فرع محمد ↕</th>
+            <th onclick="sortWomenTable('workshops-suppliers-table',2)" class="branch-h-col" style="cursor:pointer;color:#0369a1">فرع هاني ↕</th>
+            <th onclick="sortWomenTable('workshops-suppliers-table',3)" style="cursor:pointer">الإجمالي ↕</th>
+            <th>خطة السداد</th>
+          </tr>
+        </thead>
+        <tbody id="workshops-suppliers-body">
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">مشغل جابر علي</td>
+<td class="branch-m-col">28,150</td>
+<td class="branch-h-col">29,000</td>
+<td style="color:#dc2626;font-weight:700">57,150</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 1000</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">مشغل أمير حمزة</td>
+<td class="branch-m-col">19,330</td>
+<td class="branch-h-col">16,900</td>
+<td style="color:#b45309;font-weight:700">36,230</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 400</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل الصبحي راشد</td>
+<td class="branch-m-col">34,685</td>
+<td class="branch-h-col">—</td>
+<td style="color:#b45309;font-weight:700">34,685</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 2000</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">مشغل أول حسين</td>
+<td class="branch-m-col">17,620</td>
+<td class="branch-h-col">9,300</td>
+<td style="color:#b45309;font-weight:700">26,920</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 500</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">مشغل عبدالستار</td>
+<td class="branch-m-col">19,180</td>
+<td class="branch-h-col">3,480</td>
+<td style="color:#b45309;font-weight:700">22,660</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 300</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">مغسلة المشغل</td>
+<td class="branch-m-col">5,370</td>
+<td class="branch-h-col">16,000</td>
+<td style="color:#b45309;font-weight:700">21,370</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 300</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">مشغل أبو أنس</td>
+<td class="branch-m-col">10,980</td>
+<td class="branch-h-col">7,900</td>
+<td style="color:#15803d;font-weight:700">18,880</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 500</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل منير للخياطة</td>
+<td class="branch-m-col">16,630</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">16,630</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 800</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل وجه القمر - وادي الدواسر</td>
+<td class="branch-m-col">15,168</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">15,168</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 500</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">مشغل فن سهرتي - غلام</td>
+<td class="branch-m-col">9,660</td>
+<td class="branch-h-col">5,400</td>
+<td style="color:#15803d;font-weight:700">15,060</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 300</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">مشغل عناية</td>
+<td class="branch-m-col">12,600</td>
+<td class="branch-h-col">2,400</td>
+<td style="color:#15803d;font-weight:700">15,000</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 200</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل خورشيد</td>
+<td class="branch-m-col">15,000</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">15,000</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 500</td>
+</tr>
+<tr data-branch-m="false" data-branch-h="true">
+<td style="font-weight:600">مشغل مغسلة أنعام</td>
+<td class="branch-m-col">—</td>
+<td class="branch-h-col">14,500</td>
+<td style="color:#15803d;font-weight:700">14,500</td>
+<td style="font-size:0.82rem;color:#64748b">—</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">مشغل صميم ميه</td>
+<td class="branch-m-col">10,890</td>
+<td class="branch-h-col">3,100</td>
+<td style="color:#15803d;font-weight:700">13,990</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 300</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">مشغل أبو عرفات</td>
+<td class="branch-m-col">2,700</td>
+<td class="branch-h-col">9,000</td>
+<td style="color:#15803d;font-weight:700">11,700</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 300</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">مشغل ليتون</td>
+<td class="branch-m-col">4,500</td>
+<td class="branch-h-col">7,090</td>
+<td style="color:#15803d;font-weight:700">11,590</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 200</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">مشغل عبدالرزاق</td>
+<td class="branch-m-col">7,600</td>
+<td class="branch-h-col">3,400</td>
+<td style="color:#15803d;font-weight:700">11,000</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 500</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">مشغل مصطفى</td>
+<td class="branch-m-col">4,830</td>
+<td class="branch-h-col">4,665</td>
+<td style="color:#15803d;font-weight:700">9,495</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 300</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل عبدالجليل</td>
+<td class="branch-m-col">8,880</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">8,880</td>
+<td style="font-size:0.82rem;color:#64748b">لم يطلبها</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">مشغل أم ناصر الباكستانية</td>
+<td class="branch-m-col">3,600</td>
+<td class="branch-h-col">4,500</td>
+<td style="color:#15803d;font-weight:700">8,100</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 300</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل تويل - أبو خالد</td>
+<td class="branch-m-col">7,041</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">7,041</td>
+<td style="font-size:0.82rem;color:#64748b">لم يطلبها</td>
+</tr>
+<tr data-branch-m="false" data-branch-h="true">
+<td style="font-weight:600">مشغل عيسى الخياط</td>
+<td class="branch-m-col">—</td>
+<td class="branch-h-col">7,000</td>
+<td style="color:#15803d;font-weight:700">7,000</td>
+<td style="font-size:0.82rem;color:#64748b">—</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل مختار</td>
+<td class="branch-m-col">6,750</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">6,750</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 200</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">مشغل ريس أحمد</td>
+<td class="branch-m-col">900</td>
+<td class="branch-h-col">5,700</td>
+<td style="color:#15803d;font-weight:700">6,600</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 200</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل عبدالقيوم</td>
+<td class="branch-m-col">6,400</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">6,400</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 300</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل جابر علي - الجديد</td>
+<td class="branch-m-col">6,155</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">6,155</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 500</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">مشغل أبو الهنا</td>
+<td class="branch-m-col">1,200</td>
+<td class="branch-h-col">3,500</td>
+<td style="color:#15803d;font-weight:700">4,700</td>
+<td style="font-size:0.82rem;color:#64748b">حساب جاري</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل جمال</td>
+<td class="branch-m-col">4,625</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">4,625</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 300</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">مشغل محمد علي</td>
+<td class="branch-m-col">2,000</td>
+<td class="branch-h-col">2,600</td>
+<td style="color:#15803d;font-weight:700">4,600</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 300</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">مشغل أمير حمزة - الجديد</td>
+<td class="branch-m-col">2,340</td>
+<td class="branch-h-col">1,900</td>
+<td style="color:#15803d;font-weight:700">4,240</td>
+<td style="font-size:0.82rem;color:#64748b">حساب جاري</td>
+</tr>
+<tr data-branch-m="false" data-branch-h="true">
+<td style="font-weight:600">مشغل بشير</td>
+<td class="branch-m-col">—</td>
+<td class="branch-h-col">4,180</td>
+<td style="color:#15803d;font-weight:700">4,180</td>
+<td style="font-size:0.82rem;color:#64748b">—</td>
+</tr>
+<tr data-branch-m="false" data-branch-h="true">
+<td style="font-weight:600">مشغل سليم شلحة</td>
+<td class="branch-m-col">—</td>
+<td class="branch-h-col">3,900</td>
+<td style="color:#15803d;font-weight:700">3,900</td>
+<td style="font-size:0.82rem;color:#64748b">—</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل عبدالستار الجديد</td>
+<td class="branch-m-col">3,700</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">3,700</td>
+<td style="font-size:0.82rem;color:#64748b">حساب جاري</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل عناية - جديد</td>
+<td class="branch-m-col">3,615</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">3,615</td>
+<td style="font-size:0.82rem;color:#64748b">حساب جاري</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل معصوم</td>
+<td class="branch-m-col">3,430</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">3,430</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 200</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل شهيد الإسلام</td>
+<td class="branch-m-col">3,145</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">3,145</td>
+<td style="font-size:0.82rem;color:#64748b">لم يطلبها</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل مختار - الجديد</td>
+<td class="branch-m-col">2,990</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">2,990</td>
+<td style="font-size:0.82rem;color:#64748b">حساب جاري</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل ميراج</td>
+<td class="branch-m-col">2,800</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">2,800</td>
+<td style="font-size:0.82rem;color:#64748b">لم يطلبها</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل ريبون - عبايات</td>
+<td class="branch-m-col">2,635</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">2,635</td>
+<td style="font-size:0.82rem;color:#64748b">مسافر لم يتواصل معنا</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل أخو خورشيد</td>
+<td class="branch-m-col">2,500</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">2,500</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 300</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">مشغل شهيد الإسلام - الجديد</td>
+<td class="branch-m-col">1,000</td>
+<td class="branch-h-col">1,100</td>
+<td style="color:#15803d;font-weight:700">2,100</td>
+<td style="font-size:0.82rem;color:#64748b">حساب جاري</td>
+</tr>
+<tr data-branch-m="false" data-branch-h="true">
+<td style="font-weight:600">مشغل أمين</td>
+<td class="branch-m-col">—</td>
+<td class="branch-h-col">2,000</td>
+<td style="color:#15803d;font-weight:700">2,000</td>
+<td style="font-size:0.82rem;color:#64748b">—</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل إسلام</td>
+<td class="branch-m-col">1,870</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">1,870</td>
+<td style="font-size:0.82rem;color:#64748b">لم يطلبها</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل سلطان</td>
+<td class="branch-m-col">1,820</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">1,820</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 200</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل أبو عرفات - الجديد</td>
+<td class="branch-m-col">1,820</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">1,820</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 100</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل معرض الحجاز</td>
+<td class="branch-m-col">1,800</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">1,800</td>
+<td style="font-size:0.82rem;color:#64748b">لم يطلبها</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل طاهر</td>
+<td class="branch-m-col">1,710</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">1,710</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 300</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل أوجل</td>
+<td class="branch-m-col">1,550</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">1,550</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 300</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل ريبون - خالد العامر</td>
+<td class="branch-m-col">1,530</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">1,530</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 200</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل معصود</td>
+<td class="branch-m-col">1,460</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">1,460</td>
+<td style="font-size:0.82rem;color:#64748b">حساب جاري</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل شويل</td>
+<td class="branch-m-col">1,435</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">1,435</td>
+<td style="font-size:0.82rem;color:#64748b">لم يطلبها</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل صدام</td>
+<td class="branch-m-col">1,400</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">1,400</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 200</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل عبدالجليل - الجديد</td>
+<td class="branch-m-col">1,250</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">1,250</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 300</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">مشغل أول حسين - الجديد</td>
+<td class="branch-m-col">480</td>
+<td class="branch-h-col">700</td>
+<td style="color:#15803d;font-weight:700">1,180</td>
+<td style="font-size:0.82rem;color:#64748b">حساب جاري</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل وليد</td>
+<td class="branch-m-col">930</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">930</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 200</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل أم ناصر الباكستانية - الجديد</td>
+<td class="branch-m-col">300</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">300</td>
+<td style="font-size:0.82rem;color:#64748b">حساب جاري</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل عبدالقيوم -الجديد</td>
+<td class="branch-m-col">300</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">300</td>
+<td style="font-size:0.82rem;color:#64748b">يتم التصفية</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل جابر علي - الجديد</td>
+<td class="branch-m-col">270</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">270</td>
+<td style="font-size:0.82rem;color:#64748b">حساب جاري</td>
+</tr>
+        </tbody>
+        <tfoot>
+          <tr style="background:#1e3a5f;color:#fff;font-weight:700">
+            <td>الإجمالي</td>
+            <td class="branch-m-col" id="workshops-total-m">330,524</td>
+            <td class="branch-h-col" id="workshops-total-h">169,215</td>
+            <td style="color:#fbbf24">499,739</td>
+            <td></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+
+</div>
+<!-- ===== نهاية تبويب موردين النسائي ===== -->
 
 <!-- ===== قسم المخزون وتحليل COGS ===== -->
 <div class="table-card" style="margin-top:20px">
@@ -1986,6 +2700,71 @@ function filterByYear(year) {
     }
   });
 }
+
+
+
+// ===== دوال موردين النسائي =====
+function filterWomenSuppliers(filter) {
+  // تحديث أزرار الفلترة
+  const btns = ['ws-filter-all','ws-filter-m','ws-filter-h','ws-filter-both'];
+  btns.forEach(id => {
+    const btn = document.getElementById(id);
+    if (!btn) return;
+    btn.style.background = '#fff';
+    btn.style.color = btn.id.includes('both') ? '#15803d' : '#1e3a5f';
+  });
+  const activeBtn = document.getElementById('ws-filter-' + filter);
+  if (activeBtn) {
+    activeBtn.style.background = activeBtn.id.includes('both') ? '#15803d' : '#1e3a5f';
+    activeBtn.style.color = '#fff';
+  }
+
+  // تطبيق الفلترة على كلا الجدولين
+  ['goods-suppliers-table','workshops-suppliers-table'].forEach(tableId => {
+    const table = document.getElementById(tableId);
+    if (!table) return;
+    const rows = table.querySelectorAll('tbody tr');
+    rows.forEach(row => {
+      const hasM = row.getAttribute('data-branch-m') === 'true';
+      const hasH = row.getAttribute('data-branch-h') === 'true';
+      let show = true;
+      if (filter === 'm') show = hasM;
+      else if (filter === 'h') show = hasH;
+      else if (filter === 'both') show = hasM && hasH;
+      row.style.display = show ? '' : 'none';
+    });
+  });
+
+  // إظهار/إخفاء أعمدة الفروع
+  const showM = filter === 'all' || filter === 'm' || filter === 'both';
+  const showH = filter === 'all' || filter === 'h' || filter === 'both';
+  document.querySelectorAll('.branch-m-col').forEach(el => {
+    el.style.display = showM ? '' : 'none';
+  });
+  document.querySelectorAll('.branch-h-col').forEach(el => {
+    el.style.display = showH ? '' : 'none';
+  });
+}
+
+function sortWomenTable(tableId, colIndex) {
+  const table = document.getElementById(tableId);
+  if (!table) return;
+  const tbody = table.querySelector('tbody');
+  const rows = Array.from(tbody.querySelectorAll('tr'));
+  const isAsc = table.getAttribute('data-sort-col') == colIndex && table.getAttribute('data-sort-dir') === 'asc';
+  table.setAttribute('data-sort-col', colIndex);
+  table.setAttribute('data-sort-dir', isAsc ? 'desc' : 'asc');
+  rows.sort((a, b) => {
+    const aVal = a.cells[colIndex]?.textContent.replace(/[,ر—]/g,'').trim() || '0';
+    const bVal = b.cells[colIndex]?.textContent.replace(/[,ر—]/g,'').trim() || '0';
+    const aNum = parseFloat(aVal);
+    const bNum = parseFloat(bVal);
+    if (!isNaN(aNum) && !isNaN(bNum)) return isAsc ? bNum - aNum : aNum - bNum;
+    return isAsc ? bVal.localeCompare(aVal, 'ar') : aVal.localeCompare(bVal, 'ar');
+  });
+  rows.forEach(r => tbody.appendChild(r));
+}
+// ===== نهاية دوال موردين النسائي =====
 
 </script>
 </body>
