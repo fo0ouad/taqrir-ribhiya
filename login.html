@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>تسجيل الدخول — داشبورد محلات العائلة</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="login-page">
+  <div class="login-card">
+    <div class="login-logo">📊</div>
+    <div class="login-title">داشبورد محلات العائلة</div>
+    <div class="login-sub">2025 / 2026</div>
+    
+    <input type="password" class="login-input" id="password-input" 
+           placeholder="كلمة المرور" 
+           onkeydown="if(event.key==='Enter') doLogin()">
+    
+    <button class="login-btn" onclick="doLogin()">دخول</button>
+    
+    <div class="login-error" id="login-error">كلمة المرور غير صحيحة</div>
+  </div>
+</div>
+
+<script>
+// كلمة المرور — يمكن تغييرها هنا
+const PASSWORD_HASH = 'family2025';
+
+function doLogin() {
+  const input = document.getElementById('password-input').value;
+  const errorEl = document.getElementById('login-error');
+  
+  if (input === PASSWORD_HASH) {
+    // حفظ حالة الدخول لمدة 7 أيام
+    const expiry = new Date();
+    expiry.setDate(expiry.getDate() + 7);
+    localStorage.setItem('dashboard_auth', 'true');
+    localStorage.setItem('dashboard_auth_expiry', expiry.toISOString());
+    
+    // الانتقال للداشبورد
+    window.location.href = 'index.html';
+  } else {
+    errorEl.classList.add('show');
+    document.getElementById('password-input').value = '';
+    document.getElementById('password-input').focus();
+    
+    // إخفاء الخطأ بعد 3 ثواني
+    setTimeout(() => errorEl.classList.remove('show'), 3000);
+  }
+}
+
+// إذا كان مسجلاً دخوله بالفعل، انتقل للداشبورد
+(function checkAuth() {
+  const auth = localStorage.getItem('dashboard_auth');
+  const expiry = localStorage.getItem('dashboard_auth_expiry');
+  if (auth === 'true' && expiry && new Date() < new Date(expiry)) {
+    window.location.href = 'index.html';
+  }
+})();
+</script>
+</body>
+</html>

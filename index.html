@@ -5,126 +5,31 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>داشبورد محلات العائلة — 2025/2026</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Segoe UI', Tahoma, Arial, sans-serif; background: #f0f4f8; color: #1e293b; direction: rtl; }
-  
-  /* Header */
-  .header { background: linear-gradient(135deg, #1e3a5f 0%, #2d5a8e 100%); color: white; padding: 20px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
-  .header h1 { font-size: 1.6rem; font-weight: 700; }
-  .header-sub { font-size: 0.85rem; opacity: 0.8; margin-top: 4px; }
-  .last-update { background: rgba(255,255,255,0.15); padding: 6px 14px; border-radius: 20px; font-size: 0.8rem; }
-  
-  /* Tabs */
-  .tabs { background: white; padding: 0 30px; border-bottom: 2px solid #e2e8f0; display: flex; gap: 4px; }
-  .tab-btn { padding: 14px 22px; border: none; background: none; cursor: pointer; font-size: 0.95rem; font-weight: 600; color: #64748b; border-bottom: 3px solid transparent; transition: all 0.2s; font-family: inherit; }
-  .tab-btn:hover { color: #1e3a5f; }
-  .tab-btn.active { color: #1e3a5f; border-bottom-color: #1e3a5f; }
-  
-  /* KPI Cards */
-  .kpi-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; padding: 24px 30px 0; }
-  .kpi-card { background: white; border-radius: 16px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-top: 4px solid; text-align: center; }
-  .kpi-value { font-size: 2rem; font-weight: 800; margin-bottom: 6px; }
-  .kpi-label { font-size: 0.8rem; color: #64748b; }
-  
-  /* Tab content */
-  .tab-content { display: none; padding: 24px 30px; }
-  .tab-content.active { display: block; }
-  
-  /* Charts grid */
-  .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
-  .chart-card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
-  .chart-card.full { grid-column: 1 / -1; }
-  .chart-title { font-size: 1rem; font-weight: 700; color: #1e3a5f; margin-bottom: 16px; text-align: center; }
-  
-  /* Table */
-  .table-card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-bottom: 20px; overflow-x: auto; }
-  .table-card h3 { font-size: 1rem; font-weight: 700; color: #1e3a5f; margin-bottom: 16px; }
-  table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-  th { background: #1e3a5f; color: white; padding: 10px 12px; text-align: center; cursor: pointer; white-space: nowrap; }
-  th:hover { background: #2d5a8e; }
-  td { padding: 9px 12px; text-align: center; border-bottom: 1px solid #f1f5f9; }
-  tr:hover { background: #f8faff; }
-  
-  /* Expense matrix */
-  .exp-matrix { overflow-x: auto; }
-  .exp-matrix table { font-size: 0.78rem; }
-  .exp-matrix th { padding: 8px 6px; font-size: 0.75rem; }
-  .exp-matrix td { padding: 7px 6px; }
-  .exp-cell:hover { opacity: 0.8; transform: scale(1.05); }
-  
-  /* Suppliers */
-  .supplier-search { margin-bottom: 16px; }
-  .supplier-search input { width: 100%; padding: 10px 16px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 0.9rem; font-family: inherit; direction: rtl; }
-  .supplier-search input:focus { outline: none; border-color: #3B82F6; }
-  .supplier-filters { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
-  .filter-btn { padding: 6px 16px; border: 2px solid #e2e8f0; border-radius: 20px; background: white; cursor: pointer; font-size: 0.85rem; font-family: inherit; transition: all 0.2s; }
-  .filter-btn.active { background: #1e3a5f; color: white; border-color: #1e3a5f; }
-  .suppliers-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
-  .supplier-card { background: white; border-radius: 12px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-right: 4px solid #3B82F6; }
-  .supplier-name { font-weight: 700; color: #1e3a5f; margin-bottom: 10px; font-size: 0.9rem; }
-  .supplier-row { display: flex; justify-content: space-between; font-size: 0.82rem; margin-bottom: 5px; color: #475569; }
-  .supplier-progress { background: #e5e7eb; border-radius: 3px; height: 6px; margin: 8px 0; }
-  .supplier-status { font-size: 0.78rem; font-weight: 600; text-align: center; }
-  
-  /* Customers */
-  .customer-search { margin-bottom: 16px; }
-  .customer-search input { width: 100%; padding: 10px 16px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 0.9rem; font-family: inherit; direction: rtl; }
-  
-  /* Modal */
-  #modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
-  #modal-overlay.open { display: flex; }
-  .modal { background: white; border-radius: 16px; padding: 28px; max-width: 560px; width: 90%; max-height: 80vh; overflow-y: auto; position: relative; }
-  .modal-title { font-size: 1.2rem; font-weight: 700; color: #1e3a5f; margin-bottom: 16px; text-align: right; }
-  .modal-total { background: #f0f4ff; border-radius: 8px; padding: 12px 16px; font-weight: 700; color: #1e3a5f; margin-bottom: 16px; text-align: right; font-size: 1rem; }
-  .modal table { width: 100%; }
-  .modal th { background: #1e3a5f; color: white; padding: 10px 14px; }
-  .modal td { padding: 10px 14px; border-bottom: 1px solid #f1f5f9; }
-  .modal-close { position: absolute; top: 16px; left: 16px; background: none; border: none; font-size: 1.4rem; cursor: pointer; color: #64748b; }
-  
-  /* Month detail modal */
-  .month-modal { max-width: 760px; }
-  .month-kpi { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
-  .month-kpi-card { background: #f8faff; border-radius: 10px; padding: 14px; text-align: center; }
-  .month-kpi-val { font-size: 1.3rem; font-weight: 800; }
-  .month-kpi-lbl { font-size: 0.75rem; color: #64748b; margin-top: 4px; }
-  .issue-box { background: #fef2f2; border-right: 4px solid #ef4444; border-radius: 8px; padding: 12px 16px; margin-bottom: 8px; font-size: 0.85rem; color: #7f1d1d; }
-  .note-box { background: #f0fdf4; border-right: 4px solid #22c55e; border-radius: 8px; padding: 12px 16px; margin-bottom: 8px; font-size: 0.85rem; color: #14532d; }
-  .section-title { font-weight: 700; color: #1e3a5f; margin: 16px 0 8px; font-size: 0.95rem; }
-  
-  /* Info banner */
-  .info-banner { background: #fffbeb; border: 1px solid #fbbf24; border-radius: 8px; padding: 10px 16px; margin-bottom: 16px; font-size: 0.85rem; color: #78350f; }
-  
-  /* Responsive */
-  @media(max-width: 900px) {
-    .kpi-grid { grid-template-columns: repeat(3, 1fr); }
-    .suppliers-grid { grid-template-columns: repeat(2, 1fr); }
-    .charts-grid { grid-template-columns: 1fr; }
-  }
-  @media(max-width: 600px) {
-    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
-    .suppliers-grid { grid-template-columns: 1fr; }
-    .header h1 { font-size: 1.2rem; }
-  }
-</style>
+<link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
+<!-- Header -->
 <div class="header">
   <div>
     <h1>📊 داشبورد محلات العائلة</h1>
     <div class="header-sub">يناير 2025 — أبريل 2026 · 16 شهراً من البيانات</div>
   </div>
-  <div class="last-update">آخر تحديث: أبريل 2026</div>
+  <div style="display:flex;gap:12px;align-items:center">
+    <a href="upload.html" class="upload-btn">📤 رفع بيانات</a>
+    <div class="last-update">آخر تحديث: أبريل 2026</div>
+    <button class="logout-btn" onclick="logout()">خروج</button>
+  </div>
 </div>
 
+<!-- Tabs Navigation -->
 <div class="tabs">
-  <button class="tab-btn active" onclick="switchTab('tab-summary')">📈 الملخص التنفيذي</button>
-  <button class="tab-btn" onclick="switchTab('tab-expenses')">💸 المصاريف التفصيلية</button>
-  <button class="tab-btn" onclick="switchTab('tab-suppliers')">🏪 الموردين</button>
-  <button class="tab-btn" onclick="switchTab('tab-customers')">👥 عملاء النسائي</button>
-  <button class="tab-btn" onclick="switchTab('tab-report')">📋 التقرير التحليلي</button>
-  <button class="tab-btn" onclick="switchTab('tab-women-suppliers')" id="btn-tab-women-suppliers">👗 موردين النسائي</button>
+  <button class="tab-btn active" onclick="switchTab('tab-summary', this)">📈 الملخص التنفيذي</button>
+  <button class="tab-btn" onclick="switchTab('tab-expenses', this)">💸 المصاريف التفصيلية</button>
+  <button class="tab-btn" onclick="switchTab('tab-suppliers', this)">🏪 الموردين</button>
+  <button class="tab-btn" onclick="switchTab('tab-customers', this)">👥 عملاء النسائي</button>
+  <button class="tab-btn" onclick="switchTab('tab-report', this)">📋 التقرير التحليلي</button>
+  <button class="tab-btn" onclick="switchTab('tab-women-suppliers', this)">👗 موردين النسائي</button>
 </div>
 
 <!-- KPI Cards -->
@@ -138,7 +43,7 @@
     <div class="kpi-label">صافي النتيجة التشغيلية<br>هامش − مصاريف</div>
   </div>
   <div class="kpi-card" style="border-color:#8B5CF6">
-    <div class="kpi-value" style="color:#8B5CF6">4/15</div>
+    <div class="kpi-value" style="color:#8B5CF6">4/16</div>
     <div class="kpi-label">أشهر الربح<br>شهراً رابحاً</div>
   </div>
   <div class="kpi-card" style="border-color:#EF4444">
@@ -151,7 +56,7 @@
   </div>
 </div>
 
-<!-- ===== TAB 1: الملخص التنفيذي ===== -->
+<!-- ===== TAB CONTENTS ===== -->
 <div id="tab-summary" class="tab-content active">
   <div class="charts-grid">
     <div class="chart-card full">
@@ -398,844 +303,6 @@
   </div>
 </div>
 
-
-
-<!-- ===== تبويب موردين النسائي ===== -->
-<div id="tab-women-suppliers" class="tab-content" style="display:none">
-
-  <!-- بطاقات الإجمالي -->
-  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px">
-    <div class="kpi-card" style="border-right:4px solid #dc2626">
-      <div class="kpi-label">إجمالي الديون</div>
-      <div class="kpi-value" style="color:#dc2626">1,333,155</div>
-      <div class="kpi-sub">ريال سعودي — حتى 23/05/2026</div>
-    </div>
-    <div class="kpi-card" style="border-right:4px solid #1e3a5f">
-      <div class="kpi-label">فرع محمد</div>
-      <div class="kpi-value" style="color:#1e3a5f">890,804</div>
-      <div class="kpi-sub">66.8% من الإجمالي</div>
-    </div>
-    <div class="kpi-card" style="border-right:4px solid #0369a1">
-      <div class="kpi-label">فرع هاني</div>
-      <div class="kpi-value" style="color:#0369a1">442,351</div>
-      <div class="kpi-sub">33.2% من الإجمالي</div>
-    </div>
-    <div class="kpi-card" style="border-right:4px solid #15803d">
-      <div class="kpi-label">عدد الموردين</div>
-      <div class="kpi-value" style="color:#15803d">85</div>
-      <div class="kpi-sub">27 مورد بضاعة + 58 مشغل خياطة</div>
-    </div>
-  </div>
-
-  <!-- أزرار الفلترة -->
-  <div style="display:flex;gap:8px;margin-bottom:16px;align-items:center;flex-wrap:wrap">
-    <span style="font-size:0.85rem;color:#64748b;font-weight:600">تصفية حسب الفرع:</span>
-    <button id="ws-filter-all" onclick="filterWomenSuppliers('all')"
-      style="padding:5px 14px;border-radius:20px;border:1.5px solid #1e3a5f;background:#1e3a5f;color:#fff;font-size:0.82rem;cursor:pointer;font-family:inherit">
-      الكل (85)
-    </button>
-    <button id="ws-filter-m" onclick="filterWomenSuppliers('m')"
-      style="padding:5px 14px;border-radius:20px;border:1.5px solid #1e3a5f;background:#fff;color:#1e3a5f;font-size:0.82rem;cursor:pointer;font-family:inherit">
-      فرع محمد فقط
-    </button>
-    <button id="ws-filter-h" onclick="filterWomenSuppliers('h')"
-      style="padding:5px 14px;border-radius:20px;border:1.5px solid #1e3a5f;background:#fff;color:#1e3a5f;font-size:0.82rem;cursor:pointer;font-family:inherit">
-      فرع هاني فقط
-    </button>
-    <button id="ws-filter-both" onclick="filterWomenSuppliers('both')"
-      style="padding:5px 14px;border-radius:20px;border:1.5px solid #15803d;background:#fff;color:#15803d;font-size:0.82rem;cursor:pointer;font-family:inherit">
-      الفرعين معاً
-    </button>
-  </div>
-
-  <!-- جدول موردين البضاعة -->
-  <div class="table-card" style="margin-bottom:24px">
-    <h3 style="margin-bottom:12px">🏪 موردين البضاعة
-      <span style="font-size:0.85rem;font-weight:400;color:#64748b;margin-right:8px">
-        (27 مورد — إجمالي: <strong style="color:#dc2626">833,416 ر</strong>)
-      </span>
-    </h3>
-    <div style="overflow-x:auto">
-      <table id="goods-suppliers-table" style="width:100%;border-collapse:collapse;font-size:0.88rem">
-        <thead>
-          <tr>
-            <th onclick="sortWomenTable('goods-suppliers-table',0)" style="cursor:pointer">اسم المورد ↕</th>
-            <th onclick="sortWomenTable('goods-suppliers-table',1)" class="branch-m-col" style="cursor:pointer;color:#1e3a5f">فرع محمد ↕</th>
-            <th onclick="sortWomenTable('goods-suppliers-table',2)" class="branch-h-col" style="cursor:pointer;color:#0369a1">فرع هاني ↕</th>
-            <th onclick="sortWomenTable('goods-suppliers-table',3)" style="cursor:pointer">الإجمالي ↕</th>
-            <th>خطة السداد</th>
-          </tr>
-        </thead>
-        <tbody id="goods-suppliers-body">
-<tr data-branch-m="true" data-branch-h="true">
-<td style="font-weight:600">شركة درة النسيج</td>
-<td class="branch-m-col">262,272</td>
-<td class="branch-h-col">37,950</td>
-<td style="color:#dc2626;font-weight:700">300,222</td>
-<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 4000</td>
-</tr>
-<tr data-branch-m="true" data-branch-h="true">
-<td style="font-weight:600">مؤسسة الشريعة و الحياة</td>
-<td class="branch-m-col">59,350</td>
-<td class="branch-h-col">118,000</td>
-<td style="color:#dc2626;font-weight:700">177,350</td>
-<td style="font-size:0.82rem;color:#64748b">حساب جاري</td>
-</tr>
-<tr data-branch-m="true" data-branch-h="true">
-<td style="font-weight:600">مؤسسة المدى المحدودة - معمر</td>
-<td class="branch-m-col">28,500</td>
-<td class="branch-h-col">28,000</td>
-<td style="color:#dc2626;font-weight:700">56,500</td>
-<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 1000</td>
-</tr>
-<tr data-branch-m="true" data-branch-h="false">
-<td style="font-weight:600">مايك - التل البوشية</td>
-<td class="branch-m-col">34,616</td>
-<td class="branch-h-col">—</td>
-<td style="color:#b45309;font-weight:700">34,616</td>
-<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 1000</td>
-</tr>
-<tr data-branch-m="true" data-branch-h="true">
-<td style="font-weight:600">مؤسسة يوسف البارقي</td>
-<td class="branch-m-col">11,000</td>
-<td class="branch-h-col">21,000</td>
-<td style="color:#b45309;font-weight:700">32,000</td>
-<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 2000</td>
-</tr>
-<tr data-branch-m="true" data-branch-h="false">
-<td style="font-weight:600">مؤسسة أمان أمنه -عمران</td>
-<td class="branch-m-col">31,400</td>
-<td class="branch-h-col">—</td>
-<td style="color:#b45309;font-weight:700">31,400</td>
-<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 2000</td>
-</tr>
-<tr data-branch-m="true" data-branch-h="false">
-<td style="font-weight:600">شركة نواف الذهبية - سلفة خليل</td>
-<td class="branch-m-col">29,555</td>
-<td class="branch-h-col">—</td>
-<td style="color:#b45309;font-weight:700">29,555</td>
-<td style="font-size:0.82rem;color:#64748b">لم يطلبها</td>
-</tr>
-<tr data-branch-m="true" data-branch-h="true">
-<td style="font-weight:600">شركة لمسات الهدى - عبدالباسط</td>
-<td class="branch-m-col">9,585</td>
-<td class="branch-h-col">18,150</td>
-<td style="color:#b45309;font-weight:700">27,735</td>
-<td style="font-size:0.82rem;color:#64748b">لم يطلبها </td>
-</tr>
-<tr data-branch-m="true" data-branch-h="true">
-<td style="font-weight:600">مؤسسة منى اليامي - امتياز</td>
-<td class="branch-m-col">7,800</td>
-<td class="branch-h-col">15,000</td>
-<td style="color:#b45309;font-weight:700">22,800</td>
-<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 500</td>
-</tr>
-<tr data-branch-m="false" data-branch-h="true">
-<td style="font-weight:600">مؤسسة بصمة وفاء</td>
-<td class="branch-m-col">—</td>
-<td class="branch-h-col">21,476</td>
-<td style="color:#b45309;font-weight:700">21,476</td>
-<td style="font-size:0.82rem;color:#64748b">—</td>
-</tr>
-<tr data-branch-m="true" data-branch-h="false">
-<td style="font-weight:600">فنون الموضه</td>
-<td class="branch-m-col">19,350</td>
-<td class="branch-h-col">—</td>
-<td style="color:#15803d;font-weight:700">19,350</td>
-<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 1000</td>
-</tr>
-<tr data-branch-m="true" data-branch-h="true">
-<td style="font-weight:600">جوهرة التوفير - عبدالاله</td>
-<td class="branch-m-col">6,010</td>
-<td class="branch-h-col">7,360</td>
-<td style="color:#15803d;font-weight:700">13,370</td>
-<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 500</td>
-</tr>
-<tr data-branch-m="true" data-branch-h="false">
-<td style="font-weight:600">منير المهري - سوق القدس</td>
-<td class="branch-m-col">12,570</td>
-<td class="branch-h-col">—</td>
-<td style="color:#15803d;font-weight:700">12,570</td>
-<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 1400</td>
-</tr>
-<tr data-branch-m="true" data-branch-h="false">
-<td style="font-weight:600">المشيطي</td>
-<td class="branch-m-col">9,123</td>
-<td class="branch-h-col">—</td>
-<td style="color:#15803d;font-weight:700">9,123</td>
-<td style="font-size:0.82rem;color:#64748b">حسب شراءه</td>
-</tr>
-<tr data-branch-m="true" data-branch-h="false">
-<td style="font-weight:600">مؤسسة نصف القمر- عبدالله جده</td>
-<td class="branch-m-col">7,660</td>
-<td class="branch-h-col">—</td>
-<td style="color:#15803d;font-weight:700">7,660</td>
-<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 1500</td>
-</tr>
-<tr data-branch-m="true" data-branch-h="false">
-<td style="font-weight:600">معرض الكلف - باغازي - جده</td>
-<td class="branch-m-col">6,629</td>
-<td class="branch-h-col">—</td>
-<td style="color:#15803d;font-weight:700">6,629</td>
-<td style="font-size:0.82rem;color:#64748b">لم يطلبها</td>
-</tr>
-<tr data-branch-m="true" data-branch-h="false">
-<td style="font-weight:600">ريتاج</td>
-<td class="branch-m-col">6,335</td>
-<td class="branch-h-col">—</td>
-<td style="color:#15803d;font-weight:700">6,335</td>
-<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 400</td>
-</tr>
-<tr data-branch-m="true" data-branch-h="false">
-<td style="font-weight:600">عثمان - هامات</td>
-<td class="branch-m-col">4,470</td>
-<td class="branch-h-col">—</td>
-<td style="color:#15803d;font-weight:700">4,470</td>
-<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 300</td>
-</tr>
-<tr data-branch-m="false" data-branch-h="true">
-<td style="font-weight:600">الشاطر للأقمشة</td>
-<td class="branch-m-col">—</td>
-<td class="branch-h-col">4,000</td>
-<td style="color:#15803d;font-weight:700">4,000</td>
-<td style="font-size:0.82rem;color:#64748b">—</td>
-</tr>
-<tr data-branch-m="true" data-branch-h="false">
-<td style="font-weight:600">بامخش - جده</td>
-<td class="branch-m-col">3,860</td>
-<td class="branch-h-col">—</td>
-<td style="color:#15803d;font-weight:700">3,860</td>
-<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 500</td>
-</tr>
-<tr data-branch-m="true" data-branch-h="false">
-<td style="font-weight:600">شركة سيزار المحدودة</td>
-<td class="branch-m-col">3,000</td>
-<td class="branch-h-col">—</td>
-<td style="color:#15803d;font-weight:700">3,000</td>
-<td style="font-size:0.82rem;color:#64748b">واجب السداد</td>
-</tr>
-<tr data-branch-m="true" data-branch-h="false">
-<td style="font-weight:600">شركة نسائم الشرق - الأبي</td>
-<td class="branch-m-col">2,485</td>
-<td class="branch-h-col">—</td>
-<td style="color:#15803d;font-weight:700">2,485</td>
-<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 300</td>
-</tr>
-<tr data-branch-m="false" data-branch-h="true">
-<td style="font-weight:600">عدة مشاغل</td>
-<td class="branch-m-col">—</td>
-<td class="branch-h-col">2,200</td>
-<td style="color:#15803d;font-weight:700">2,200</td>
-<td style="font-size:0.82rem;color:#64748b">—</td>
-</tr>
-<tr data-branch-m="true" data-branch-h="false">
-<td style="font-weight:600">الوديان</td>
-<td class="branch-m-col">1,500</td>
-<td class="branch-h-col">—</td>
-<td style="color:#15803d;font-weight:700">1,500</td>
-<td style="font-size:0.82rem;color:#64748b">لم يطلبها</td>
-</tr>
-<tr data-branch-m="true" data-branch-h="false">
-<td style="font-weight:600">عبدالرزاق - كلف</td>
-<td class="branch-m-col">1,240</td>
-<td class="branch-h-col">—</td>
-<td style="color:#15803d;font-weight:700">1,240</td>
-<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 300</td>
-</tr>
-<tr data-branch-m="true" data-branch-h="false">
-<td style="font-weight:600">عباس - هامات</td>
-<td class="branch-m-col">1,220</td>
-<td class="branch-h-col">—</td>
-<td style="color:#15803d;font-weight:700">1,220</td>
-<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 100</td>
-</tr>
-<tr data-branch-m="true" data-branch-h="false">
-<td style="font-weight:600">مؤسسة صالح البديوي</td>
-<td class="branch-m-col">750</td>
-<td class="branch-h-col">—</td>
-<td style="color:#15803d;font-weight:700">750</td>
-<td style="font-size:0.82rem;color:#64748b">لم يطلبها</td>
-</tr>
-        </tbody>
-        <tfoot>
-          <tr style="background:#1e3a5f;color:#fff;font-weight:700">
-            <td>الإجمالي</td>
-            <td class="branch-m-col" id="goods-total-m">560,280</td>
-            <td class="branch-h-col" id="goods-total-h">273,136</td>
-            <td style="color:#fbbf24">833,416</td>
-            <td></td>
-          </tr>
-        </tfoot>
-      </table>
-    </div>
-  </div>
-
-  <!-- جدول مشاغل الخياطة -->
-  <div class="table-card">
-    <h3 style="margin-bottom:12px">✂️ مشاغل الخياطة
-      <span style="font-size:0.85rem;font-weight:400;color:#64748b;margin-right:8px">
-        (58 مشغل — إجمالي: <strong style="color:#dc2626">499,739 ر</strong>)
-      </span>
-    </h3>
-    <div style="overflow-x:auto">
-      <table id="workshops-suppliers-table" style="width:100%;border-collapse:collapse;font-size:0.88rem">
-        <thead>
-          <tr>
-            <th onclick="sortWomenTable('workshops-suppliers-table',0)" style="cursor:pointer">اسم المشغل ↕</th>
-            <th onclick="sortWomenTable('workshops-suppliers-table',1)" class="branch-m-col" style="cursor:pointer;color:#1e3a5f">فرع محمد ↕</th>
-            <th onclick="sortWomenTable('workshops-suppliers-table',2)" class="branch-h-col" style="cursor:pointer;color:#0369a1">فرع هاني ↕</th>
-            <th onclick="sortWomenTable('workshops-suppliers-table',3)" style="cursor:pointer">الإجمالي ↕</th>
-            <th>خطة السداد</th>
-          </tr>
-        </thead>
-        <tbody id="workshops-suppliers-body">
-<tr data-branch-m="true" data-branch-h="true">
-<td style="font-weight:600">مشغل جابر علي</td>
-<td class="branch-m-col">28,150</td>
-<td class="branch-h-col">29,000</td>
-<td style="color:#dc2626;font-weight:700">57,150</td>
-<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 1000</td>
-</tr>
-<tr data-branch-m="true" data-branch-h="true">
-<td style="font-weight:600">مشغل أمير حمزة</td>
-<td class="branch-m-col">19,330</td>
-<td class="branch-h-col">16,900</td>
-<td style="color:#b45309;font-weight:700">36,230</td>
-<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 400</td>
-</tr>
-<tr data-branch-m="true" data-branch-h="false">
-<td style="font-weight:600">مشغل الصبحي راشد</td>
-<td class="branch-m-col">34,685</td>
-<td class="branch-h-col">—</td>
-<td style="color:#b45309;font-weight:700">34,685</td>
-<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 2000</td>
-</tr>
-<tr data-branch-m="true" data-branch-h="true">
-<td style="font-weight:600">مشغل أول حسين</td>
-<td class="branch-m-col">17,620</td>
-<td class="branch-h-col">9,300</td>
-<td style="color:#b45309;font-weight:700">26,920</td>
-<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 500</td>
-</tr>
-<tr data-branch-m="true" data-branch-h="true">
-<td style="font-weight:600">مشغل عبدالستار</td>
-<td class="branch-m-col">19,180</td>
-<td class="branch-h-col">3,480</td>
-<td style="color:#b45309;font-weight:700">22,660</td>
-<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 300</td>
-</tr>
-<tr data-branch-m="true" data-branch-h="true">
-<td style="font-weight:600">مغسلة المشغل</td>
-<td class="branch-m-col">5,370</td>
-<td class="branch-h-col">16,000</td>
-<td style="color:#b45309;font-weight:700">21,370</td>
-<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 300</td>
-</tr>
-<tr data-branch-m="true" data-branch-h="true">
-<td style="font-weight:600">مشغل أبو أنس</td>
-<td class="branch-m-col">10,980</td>
-<td class="branch-h-col">7,900</td>
-<td style="color:#15803d;font-weight:700">18,880</td>
-<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 500</td>
-</tr>
-<tr data-branch-m="true" data-branch-h="false">
-<td style="font-weight:600">مشغل منير للخياطة</td>
-<td class="branch-m-col">16,630</td>
-<td class="branch-h-col">—</td>
-<td style="color:#15803d;font-weight:700">16,630</td>
-<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 800</td>
-</tr>
-<tr data-branch-m="true" data-branch-h="false">
-<td style="font-weight:600">مشغل وجه القمر - وادي الدواسر</td>
-<td class="branch-m-col">15,168</td>
-<td class="branch-h-col">—</td>
-<td style="color:#15803d;font-weight:700">15,168</td>
-<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 500</td>
-</tr>
-<tr data-branch-m="true" data-branch-h="true">
-<td style="font-weight:600">مشغل فن سهرتي - غلام</td>
-<td class="branch-m-col">9,660</td>
-<td class="branch-h-col">5,400</td>
-<td style="color:#15803d;font-weight:700">15,060</td>
-<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 300</td>
-</tr>
-<tr data-branch-m="true" data-branch-h="true">
-<td style="font-weight:600">مشغل عناية</td>
-<td class="branch-m-col">12,600</td>
-<td class="branch-h-col">2,400</td>
-<td style="color:#15803d;font-weight:700">15,000</td>
-<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 200</td>
-</tr>
-<tr data-branch-m="true" data-branch-h="false">
-<td style="font-weight:600">مشغل خورشيد</td>
-<td class="branch-m-col">15,000</td>
-<td class="branch-h-col">—</td>
-<td style="color:#15803d;font-weight:700">15,000</td>
-<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 500</td>
-</tr>
-<tr data-branch-m="false" data-branch-h="true">
-<td style="font-weight:600">مشغل مغسلة أنعام</td>
-<td class="branch-m-col">—</td>
-<td class="branch-h-col">14,500</td>
-<td style="color:#15803d;font-weight:700">14,500</td>
-<td style="font-size:0.82rem;color:#64748b">—</td>
-</tr>
-<tr data-branch-m="true" data-branch-h="true">
-<td style="font-weight:600">مشغل صميم ميه</td>
-<td class="branch-m-col">10,890</td>
-<td class="branch-h-col">3,100</td>
-<td style="color:#15803d;font-weight:700">13,990</td>
-<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 300</td>
-</tr>
-<tr data-branch-m="true" data-branch-h="true">
-<td style="font-weight:600">مشغل أبو عرفات</td>
-<td class="branch-m-col">2,700</td>
-<td class="branch-h-col">9,000</td>
-<td style="color:#15803d;font-weight:700">11,700</td>
-<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 300</td>
-</tr>
-<tr data-branch-m="true" data-branch-h="true">
-<td style="font-weight:600">مشغل ليتون</td>
-<td class="branch-m-col">4,500</td>
-<td class="branch-h-col">7,090</td>
-<td style="color:#15803d;font-weight:700">11,590</td>
-<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 200</td>
-</tr>
-<tr data-branch-m="true" data-branch-h="true">
-<td style="font-weight:600">مشغل عبدالرزاق</td>
-<td class="branch-m-col">7,600</td>
-<td class="branch-h-col">3,400</td>
-<td style="color:#15803d;font-weight:700">11,000</td>
-<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 500</td>
-</tr>
-<tr data-branch-m="true" data-branch-h="true">
-<td style="font-weight:600">مشغل مصطفى</td>
-<td class="branch-m-col">4,830</td>
-<td class="branch-h-col">4,665</td>
-<td style="color:#15803d;font-weight:700">9,495</td>
-<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 300</td>
-</tr>
-<tr data-branch-m="true" data-branch-h="false">
-<td style="font-weight:600">مشغل عبدالجليل</td>
-<td class="branch-m-col">8,880</td>
-<td class="branch-h-col">—</td>
-<td style="color:#15803d;font-weight:700">8,880</td>
-<td style="font-size:0.82rem;color:#64748b">لم يطلبها</td>
-</tr>
-<tr data-branch-m="true" data-branch-h="true">
-<td style="font-weight:600">مشغل أم ناصر الباكستانية</td>
-<td class="branch-m-col">3,600</td>
-<td class="branch-h-col">4,500</td>
-<td style="color:#15803d;font-weight:700">8,100</td>
-<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 300</td>
-</tr>
-<tr data-branch-m="true" data-branch-h="false">
-<td style="font-weight:600">مشغل تويل - أبو خالد</td>
-<td class="branch-m-col">7,041</td>
-<td class="branch-h-col">—</td>
-<td style="color:#15803d;font-weight:700">7,041</td>
-<td style="font-size:0.82rem;color:#64748b">لم يطلبها</td>
-</tr>
-<tr data-branch-m="false" data-branch-h="true">
-<td style="font-weight:600">مشغل عيسى الخياط</td>
-<td class="branch-m-col">—</td>
-<td class="branch-h-col">7,000</td>
-<td style="color:#15803d;font-weight:700">7,000</td>
-<td style="font-size:0.82rem;color:#64748b">—</td>
-</tr>
-<tr data-branch-m="true" data-branch-h="false">
-<td style="font-weight:600">مشغل مختار</td>
-<td class="branch-m-col">6,750</td>
-<td class="branch-h-col">—</td>
-<td style="color:#15803d;font-weight:700">6,750</td>
-<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 200</td>
-</tr>
-<tr data-branch-m="true" data-branch-h="true">
-<td style="font-weight:600">مشغل ريس أحمد</td>
-<td class="branch-m-col">900</td>
-<td class="branch-h-col">5,700</td>
-<td style="color:#15803d;font-weight:700">6,600</td>
-<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 200</td>
-</tr>
-<tr data-branch-m="true" data-branch-h="false">
-<td style="font-weight:600">مشغل عبدالقيوم</td>
-<td class="branch-m-col">6,400</td>
-<td class="branch-h-col">—</td>
-<td style="color:#15803d;font-weight:700">6,400</td>
-<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 300</td>
-</tr>
-<tr data-branch-m="true" data-branch-h="false">
-<td style="font-weight:600">مشغل جابر علي - الجديد</td>
-<td class="branch-m-col">6,155</td>
-<td class="branch-h-col">—</td>
-<td style="color:#15803d;font-weight:700">6,155</td>
-<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 500</td>
-</tr>
-<tr data-branch-m="true" data-branch-h="true">
-<td style="font-weight:600">مشغل أبو الهنا</td>
-<td class="branch-m-col">1,200</td>
-<td class="branch-h-col">3,500</td>
-<td style="color:#15803d;font-weight:700">4,700</td>
-<td style="font-size:0.82rem;color:#64748b">حساب جاري</td>
-</tr>
-<tr data-branch-m="true" data-branch-h="false">
-<td style="font-weight:600">مشغل جمال</td>
-<td class="branch-m-col">4,625</td>
-<td class="branch-h-col">—</td>
-<td style="color:#15803d;font-weight:700">4,625</td>
-<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 300</td>
-</tr>
-<tr data-branch-m="true" data-branch-h="true">
-<td style="font-weight:600">مشغل محمد علي</td>
-<td class="branch-m-col">2,000</td>
-<td class="branch-h-col">2,600</td>
-<td style="color:#15803d;font-weight:700">4,600</td>
-<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 300</td>
-</tr>
-<tr data-branch-m="true" data-branch-h="true">
-<td style="font-weight:600">مشغل أمير حمزة - الجديد</td>
-<td class="branch-m-col">2,340</td>
-<td class="branch-h-col">1,900</td>
-<td style="color:#15803d;font-weight:700">4,240</td>
-<td style="font-size:0.82rem;color:#64748b">حساب جاري</td>
-</tr>
-<tr data-branch-m="false" data-branch-h="true">
-<td style="font-weight:600">مشغل بشير</td>
-<td class="branch-m-col">—</td>
-<td class="branch-h-col">4,180</td>
-<td style="color:#15803d;font-weight:700">4,180</td>
-<td style="font-size:0.82rem;color:#64748b">—</td>
-</tr>
-<tr data-branch-m="false" data-branch-h="true">
-<td style="font-weight:600">مشغل سليم شلحة</td>
-<td class="branch-m-col">—</td>
-<td class="branch-h-col">3,900</td>
-<td style="color:#15803d;font-weight:700">3,900</td>
-<td style="font-size:0.82rem;color:#64748b">—</td>
-</tr>
-<tr data-branch-m="true" data-branch-h="false">
-<td style="font-weight:600">مشغل عبدالستار الجديد</td>
-<td class="branch-m-col">3,700</td>
-<td class="branch-h-col">—</td>
-<td style="color:#15803d;font-weight:700">3,700</td>
-<td style="font-size:0.82rem;color:#64748b">حساب جاري</td>
-</tr>
-<tr data-branch-m="true" data-branch-h="false">
-<td style="font-weight:600">مشغل عناية - جديد</td>
-<td class="branch-m-col">3,615</td>
-<td class="branch-h-col">—</td>
-<td style="color:#15803d;font-weight:700">3,615</td>
-<td style="font-size:0.82rem;color:#64748b">حساب جاري</td>
-</tr>
-<tr data-branch-m="true" data-branch-h="false">
-<td style="font-weight:600">مشغل معصوم</td>
-<td class="branch-m-col">3,430</td>
-<td class="branch-h-col">—</td>
-<td style="color:#15803d;font-weight:700">3,430</td>
-<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 200</td>
-</tr>
-<tr data-branch-m="true" data-branch-h="false">
-<td style="font-weight:600">مشغل شهيد الإسلام</td>
-<td class="branch-m-col">3,145</td>
-<td class="branch-h-col">—</td>
-<td style="color:#15803d;font-weight:700">3,145</td>
-<td style="font-size:0.82rem;color:#64748b">لم يطلبها</td>
-</tr>
-<tr data-branch-m="true" data-branch-h="false">
-<td style="font-weight:600">مشغل مختار - الجديد</td>
-<td class="branch-m-col">2,990</td>
-<td class="branch-h-col">—</td>
-<td style="color:#15803d;font-weight:700">2,990</td>
-<td style="font-size:0.82rem;color:#64748b">حساب جاري</td>
-</tr>
-<tr data-branch-m="true" data-branch-h="false">
-<td style="font-weight:600">مشغل ميراج</td>
-<td class="branch-m-col">2,800</td>
-<td class="branch-h-col">—</td>
-<td style="color:#15803d;font-weight:700">2,800</td>
-<td style="font-size:0.82rem;color:#64748b">لم يطلبها</td>
-</tr>
-<tr data-branch-m="true" data-branch-h="false">
-<td style="font-weight:600">مشغل ريبون - عبايات</td>
-<td class="branch-m-col">2,635</td>
-<td class="branch-h-col">—</td>
-<td style="color:#15803d;font-weight:700">2,635</td>
-<td style="font-size:0.82rem;color:#64748b">مسافر لم يتواصل معنا</td>
-</tr>
-<tr data-branch-m="true" data-branch-h="false">
-<td style="font-weight:600">مشغل أخو خورشيد</td>
-<td class="branch-m-col">2,500</td>
-<td class="branch-h-col">—</td>
-<td style="color:#15803d;font-weight:700">2,500</td>
-<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 300</td>
-</tr>
-<tr data-branch-m="true" data-branch-h="true">
-<td style="font-weight:600">مشغل شهيد الإسلام - الجديد</td>
-<td class="branch-m-col">1,000</td>
-<td class="branch-h-col">1,100</td>
-<td style="color:#15803d;font-weight:700">2,100</td>
-<td style="font-size:0.82rem;color:#64748b">حساب جاري</td>
-</tr>
-<tr data-branch-m="false" data-branch-h="true">
-<td style="font-weight:600">مشغل أمين</td>
-<td class="branch-m-col">—</td>
-<td class="branch-h-col">2,000</td>
-<td style="color:#15803d;font-weight:700">2,000</td>
-<td style="font-size:0.82rem;color:#64748b">—</td>
-</tr>
-<tr data-branch-m="true" data-branch-h="false">
-<td style="font-weight:600">مشغل إسلام</td>
-<td class="branch-m-col">1,870</td>
-<td class="branch-h-col">—</td>
-<td style="color:#15803d;font-weight:700">1,870</td>
-<td style="font-size:0.82rem;color:#64748b">لم يطلبها</td>
-</tr>
-<tr data-branch-m="true" data-branch-h="false">
-<td style="font-weight:600">مشغل سلطان</td>
-<td class="branch-m-col">1,820</td>
-<td class="branch-h-col">—</td>
-<td style="color:#15803d;font-weight:700">1,820</td>
-<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 200</td>
-</tr>
-<tr data-branch-m="true" data-branch-h="false">
-<td style="font-weight:600">مشغل أبو عرفات - الجديد</td>
-<td class="branch-m-col">1,820</td>
-<td class="branch-h-col">—</td>
-<td style="color:#15803d;font-weight:700">1,820</td>
-<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 100</td>
-</tr>
-<tr data-branch-m="true" data-branch-h="false">
-<td style="font-weight:600">مشغل معرض الحجاز</td>
-<td class="branch-m-col">1,800</td>
-<td class="branch-h-col">—</td>
-<td style="color:#15803d;font-weight:700">1,800</td>
-<td style="font-size:0.82rem;color:#64748b">لم يطلبها</td>
-</tr>
-<tr data-branch-m="true" data-branch-h="false">
-<td style="font-weight:600">مشغل طاهر</td>
-<td class="branch-m-col">1,710</td>
-<td class="branch-h-col">—</td>
-<td style="color:#15803d;font-weight:700">1,710</td>
-<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 300</td>
-</tr>
-<tr data-branch-m="true" data-branch-h="false">
-<td style="font-weight:600">مشغل أوجل</td>
-<td class="branch-m-col">1,550</td>
-<td class="branch-h-col">—</td>
-<td style="color:#15803d;font-weight:700">1,550</td>
-<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 300</td>
-</tr>
-<tr data-branch-m="true" data-branch-h="false">
-<td style="font-weight:600">مشغل ريبون - خالد العامر</td>
-<td class="branch-m-col">1,530</td>
-<td class="branch-h-col">—</td>
-<td style="color:#15803d;font-weight:700">1,530</td>
-<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 200</td>
-</tr>
-<tr data-branch-m="true" data-branch-h="false">
-<td style="font-weight:600">مشغل معصود</td>
-<td class="branch-m-col">1,460</td>
-<td class="branch-h-col">—</td>
-<td style="color:#15803d;font-weight:700">1,460</td>
-<td style="font-size:0.82rem;color:#64748b">حساب جاري</td>
-</tr>
-<tr data-branch-m="true" data-branch-h="false">
-<td style="font-weight:600">مشغل شويل</td>
-<td class="branch-m-col">1,435</td>
-<td class="branch-h-col">—</td>
-<td style="color:#15803d;font-weight:700">1,435</td>
-<td style="font-size:0.82rem;color:#64748b">لم يطلبها</td>
-</tr>
-<tr data-branch-m="true" data-branch-h="false">
-<td style="font-weight:600">مشغل صدام</td>
-<td class="branch-m-col">1,400</td>
-<td class="branch-h-col">—</td>
-<td style="color:#15803d;font-weight:700">1,400</td>
-<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 200</td>
-</tr>
-<tr data-branch-m="true" data-branch-h="false">
-<td style="font-weight:600">مشغل عبدالجليل - الجديد</td>
-<td class="branch-m-col">1,250</td>
-<td class="branch-h-col">—</td>
-<td style="color:#15803d;font-weight:700">1,250</td>
-<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 300</td>
-</tr>
-<tr data-branch-m="true" data-branch-h="true">
-<td style="font-weight:600">مشغل أول حسين - الجديد</td>
-<td class="branch-m-col">480</td>
-<td class="branch-h-col">700</td>
-<td style="color:#15803d;font-weight:700">1,180</td>
-<td style="font-size:0.82rem;color:#64748b">حساب جاري</td>
-</tr>
-<tr data-branch-m="true" data-branch-h="false">
-<td style="font-weight:600">مشغل وليد</td>
-<td class="branch-m-col">930</td>
-<td class="branch-h-col">—</td>
-<td style="color:#15803d;font-weight:700">930</td>
-<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 200</td>
-</tr>
-<tr data-branch-m="true" data-branch-h="false">
-<td style="font-weight:600">مشغل أم ناصر الباكستانية - الجديد</td>
-<td class="branch-m-col">300</td>
-<td class="branch-h-col">—</td>
-<td style="color:#15803d;font-weight:700">300</td>
-<td style="font-size:0.82rem;color:#64748b">حساب جاري</td>
-</tr>
-<tr data-branch-m="true" data-branch-h="false">
-<td style="font-weight:600">مشغل عبدالقيوم -الجديد</td>
-<td class="branch-m-col">300</td>
-<td class="branch-h-col">—</td>
-<td style="color:#15803d;font-weight:700">300</td>
-<td style="font-size:0.82rem;color:#64748b">يتم التصفية</td>
-</tr>
-<tr data-branch-m="true" data-branch-h="false">
-<td style="font-weight:600">مشغل جابر علي - الجديد</td>
-<td class="branch-m-col">270</td>
-<td class="branch-h-col">—</td>
-<td style="color:#15803d;font-weight:700">270</td>
-<td style="font-size:0.82rem;color:#64748b">حساب جاري</td>
-</tr>
-        </tbody>
-        <tfoot>
-          <tr style="background:#1e3a5f;color:#fff;font-weight:700">
-            <td>الإجمالي</td>
-            <td class="branch-m-col" id="workshops-total-m">330,524</td>
-            <td class="branch-h-col" id="workshops-total-h">169,215</td>
-            <td style="color:#fbbf24">499,739</td>
-            <td></td>
-          </tr>
-        </tfoot>
-      </table>
-    </div>
-  </div>
-
-</div>
-<!-- ===== نهاية تبويب موردين النسائي ===== -->
-
-<!-- ===== قسم المخزون وتحليل COGS ===== -->
-<div class="table-card" style="margin-top:20px">
-  <h3>📦 تحليل المخزون وتكلفة البضاعة المباعة (COGS) — 2025</h3>
-  
-  <!-- بطاقات المؤشرات الرئيسية -->
-  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px">
-    
-    <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:16px;text-align:center">
-      <div style="font-size:0.8rem;color:#166534;margin-bottom:6px">مجمل الربح الحقيقي (COGS)</div>
-      <div style="font-size:1.5rem;font-weight:800;color:#15803d">1,607,537 ر</div>
-      <div style="font-size:0.85rem;color:#16a34a;margin-top:4px">37.1% من الإيرادات</div>
-    </div>
-    
-    <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:16px;text-align:center">
-      <div style="font-size:0.8rem;color:#1e40af;margin-bottom:6px">صافي الربح (بعد المصاريف)</div>
-      <div style="font-size:1.5rem;font-weight:800;color:#1d4ed8">795,190 ر</div>
-      <div style="font-size:0.85rem;color:#2563eb;margin-top:4px">18.3% من الإيرادات</div>
-    </div>
-    
-    <div style="background:#fefce8;border:1px solid #fde68a;border-radius:10px;padding:16px;text-align:center">
-      <div style="font-size:0.8rem;color:#854d0e;margin-bottom:6px">تكلفة البضاعة المباعة (COGS)</div>
-      <div style="font-size:1.5rem;font-weight:800;color:#92400e">2,729,843 ر</div>
-      <div style="font-size:0.85rem;color:#a16207;margin-top:4px">62.9% من الإيرادات</div>
-    </div>
-    
-    <div style="background:#fdf4ff;border:1px solid #e9d5ff;border-radius:10px;padding:16px;text-align:center">
-      <div style="font-size:0.8rem;color:#6b21a8;margin-bottom:6px">معدل دوران المخزون</div>
-      <div style="font-size:1.5rem;font-weight:800;color:#7e22ce">6.8x</div>
-      <div style="font-size:0.85rem;color:#9333ea;margin-top:4px">كل 54 يوم</div>
-    </div>
-    
-  </div>
-  
-  <!-- معادلة COGS -->
-  <div style="background:#f8fafc;border-radius:10px;padding:16px;margin-bottom:20px;font-size:0.9rem">
-    <div style="font-weight:700;color:#1e3a5f;margin-bottom:10px">📐 معادلة COGS لعام 2025</div>
-    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;direction:rtl">
-      <span style="background:#dbeafe;padding:6px 12px;border-radius:6px;font-weight:600">مخزون بداية 2025<br><span style="color:#1d4ed8">669,672 ر</span></span>
-      <span style="font-size:1.2rem;font-weight:700;color:#64748b">+</span>
-      <span style="background:#dcfce7;padding:6px 12px;border-radius:6px;font-weight:600">مشتريات 2025<br><span style="color:#15803d">2,194,202 ر</span></span>
-      <span style="font-size:1.2rem;font-weight:700;color:#64748b">−</span>
-      <span style="background:#fee2e2;padding:6px 12px;border-radius:6px;font-weight:600">مخزون نهاية 2025<br><span style="color:#dc2626">134,031 ر</span></span>
-      <span style="font-size:1.2rem;font-weight:700;color:#64748b">=</span>
-      <span style="background:#fef3c7;padding:6px 12px;border-radius:6px;font-weight:700;border:2px solid #f59e0b">COGS<br><span style="color:#92400e">2,729,843 ر</span></span>
-    </div>
-  </div>
-  
-  <!-- مقارنة المخزون -->
-  <div style="font-weight:700;color:#1e3a5f;margin-bottom:12px;font-size:0.95rem">📊 مقارنة المخزون: بداية 2025 مقابل بداية 2026</div>
-  <table>
-    <thead>
-      <tr>
-        <th>البيان</th>
-        <th>بداية 2025 (يناير 25)</th>
-        <th>بداية 2026 (يناير 26)</th>
-        <th>التغيير</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><strong>إجمالي التكلفة</strong></td>
-        <td style="font-weight:700">669,672 ر</td>
-        <td style="font-weight:700">134,031 ر</td>
-        <td style="color:#dc2626;font-weight:700">▼ 535,641 ر (80%↓)</td>
-      </tr>
-      <tr style="background:#f8fafc">
-        <td>إجمالي سعر البيع</td>
-        <td>—</td>
-        <td>174,930 ر</td>
-        <td style="color:#16a34a">هامش 23.4%</td>
-      </tr>
-      <tr>
-        <td>عدد الأصناف</td>
-        <td>143 صنف (فرعين)</td>
-        <td>142 صنف (فرعين)</td>
-        <td style="color:#64748b">ثابت تقريباً</td>
-      </tr>
-    </tbody>
-  </table>
-  
-  <!-- تفصيل فروع 2026 -->
-  <div style="font-weight:700;color:#1e3a5f;margin:16px 0 12px;font-size:0.95rem">🏪 تفصيل مخزون بداية 2026 حسب الفرع</div>
-  <table>
-    <thead>
-      <tr>
-        <th>الفرع</th>
-        <th>عدد الأصناف</th>
-        <th>إجمالي التكلفة</th>
-        <th>إجمالي سعر البيع</th>
-        <th>هامش الربح</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><strong>فرع محمد</strong></td>
-        <td>71</td>
-        <td>68,962 ر</td>
-        <td>90,273 ر</td>
-        <td style="color:#16a34a;font-weight:700">23.6%</td>
-      </tr>
-      <tr style="background:#f8fafc">
-        <td><strong>فرع هاني</strong></td>
-        <td>71</td>
-        <td>65,069 ر</td>
-        <td>84,657 ر</td>
-        <td style="color:#16a34a;font-weight:700">23.1%</td>
-      </tr>
-      <tr style="font-weight:700;background:#eff6ff">
-        <td>الإجمالي</td>
-        <td>142</td>
-        <td>134,031 ر</td>
-        <td>174,930 ر</td>
-        <td style="color:#16a34a;font-weight:700">23.4%</td>
-      </tr>
-    </tbody>
-  </table>
-  
-  <!-- ملاحظة تحليلية -->
-  <div style="background:#fef3c7;border-right:4px solid #f59e0b;padding:12px 16px;border-radius:6px;margin-top:16px;font-size:0.85rem;color:#78350f">
-    <strong>📌 ملاحظة:</strong> انخفض المخزون بنسبة 80% خلال 2025 (من 669,672 إلى 134,031 ريال)، مما يعني أن المبيعات تجاوزت المشتريات بفارق 535,641 ريال. هامش الربح الحقيقي بعد احتساب COGS هو <strong>37.1%</strong> — أعلى بكثير من الهامش المحسوب شهرياً (14.8%) لأن الحساب الشهري لا يأخذ في الاعتبار تغير المخزون.
-  </div>
-</div>
-
-<!-- ===== TAB 2: المصاريف التفصيلية ===== -->
 <div id="tab-expenses" class="tab-content">
   <div class="info-banner">💡 انقر على أي خلية ملوّنة لعرض تفاصيل المصروفات الفردية لذلك الشهر والفئة. الجمعية مستبعدة. مصاريف العائلة في عمود منفصل ولا تدخل في الربح التشغيلي.</div>
   
@@ -1255,7 +322,6 @@
   </div>
 </div>
 
-<!-- ===== TAB 3: الموردين ===== -->
 <div id="tab-suppliers" class="tab-content">
   <div class="info-banner">📋 بيانات خطة السداد حتى نهاية 2025. الأرقام الشهرية (مدفوع/مشتريات) مستخرجة من التقارير الشهرية.</div>
   
@@ -1603,7 +669,6 @@
 </div></div>
 </div>
 
-<!-- ===== TAB 4: العملاء ===== -->
 <div id="tab-customers" class="tab-content">
   <div class="info-banner">📅 الأرصدة حتى 31-12-2025. عند تحصيل أي مبلغ إضافي في شهر التحصيل، يمكن تحديث هذه البيانات بإرسال ملف جديد.</div>
   
@@ -1785,39 +850,7 @@
 </div>
 
 <!-- Modal -->
-<div id="modal-overlay" onclick="closeModal(event)">
-  <div class="modal" id="modal-box">
-    <button class="modal-close" onclick="closeModalBtn()">×</button>
-    <div class="modal-title" id="modal-title"></div>
-    <div class="modal-total" id="modal-total"></div>
-    <div id="modal-body"></div>
-  </div>
-</div>
 
-<script>
-
-const MONTHS = ["يناير 25", "فبراير 25", "مارس 25", "أبريل 25", "مايو 25", "يونيو 25", "يوليو 25", "أغسطس 25", "سبتمبر 25", "أكتوبر 25", "نوفمبر 25", "ديسمبر 25", "يناير 26", "فبراير 26", "مارس 26", "أبريل 26"];
-const REVENUES = [285038, 548674, 532048, 288659, 450582, 417150, 316654, 267659, 182358, 181199, 468087, 399272, 253649, 467264, 297333, 236283];
-const GROSS_MARGINS = [42756, 82301, 79807, 43299, 67587, 62573, 47498, 40149, 27354, 27180, 65052, 56408, 37987, 70022, 44600, 35442];
-const EXPENSES = [91363, 67611, 124379, 48810, 59338, 80794, 104640, 49409, 50369, 40460, 48745, 46429, 108598, 83246, 65880, 56831];
-const SUPPLIERS_PAID = [190459, 478948, 419377, 232995, 391082, 341935, 209885, 216985, 134496, 139915, 408390, 356595, 142172, 385266, 233930, 180385];
-const PURCHASES = [173491, 119085, 413550, 0, 303697, 206858, 188271, 243113, 151015, 96265, 112969, 185888, 209915, 266151, 175622, 181356];
-const TAILORS_BALANCE = [0, 0, 0, 60200, 60267, 62551, 65146, 62400, 56772, 0, 62328, 0, 66188, 64010, 63273, 0];
-const PROFIT_ACTUAL = [-48607, 14690, -44572, -5511, 8249, -18221, -57142, -9260, -23015, -13280, 16307, 9979, -70611, -13224, -25280, -21389];
-const PROFIT_SPREAD = [-48607, 14690, -44572, -5511, 8249, -18221, -57142, -9260, -23015, -13280, 16307, 9979, -70611, -13224, -25280];
-const RENT_ACTUAL = [47420, 0, 0, 0, 0, 0, 61338, 0, 0, 0, 0, 0, 77135, 0, 0];
-const EXP_TOTALS = {"رواتب": [20107.5, 31365.0, 41781.5, 18447.0, 23508.75, 22125.0, 15786.66, 20850.75, 18528.0, 19075.93, 26278.29, 24494.89, 19766.47, 38018.56, 28047.18], "مصاريف المشغل": [0, 0, 9325.0, 1140.0, 500.0, 200.0, 1613.55, 4000.0, 3200.0, 9700.0, 520.0, 2327.58, 200.0, 10500.0, 2000.0], "إيجار": [47420.0, 0, 2000.0, 0, 2000.0, 0, 38888.0, 0, 0, 0, 0, 3400.0, 77135.0, 0, 0], "رسوم بنكية": [347.19, 0, 762.27, 309.02, 653.92, 204.67, 169.69, 255.18, 513.38, 514.73, 576.02, 390.07, 349.59, 636.49, 182.51], "عمولات مشتركة": [2248.0, 4383.0, 4418.0, 2609.0, 4142.0, 2184.0, 2066.0, 1645.0, 473.0, 691.0, 902.0, 786.0, 1232.0, 4021.0, 2315.0], "نقل": [1855.0, 1705.0, 1885.0, 1355.0, 1125.0, 1945.0, 1180.0, 1620.0, 380.0, 610.0, 1445.0, 1610.0, 955.0, 995.0, 725.0], "مصاريف حكومية": [3550.0, 3407.0, 15237.35, 5523.71, 3513.25, 10999.0, 2773.0, 3443.0, 9623.48, 3542.25, 3487.21, 1076.0, 278.0, 1337.95, 248.0], "رسوم مرافقين": [0, 0, 18925.0, 413.0, 2000.0, 7550.0, 412.0, 6537.0, 9600.0, 0, 1650.0, 0, 0, 0, 13140.0], "مصاريف عائلة": [1575.0, 0, 0, 2786.27, 497.73, 0, 7389.26, 3392.19, 1683.9, 0, 4109.54, 4043.91, 0, 0, 0], "الزكاة والدخل": [1518.71, 0, 0, 377.9, 0, 0, 2208.42, 0, 0, 303.95, 0, 550.0, 0, 665.0, 0], "تأمينات": [0, 0, 0, 2551.19, 0, 6961.4, 4358.43, 0, 0, 0, 0, 0, 0, 0, 0], "كهرباء الفروع": [0, 0, 0, 2013.18, 2105.78, 0, 0, 0, 2813.87, 3059.72, 0, 0, 0, 1739.71, 1938.96], "اتصالات": [288.79, 805.0, 1934.16, 295.18, 905.48, 518.0, 1111.85, 866.58, 627.43, 808.26, 534.0, 1171.96, 518.0, 500.0, 1219.04], "مستحقات سابقة رجالي": [6631.0, 10305.0, 11866.0, 0, 4990.0, 12300.0, 3245.0, 1040.0, 1100.0, 967.0, 1800.0, 1710.0, 30.3, 1000.0, 1090.0], "أخرى": [822.0, 2141.0, 1745.0, 1490.0, 1396.0, 1307.0, 988.0, 1659.0, 726.0, 687.0, 843.0, 1069.0, 2434.0, 732.0, 1224.0]};
-const EXP_DETAILS = {"يناير 25": {"رواتب": [{"name": "راتب سعيد ماحيله", "amount": 1452.0}, {"name": "راتب محمد سعيد", "amount": 5257.5}, {"name": "راتب هاني سعيد", "amount": 4698.0}, {"name": "راتب يعقوب متأخر شهر 12", "amount": 2500.0}, {"name": "راتب إسماعيل متأخر شهر 12", "amount": 2500.0}, {"name": "راتب ياسين متأخر شهر 12", "amount": 2500.0}, {"name": "راتب فضل متأخر شهر 11", "amount": 1200.0}], "إيجار": [{"name": "إيجار الفروع النسائية", "amount": 47420.0}], "رسوم بنكية": [{"name": "رسوم تحويل", "amount": 4.03}, {"name": "رسوم شبكة مدى", "amount": 113.16}, {"name": "رسوم عدم استخدام الشبكه", "amount": 230.0}], "عمولات مشتركة": [{"name": "عمولات مشتركة", "amount": 2248.0}], "نقل": [{"name": "سيارة نقل", "amount": 611.0}, {"name": "نقل بضاعه من جده", "amount": 384.0}, {"name": "عربية سوق المرقب", "amount": 160.0}, {"name": "نقل بضاعه من دبي", "amount": 700.0}], "مصاريف حكومية": [{"name": "فاتورة تأمينات إجتماعية مشتركه", "amount": 3550.0}], "مصاريف عائلة": [{"name": "فاتورة بيت المدير التنفيذي", "amount": 1575.0}], "الزكاة والدخل": [{"name": "فاتورة القيمة المضافه", "amount": 1518.71}], "اتصالات": [{"name": "فاتورة جوال المدير العام", "amount": 231.79}, {"name": "فاتورة جوال المدير التنفيذي", "amount": 57.0}], "مستحقات سابقة رجالي": [{"name": "مسحقات سابقه ماجد العوبثاني", "amount": 2221.0}, {"name": "دفع موردين الرجالي", "amount": 2410.0}, {"name": "مسحقات سابقه إبراهيم حسب الرسول", "amount": 2000.0}], "أخرى": [{"name": "مياه", "amount": 468.0}, {"name": "صدقه", "amount": 39.0}, {"name": "أكياس", "amount": 270.0}, {"name": "لصقة بضائع", "amount": 30.0}, {"name": "شاهي و كاسات", "amount": 15.0}]}, "فبراير 25": {"رواتب": [{"name": "راتب سعيد ماحيله", "amount": 4226.0}, {"name": "راتب محمد سعيد", "amount": 7309.0}, {"name": "راتب هاني سعيد", "amount": 7687.0}, {"name": "راتب يعقوب متأخر شهر 1", "amount": 2500.0}, {"name": "راتب إسماعيل متأخر شهر 1", "amount": 2500.0}, {"name": "راتب ياسين متأخر شهر 1", "amount": 2500.0}, {"name": "راتب فضل متأخر شهر 12", "amount": 2000.0}, {"name": "مستحقات المحاسب إبراهيم", "amount": 2643.0}], "عمولات مشتركة": [{"name": "عمولات مشتركة", "amount": 4383.0}], "نقل": [{"name": "سيارة نقل", "amount": 1150.0}, {"name": "نقل بضاعه من جده", "amount": 380.0}, {"name": "عربية سوق المرقب", "amount": 175.0}], "مصاريف حكومية": [{"name": "فاتورة تأمينات إجتماعية مشتركه", "amount": 3407.0}], "اتصالات": [{"name": "فاتورة جوال المدير التنفيذي", "amount": 805.0}], "مستحقات سابقة رجالي": [{"name": "دفع موردين الرجالي", "amount": 10175.0}, {"name": "مفقودة الصرف", "amount": 130.0}], "أخرى": [{"name": "مياه", "amount": 398.0}, {"name": "صدقه", "amount": 396.0}, {"name": "أكياس تغليف", "amount": 35.0}, {"name": "مكنسة نظافه", "amount": 15.0}, {"name": "حبل تربيط و خيش تعبئة بضاعه ولصقه", "amount": 55.0}, {"name": "تجهيز مكتب المحاسب", "amount": 120.0}, {"name": "أكياس بضاعه", "amount": 660.0}, {"name": "سكر و شاهي", "amount": 15.0}, {"name": "أدوات مكتبية و حبر", "amount": 107.0}, {"name": "صيانة كمبيوتر المحاسب", "amount": 340.0}]}, "مارس 25": {"رواتب": [{"name": "راتب سعيد ماحيله", "amount": 6825.0}, {"name": "راتب محمد سعيد", "amount": 9666.5}, {"name": "راتب هاني سعيد", "amount": 10440.0}, {"name": "راتب يعقوب متأخر شهر 2", "amount": 2500.0}, {"name": "راتب إسماعيل متأخر شهر 2", "amount": 2500.0}, {"name": "راتب ياسين متأخر شهر 2 و 3", "amount": 5000.0}, {"name": "راتب فضل متأخر شهر 1", "amount": 2000.0}, {"name": "تجديد إقامة ياسين", "amount": 2000.0}, {"name": "متاخرات رواتب إسماعيل", "amount": 850.0}], "مصاريف المشغل": [{"name": "فاتورة كهرباء المشغل", "amount": 165.0}, {"name": "إيجار المشغل", "amount": 9160.0}], "إيجار": [{"name": "إيجار مكتب المحاسب", "amount": 2000.0}], "رسوم بنكية": [{"name": "رسوم شبكة مدى", "amount": 690.0}, {"name": "رسوم تحويل و استخدام مدى", "amount": 72.27}], "عمولات مشتركة": [{"name": "عمولات مشتركة", "amount": 4418.0}], "نقل": [{"name": "سيارة نقل", "amount": 1165.0}, {"name": "نقل بضاعه من جده", "amount": 300.0}, {"name": "عربية سوق المرقب", "amount": 420.0}], "مصاريف حكومية": [{"name": "سداد فاتورة تجديد السجل", "amount": 256.0}, {"name": "فاتورة التامينات الخاصه بسجل الرياض", "amount": 556.35}, {"name": "فاتورة تامينات مشتركه + سعوده", "amount": 2900.0}, {"name": "كرت عمل هاني سعيد", "amount": 4850.0}, {"name": "كرت عمل محمد سعيد", "amount": 2425.0}, {"name": "كرت عمل سعيد مبارك", "amount": 4250.0}], "رسوم مرافقين": [{"name": "رسوم مرافقين الموظف محمد سعيد", "amount": 5925.0}, {"name": "رسوم مرافقين الموظف هاني سعيد", "amount": 12263.0}, {"name": "رسوم تجديد إقامة محمد و هاني", "amount": 737.0}], "اتصالات": [{"name": "فاتورة جوال المدير التنفيذي", "amount": 1650.8}, {"name": "فاتورة جوال المدير العام", "amount": 283.36}], "مستحقات سابقة رجالي": [{"name": "دفع موردين الرجالي", "amount": 10866.0}, {"name": "دفع موردين فاشن", "amount": 1000.0}], "أخرى": [{"name": "مياه", "amount": 259.0}, {"name": "صدقه", "amount": 426.0}, {"name": "أكياس تعبئة \" خيش \"", "amount": 490.0}, {"name": "أكياس بضاعه", "amount": 440.0}, {"name": "صيانة لمبات", "amount": 60.0}, {"name": "لصقه", "amount": 50.0}, {"name": "سلك طابعه و كاسات", "amount": 20.0}]}, "أبريل 25": {"رواتب": [{"name": "راتب سعيد ماحيله", "amount": 730.0}, {"name": "راتب محمد سعيد", "amount": 6422.0}, {"name": "راتب هاني سعيد", "amount": 4145.0}, {"name": "راتب يعقوب متأخر شهر 3", "amount": 2500.0}, {"name": "راتب إسماعيل متأخر شهر 3", "amount": 2500.0}, {"name": "راتب فضل متأخر شهر 2", "amount": 2000.0}, {"name": "متأخرات رواتب قديمه إسماعيل", "amount": 150.0}], "مصاريف المشغل": [{"name": "إيجار المشغل", "amount": 840.0}, {"name": "فاتورة كهرباء المكتب شهرين", "amount": 300.0}], "رسوم بنكية": [{"name": "رسوم تحويل", "amount": 12.12}, {"name": "رسوم شبكة مدى", "amount": 181.9}, {"name": "رسوم عدم إستخدام شبكة مدى", "amount": 115.0}], "عمولات مشتركة": [{"name": "عمولات مشتركة", "amount": 2609.0}], "نقل": [{"name": "سيارة نقل", "amount": 730.0}, {"name": "عربية سوق المرقب", "amount": 235.0}, {"name": "نقل بضاعه من جده", "amount": 390.0}], "مصاريف حكومية": [{"name": "فاتورة التامينات الخاصه بسجل الرياض", "amount": 10.71}, {"name": "فاتورة تامينات مشتركه + سعوده", "amount": 3140.0}, {"name": "فاتورة مكتب العمل الموظف إسماعيل", "amount": 2125.0}, {"name": "رسوم بطاقات الأعمال", "amount": 248.0}], "رسوم مرافقين": [{"name": "رسوم تجديد إقامة إسماعيل", "amount": 413.0}], "مصاريف عائلة": [{"name": "فاتورة شقة المير العام 2", "amount": 1757.91}, {"name": "فاتورة شقة المدير التنفيذي", "amount": 1028.36}], "الزكاة والدخل": [{"name": "فاتورة القيمه المضافه الربع الاول", "amount": 377.9}], "تأمينات": [{"name": "تأمين صحي للموظفين", "amount": 2551.19}], "كهرباء الفروع": [{"name": "فاتورة كهرباء فرع 2", "amount": 2013.18}], "اتصالات": [{"name": "فاتورة جوال المدير العام", "amount": 295.18}], "أخرى": [{"name": "مياه", "amount": 410.0}, {"name": "صدقه", "amount": 86.0}, {"name": "تركيبب طاولات و شاحن", "amount": 70.0}, {"name": "مناديل", "amount": 27.0}, {"name": "أكياس تعبئة \" خيش \"", "amount": 115.0}, {"name": "أكياس بضاعه", "amount": 330.0}, {"name": "أدوات مكتبيه للمحاسب", "amount": 52.0}, {"name": "كاسات", "amount": 5.0}, {"name": "صيانة البرنامج المحاسبي", "amount": 100.0}, {"name": "صيانة كهرباء الفرع", "amount": 295.0}]}, "مايو 25": {"رواتب": [{"name": "راتب سعيد ماحيله", "amount": 1490.0}, {"name": "راتب هاني سعيد", "amount": 6162.0}, {"name": "راتب يعقوب متأخر شهر 4", "amount": 2500.0}, {"name": "راتب يعقوب متأخر شهر 5", "amount": 2500.0}, {"name": "راتب إسماعيل متأخر شهر 4", "amount": 2500.0}, {"name": "راتب فضل المحاسب شهر 3", "amount": 1200.0}, {"name": "راتب محمد سعيد", "amount": 7156.75}], "مصاريف المشغل": [{"name": "صيانة مكيف المشغل", "amount": 300.0}, {"name": "فاتورة كهرباء المكتب", "amount": 200.0}], "إيجار": [{"name": "إيجار مكتب المحاسب", "amount": 2000.0}], "رسوم بنكية": [{"name": "رسوم تحويل", "amount": 20.18}, {"name": "رسوم شبكة مدى", "amount": 403.74}, {"name": "رسوم إصدار بطاقة إيداع", "amount": 115.0}, {"name": "رسوم عدم إستخدام شبكة مدى", "amount": 115.0}], "عمولات مشتركة": [{"name": "عمولات مشتركة", "amount": 4142.0}], "نقل": [{"name": "سيارة نقل", "amount": 655.0}, {"name": "عربية سوق المرقب", "amount": 360.0}, {"name": "نقل بضاعه من جده", "amount": 110.0}], "مصاريف حكومية": [{"name": "فاتورة تجديد منصة قوى", "amount": 1075.25}, {"name": "فاتورة تامينات مشتركه + سعوده", "amount": 2190.0}, {"name": "رسوم بطاقات الأعمال", "amount": 248.0}], "رسوم مرافقين": [{"name": "تجديد إقامة يعقوب", "amount": 2000.0}], "مصاريف عائلة": [{"name": "فاتورة ماء شقة مدراء الشركه", "amount": 497.73}], "كهرباء الفروع": [{"name": "فاتورة كهرباء فرع 1", "amount": 1546.32}, {"name": "فاتورة كهرباء فرع 2", "amount": 559.46}], "اتصالات": [{"name": "فاتورة جوال المدير العام", "amount": 260.52}, {"name": "فاتورة جوال المدير التنفيذي", "amount": 518.0}, {"name": "فاتورة جوال المدير التنفيذي 2", "amount": 126.96}], "مستحقات سابقة رجالي": [{"name": "حق أبو نواف", "amount": 3460.0}, {"name": "تذكرة سفر يعقوب", "amount": 950.0}, {"name": "دفع موردين الرجالي", "amount": 300.0}, {"name": "مجهوله لم يعرف لمورد او مصروف", "amount": 150.0}, {"name": "عيدية حراس سوق المرقب", "amount": 100.0}, {"name": "ديكور علاقات الفرع", "amount": 30.0}], "أخرى": [{"name": "مياه", "amount": 480.0}, {"name": "صدقه", "amount": 58.0}, {"name": "حبر طابعتين", "amount": 198.0}, {"name": "كاسات و لصقه", "amount": 15.0}, {"name": "أكياس تعبئة \" خيش \"", "amount": 205.0}, {"name": "أكياس بضاعه", "amount": 440.0}]}, "يونيو 25": {"رواتب": [{"name": "راتب سعيد ماحيله", "amount": 4870.0}, {"name": "راتب هاني سعيد", "amount": 5890.0}, {"name": "تصفية الرواتب المتأخرة ل اسماعيل", "amount": 1000.0}, {"name": "راتب إسماعيل متأخر شهر 5", "amount": 2500.0}, {"name": "راتب فضل المحاسب شهر 4", "amount": 2000.0}, {"name": "راتب محمد سعيد", "amount": 5865.0}], "مصاريف المشغل": [{"name": "فاتورة كهرباء المكتب", "amount": 200.0}], "رسوم بنكية": [{"name": "رسوم تحويل", "amount": 17.84}, {"name": "رسوم شبكة مدى", "amount": 186.83}], "عمولات مشتركة": [{"name": "عمولات مشتركة", "amount": 2184.0}], "نقل": [{"name": "سيارة نقل", "amount": 1290.0}, {"name": "عربية سوق المرقب", "amount": 350.0}, {"name": "نقل بضاعه من جده", "amount": 305.0}], "مصاريف حكومية": [{"name": "فاتورة مكتب المحاسب القانوني", "amount": 5500.0}, {"name": "فاتورة التقرير الفني للفرعين", "amount": 800.0}, {"name": "فاتورة تجديد رخصة بلدي  فرع 1", "amount": 990.75}, {"name": "فاتورة تجديد رخصة بلدي  فرع 2", "amount": 1305.25}, {"name": "فاتورة مكتب العمل للمدير العام", "amount": 2125.0}, {"name": "رسوم بطاقات الأعمال", "amount": 248.0}, {"name": "تعبئة طفاية حريق عدد 2", "amount": 30.0}], "رسوم مرافقين": [{"name": "فاتورة رسوم مرافقين المدير العام", "amount": 5937.0}, {"name": "تجديد إقامة وفصل تابع المدير العام", "amount": 1613.0}], "تأمينات": [{"name": "التامين الصحي لأسرة المدير التنفيذي", "amount": 1325.39}, {"name": "التامين الصحي لأسرة المدير العام", "amount": 5636.01}], "اتصالات": [{"name": "فاتورة جوال المدير التنفيذي", "amount": 518.0}], "مستحقات سابقة رجالي": [{"name": "دفع موردين الرجالي", "amount": 12300.0}], "أخرى": [{"name": "مياه", "amount": 340.0}, {"name": "صدقه", "amount": 62.0}, {"name": "ورق تصوير", "amount": 25.0}, {"name": "عيدية عمال نظافة السوق", "amount": 100.0}, {"name": "أكياس تعبئة \" خيش \"", "amount": 580.0}, {"name": "أكياس بضاعه", "amount": 200.0}]}, "يوليو 25": {"رواتب": [{"name": "راتب سعيد ماحيله", "amount": 2285.0}, {"name": "راتب هاني سعيد", "amount": 5265.0}, {"name": "راتب إسماعيل متأخر شهر 6", "amount": 2250.0}, {"name": "راتب فضل المحاسب شهر 5", "amount": 1000.0}, {"name": "راتب محمد سعيد", "amount": 4986.66}], "مصاريف المشغل": [{"name": "فاتورة كهرباء المشغل", "amount": 1413.55}, {"name": "فاتورة كهرباء المكتب", "amount": 200.0}], "إيجار": [{"name": "إيجار المحلات", "amount": 38888.0}], "رسوم بنكية": [{"name": "رسوم تحويل", "amount": 15.11}, {"name": "رسوم شبكة مدى", "amount": 154.58}], "عمولات مشتركة": [{"name": "عمولات مشتركة", "amount": 2066.0}], "نقل": [{"name": "سيارة نقل", "amount": 705.0}, {"name": "عربية سوق المرقب", "amount": 285.0}, {"name": "نقل بضاعه من جده", "amount": 190.0}], "مصاريف حكومية": [{"name": "فاتورة مكتب العمل للموظف إسماعيل", "amount": 2125.0}, {"name": "فاتورة تامينات مشتركه + سعوده", "amount": 400.0}, {"name": "رسوم بطاقات الأعمال", "amount": 248.0}], "رسوم مرافقين": [{"name": "تجديد إقامة الموظف إسماعيل", "amount": 412.0}], "مصاريف عائلة": [{"name": "فواتير الكهرباء - البيت", "amount": 7389.26}], "الزكاة والدخل": [{"name": "فاتورة القيمة المضافة", "amount": 2208.42}], "تأمينات": [{"name": "التامين الصحي لأسرة المدير التنفيذي", "amount": 4358.43}], "اتصالات": [{"name": "فاتورة جوال المدير العام", "amount": 299.92}, {"name": "فاتورة جوال المدير التنفيذي", "amount": 517.0}, {"name": "فاتورة جوال المدير التنفيذي 2", "amount": 115.0}, {"name": "فاتورة جوال المدير العام للشهر الحالي", "amount": 179.93}], "مستحقات سابقة رجالي": [{"name": "دفعة مكتب عتيقه", "amount": 2500.0}, {"name": "ديكور محل", "amount": 745.0}], "أخرى": [{"name": "مياه", "amount": 418.0}, {"name": "صدقه", "amount": 30.0}, {"name": "رسوم عدم استخدام شبكة مدى", "amount": 115.0}, {"name": "أكياس تعبئة \" خيش \" مع لصقه", "amount": 160.0}, {"name": "أكياس بضاعه", "amount": 265.0}]}, "أغسطس 25": {"رواتب": [{"name": "راتب سعيد ماحيله", "amount": 3710.0}, {"name": "راتب هاني سعيد", "amount": 5655.0}, {"name": "راتب إسماعيل متأخر شهر 6", "amount": 250.0}, {"name": "راتب ياسين  شهر 7", "amount": 2500.0}, {"name": "راتب إسماعيل شهر 7", "amount": 2500.0}, {"name": "راتب فضل المحاسب شهر 5", "amount": 2015.0}, {"name": "راتب محمد سعيد", "amount": 4220.75}], "مصاريف المشغل": [{"name": "فاتورة كهرباء المكتب", "amount": 200.0}, {"name": "فاتورة شراء مكيف المشغل", "amount": 3800.0}], "رسوم بنكية": [{"name": "رسوم تحويل", "amount": 13.41}, {"name": "رسوم شبكة مدى", "amount": 126.77}, {"name": "رسوم عدم استخدام نقاط البيع", "amount": 115.0}], "عمولات مشتركة": [{"name": "عمولات مشتركة", "amount": 1645.0}], "نقل": [{"name": "سيارة نقل", "amount": 805.0}, {"name": "عربية سوق المرقب", "amount": 160.0}, {"name": "نقل بضاعه من جده", "amount": 655.0}], "مصاريف حكومية": [{"name": "كرت عمل الموظف محمد", "amount": 2425.0}, {"name": "مخالفة بلدية", "amount": 750.0}, {"name": "فاتورة البلديه", "amount": 20.0}, {"name": "رسوم بطاقات الأعمال", "amount": 248.0}], "رسوم مرافقين": [{"name": "رسوم تجديد إقامة محمد", "amount": 537.0}, {"name": "رسوم مرافقين محمد", "amount": 6000.0}], "مصاريف عائلة": [{"name": "فواتير الكهرباء - البيت", "amount": 3392.19}], "اتصالات": [{"name": "فاتورة جوال المدير العام", "amount": 419.58}, {"name": "فاتورة جوال المدير التنفيذي", "amount": 447.0}], "مستحقات سابقة رجالي": [{"name": "دفعة موردين الرجالي", "amount": 540.0}, {"name": "دفعة موردين فاشن", "amount": 500.0}], "أخرى": [{"name": "مياه", "amount": 460.0}, {"name": "صدقه", "amount": 64.0}, {"name": "قلم + مناديل + حبل", "amount": 50.0}, {"name": "صيانة مكيف", "amount": 70.0}, {"name": "أكياس تعبئة \" خيش \"", "amount": 65.0}, {"name": "أكياس بضاعه مع لصقه", "amount": 150.0}, {"name": "أجرة القائم على الجمعية", "amount": 800.0}]}, "سبتمبر 25": {"رواتب": [{"name": "راتب سعيد ماحيله", "amount": 1778.0}, {"name": "راتب هاني سعيد", "amount": 7287.0}, {"name": "راتب إسماعيل شهر 8", "amount": 2500.0}, {"name": "راتب ياسين  شهر 8", "amount": 1500.0}, {"name": "راتب محمد سعيد", "amount": 5463.0}], "مصاريف المشغل": [{"name": "فاتورة كهرباء المكتب", "amount": 200.0}, {"name": "إيجار المشغل", "amount": 3000.0}], "رسوم بنكية": [{"name": "رسوم شبكة مدى", "amount": 142.07}, {"name": "رسوم تحويل", "amount": 26.31}, {"name": "رسوم عدم استخدام نقاط البيع", "amount": 345.0}], "عمولات مشتركة": [{"name": "عمولات مشتركة", "amount": 473.0}], "نقل": [{"name": "سيارة نقل", "amount": 310.0}, {"name": "نقل بضاعه من جده", "amount": 30.0}, {"name": "عربية سوق المرقب", "amount": 40.0}], "مصاريف حكومية": [{"name": "فاتورة التأمينات المشتركة + السعوده", "amount": 1669.0}, {"name": "فاتورة البلدية - تعديل رخصة", "amount": 20.0}, {"name": "كرت عمل الموظف هاني", "amount": 4850.0}, {"name": "فاتورة تجديد الغرفة التجاريه", "amount": 2105.48}, {"name": "فاتورة تقرير الدفاع المدني", "amount": 450.0}, {"name": "فاتورة إشتراك قوى المشترك", "amount": 281.0}, {"name": "رسوم بطاقات الأعمال", "amount": 248.0}], "رسوم مرافقين": [{"name": "رسوم تجديد إقامة هاني", "amount": 825.0}, {"name": "رسوم مرافقين هاني", "amount": 8775.0}], "مصاريف عائلة": [{"name": "فاتورة الماء - البيت", "amount": 1683.9}], "كهرباء الفروع": [{"name": "كهرباء فرع هاني", "amount": 2813.87}], "اتصالات": [{"name": "فاتورة جوال المدير التنفيذي", "amount": 518.0}, {"name": "فاتورة جوال المدير التنفيذي", "amount": 109.43}], "مستحقات سابقة رجالي": [{"name": "دفعة موردين الرجالي", "amount": 1100.0}], "أخرى": [{"name": "مياه", "amount": 350.0}, {"name": "صدقه", "amount": 16.0}, {"name": "شراء جهاز غلاية ماء", "amount": 25.0}, {"name": "أكياس تعبئة \" خيش \"", "amount": 35.0}, {"name": "أكياس بضاعه", "amount": 300.0}]}, "أكتوبر 25": {"رواتب": [{"name": "راتب سعيد ماحيله", "amount": 1370.0}, {"name": "راتب هاني سعيد", "amount": 4310.0}, {"name": "راتب إسماعيل شهر 9", "amount": 1500.0}, {"name": "راتب ياسين  شهر 9", "amount": 2500.0}, {"name": "متأخر راتب ياسين  شهر 8", "amount": 1000.0}, {"name": "راتب فضل المحاسب شهر 6", "amount": 2015.0}, {"name": "دفعة راتب الموظفة السعودية شهر10", "amount": 800.0}, {"name": "راتب محمد سعيد", "amount": 5580.93}], "مصاريف المشغل": [{"name": "فاتورة كهرباء المكتب", "amount": 200.0}, {"name": "إيجار المشغل", "amount": 9500.0}], "رسوم بنكية": [{"name": "رسوم شبكة مدى", "amount": 146.54}, {"name": "رسوم تحويل", "amount": 23.19}, {"name": "رسوم عدم استخدام نقاط البيع", "amount": 345.0}], "عمولات مشتركة": [{"name": "عمولات مشتركة", "amount": 691.0}], "نقل": [{"name": "سيارة نقل", "amount": 300.0}, {"name": "نقل بضاعه من جده", "amount": 140.0}, {"name": "عربية سوق المرقب", "amount": 170.0}], "مصاريف حكومية": [{"name": "فاتورة التأمينات", "amount": 46.0}, {"name": "فاتورة كروت عمل الموظفين", "amount": 400.0}, {"name": "فاتورة تجديد إشتراك قوى", "amount": 2248.25}, {"name": "فاتورة كروت عمل الموظفين", "amount": 600.0}, {"name": "رسوم بطاقات الأعمال", "amount": 248.0}], "الزكاة والدخل": [{"name": "فاتورة القيمة المضافة للربع الثالث", "amount": 303.95}], "كهرباء الفروع": [{"name": "فاتورة كهرباء فرع محمد", "amount": 2468.76}, {"name": "فاتورة كهرباء فرع هاني", "amount": 590.96}], "اتصالات": [{"name": "فاتورة جوال المدير التنفيذي", "amount": 518.0}, {"name": "فاتورة جوال المدير العام", "amount": 290.26}], "مستحقات سابقة رجالي": [{"name": "دفع موردين فاشن روز", "amount": 500.0}, {"name": "دفعة موردين الرجالي", "amount": 467.0}], "أخرى": [{"name": "مياه", "amount": 190.0}, {"name": "صدقه", "amount": 32.0}, {"name": "مناديل", "amount": 5.0}, {"name": "أكياس تعبئة \" خيش \"", "amount": 160.0}, {"name": "أكياس بضاعه", "amount": 300.0}]}, "نوفمبر 25": {"رواتب": [{"name": "راتب سعيد ماحيله", "amount": 5212.0}, {"name": "راتب هاني سعيد", "amount": 5285.0}, {"name": "راتب إسماعيل شهر 10", "amount": 2500.0}, {"name": "راتب ياسين  شهر 10", "amount": 2500.0}, {"name": "متأخر راتب إسماعيل  شهر 9", "amount": 1000.0}, {"name": "راتب فضل المحاسب شهر 7", "amount": 1500.0}, {"name": "دفعة راتب الموظفة السعودية شهر11", "amount": 800.0}, {"name": "راتب محمد سعيد", "amount": 7481.29}], "مصاريف المشغل": [{"name": "فاتورة صيانة كميراء المشغل", "amount": 120.0}, {"name": "فاتورة كهرباء المكتب", "amount": 200.0}, {"name": "فاتورة شراء مواد كهربائية للمشغل", "amount": 200.0}], "رسوم بنكية": [{"name": "رسوم شبكة مدى", "amount": 265.86}, {"name": "رسوم تحويل", "amount": 80.16}, {"name": "رسوم عدم استخدام نقاط البيع", "amount": 230.0}], "عمولات مشتركة": [{"name": "عمولات مشتركة", "amount": 902.0}], "نقل": [{"name": "سيارة نقل", "amount": 975.0}, {"name": "نقل بضاعه من جده", "amount": 340.0}, {"name": "عربية سوق المرقب", "amount": 130.0}], "مصاريف حكومية": [{"name": "فاتورة التأمينات", "amount": 1916.71}, {"name": "فاتورة تجديد خدمة مقيم", "amount": 1265.0}, {"name": "فاتورة نقاط مقيم", "amount": 57.5}, {"name": "رسوم بطاقات الأعمال", "amount": 248.0}], "رسوم مرافقين": [{"name": "تجديد إقامة إسماعيل", "amount": 1650.0}], "مصاريف عائلة": [{"name": "فاتورة كهرباء البيت", "amount": 4109.54}], "اتصالات": [{"name": "فاتورة جوال المدير التنفيذي", "amount": 534.0}], "مستحقات سابقة رجالي": [{"name": "صندوق محمد الخاص", "amount": 200.0}, {"name": "دفع موردين فاشن روز", "amount": 500.0}, {"name": "دفعة موردين الرجالي", "amount": 1100.0}], "أخرى": [{"name": "مياه", "amount": 195.0}, {"name": "صدقه", "amount": 68.0}, {"name": "أكياس تعبئة \" خيش \"", "amount": 190.0}, {"name": "أكياس بضاعه", "amount": 310.0}, {"name": "مناديل و غيرها", "amount": 80.0}]}, "ديسمبر 25": {"رواتب": [{"name": "راتب سعيد ماحيله", "amount": 5628.0}, {"name": "راتب هاني سعيد", "amount": 5694.0}, {"name": "راتب إسماعيل شهر 11", "amount": 2500.0}, {"name": "راتب ياسين  شهر 11", "amount": 2500.0}, {"name": "راتب يعقوب شهر 11 لمدة 7 ايام", "amount": 665.0}, {"name": "راتب فضل المحاسب شهر 7 + 10", "amount": 1700.0}, {"name": "دفعة راتب الموظفة السعودية شهر12", "amount": 800.0}, {"name": "راتب محمد سعيد", "amount": 5007.89}], "مصاريف المشغل": [{"name": "فاتورة كهرباء المشغل", "amount": 1227.58}, {"name": "فاتورة ديكور المشغل", "amount": 900.0}, {"name": "فاتورة كهرباء المكتب", "amount": 200.0}], "إيجار": [{"name": "دفعة إيجار مكتب عتيقة", "amount": 3400.0}], "رسوم بنكية": [{"name": "رسوم شبكة مدى", "amount": 215.79}, {"name": "رسوم تحويل", "amount": 59.28}, {"name": "رسوم عدم استخدام نقاط البيع", "amount": 115.0}], "عمولات مشتركة": [{"name": "عمولات مشتركة", "amount": 786.0}], "نقل": [{"name": "سيارة نقل", "amount": 1145.0}, {"name": "نقل بضاعه من جده", "amount": 365.0}, {"name": "عربية سوق المرقب", "amount": 100.0}], "مصاريف حكومية": [{"name": "فاتورة البرنامج السحابي للربط", "amount": 828.0}, {"name": "رسوم بطاقات الأعمال", "amount": 248.0}], "مصاريف عائلة": [{"name": "فاتورة كهرباء البيت", "amount": 2590.97}, {"name": "فاتورة ماء بيت المدير العام", "amount": 1452.94}], "الزكاة والدخل": [{"name": "فاتورة القيمة المضافة", "amount": 550.0}], "اتصالات": [{"name": "فاتورة جوال المدير التنفيذي", "amount": 517.0}, {"name": "فاتورة جوال المدير العام", "amount": 654.96}], "مستحقات سابقة رجالي": [{"name": "صندوق محمد الخاص", "amount": 250.0}, {"name": "دفع موردين فاشن روز", "amount": 200.0}, {"name": "دفعة موردين الرجالي", "amount": 1050.0}, {"name": "ديكور علاقات", "amount": 210.0}], "أخرى": [{"name": "مياه", "amount": 450.0}, {"name": "صدقه", "amount": 34.0}, {"name": "أكياس تعبئة \" خيش \"", "amount": 355.0}, {"name": "أكياس بضاعه", "amount": 220.0}, {"name": "مكنسه", "amount": 10.0}]}, "يناير 26": {"رواتب": [{"name": "راتب سعيد ماحيله", "amount": 975.0}, {"name": "راتب هاني سعيد", "amount": 5176.0}, {"name": "راتب إسماعيل شهر 12", "amount": 2050.0}, {"name": "راتب ياسين  شهر 12", "amount": 2500.0}, {"name": "راتب يعقوب شهر 12", "amount": 2500.0}, {"name": "راتب فضل المحاسب شهر 7 + 10", "amount": 300.0}, {"name": "راتب فضل المحاسب شهر 11", "amount": 1000.0}, {"name": "راتب محمد سعيد", "amount": 5265.47}], "مصاريف المشغل": [{"name": "فاتورة كهرباء المكتب", "amount": 200.0}], "إيجار": [{"name": "دفعة إيجار المحلات", "amount": 77135.0}], "رسوم بنكية": [{"name": "رسوم شبكة مدى", "amount": 201.76}, {"name": "رسوم تحويل", "amount": 21.33}, {"name": "فاتورة عدم استخدام مدى", "amount": 115.0}, {"name": "رسوم عدم استخدام نقاط البيع", "amount": 11.5}], "عمولات مشتركة": [{"name": "عمولات مشتركة", "amount": 1232.0}], "نقل": [{"name": "سيارة نقل", "amount": 835.0}, {"name": "نقل بضاعه من جده", "amount": 50.0}, {"name": "عربية سوق المرقب", "amount": 70.0}], "مصاريف حكومية": [{"name": "تعبئة طفايات الحريق", "amount": 30.0}, {"name": "رسوم بطاقات الأعمال", "amount": 248.0}], "اتصالات": [{"name": "فاتورة جوال المدير التنفيذي", "amount": 518.0}], "مستحقات سابقة رجالي": [{"name": "دفعة موردين الرجالي", "amount": 30.3}], "أخرى": [{"name": "مياه", "amount": 310.0}, {"name": "صدقه", "amount": 519.0}, {"name": "أكياس تعبئة \" خيش \"", "amount": 375.0}, {"name": "أكياس بضاعه", "amount": 540.0}, {"name": "ورق + مكيف + قلم + مناديل + حبل", "amount": 190.0}, {"name": "رسوم خدمة الجمعية", "amount": 500.0}]}, "فبراير 26": {"رواتب": [{"name": "راتب سعيد ماحيله", "amount": 3785.0}, {"name": "راتب هاني سعيد", "amount": 15145.0}, {"name": "راتب إسماعيل شهر 1", "amount": 2500.0}, {"name": "راتب ياسين  شهر 1", "amount": 2500.0}, {"name": "راتب يعقوب شهر 1", "amount": 2500.0}, {"name": "راتب فضل المحاسب شهر 12", "amount": 1300.0}, {"name": "دفعة راتب الموظفة السعودية شهر12", "amount": 800.0}, {"name": "راتب فضل المحاسب شهر 11", "amount": 1000.0}, {"name": "راتب محمد سعيد", "amount": 6488.56}, {"name": "تجدد إقامة ياسين لمدة عام", "amount": 2000.0}], "مصاريف المشغل": [{"name": "دفعة إيجار المشغل", "amount": 10500.0}], "رسوم بنكية": [{"name": "رسوم شبكة مدى", "amount": 489.26}, {"name": "رسوم تحويل", "amount": 20.73}, {"name": "فاتورة عدم استخدام مدى", "amount": 115.0}, {"name": "رسوم عدم استخدام نقاط البيع", "amount": 11.5}], "عمولات مشتركة": [{"name": "عمولات مشتركة", "amount": 4021.0}], "نقل": [{"name": "سيارة نقل", "amount": 850.0}, {"name": "نقل بضاعه من جده", "amount": 20.0}, {"name": "عربية سوق المرقب", "amount": 125.0}], "مصاريف حكومية": [{"name": "فاتورة التأمينات الإجتماعية", "amount": 1049.95}, {"name": "مناديل + تعبئة طفاية", "amount": 40.0}, {"name": "رسوم بطاقات الأعمال", "amount": 248.0}], "الزكاة والدخل": [{"name": "فاتورة القيمة المضافة", "amount": 665.0}], "كهرباء الفروع": [{"name": "فاتورة كهرباء محل فرع 2", "amount": 1739.71}], "اتصالات": [{"name": "فاتورة جوال المدير التنفيذي", "amount": 500.0}], "مستحقات سابقة رجالي": [{"name": "موردين الرجالي", "amount": 1000.0}], "أخرى": [{"name": "مياه", "amount": 290.0}, {"name": "صدقه", "amount": 42.0}, {"name": "علاقات ديكور+ صيانة", "amount": 240.0}, {"name": "أكياس تعبئة \" خيش \"", "amount": 30.0}, {"name": "أكياس بضاعه", "amount": 130.0}]}, "مارس 26": {"رواتب": [{"name": "راتب سعيد ماحيله", "amount": 3420.0}, {"name": "راتب هاني سعيد", "amount": 7116.0}, {"name": "راتب إسماعيل شهر 2", "amount": 2500.0}, {"name": "راتب ياسين  شهر 2", "amount": 2500.0}, {"name": "راتب يعقوب شهر 2", "amount": 2500.0}, {"name": "راتب فضل المحاسب شهر 1", "amount": 800.0}, {"name": "راتب فضل المحاسب شهر 12", "amount": 700.0}, {"name": "راتب محمد سعيد", "amount": 8511.18}], "مصاريف المشغل": [{"name": "سداد إيجار المشغل", "amount": 2000.0}], "رسوم بنكية": [{"name": "رسوم شبكة مدى", "amount": 167.04}, {"name": "رسوم تحويل", "amount": 15.47}], "عمولات مشتركة": [{"name": "عمولات مشتركة", "amount": 2315.0}], "نقل": [{"name": "سيارة نقل", "amount": 575.0}, {"name": "نقل بضاعه من جده", "amount": 15.0}, {"name": "عربية سوق المرقب", "amount": 135.0}], "مصاريف حكومية": [{"name": "رسوم بطاقات الأعمال", "amount": 248.0}], "رسوم مرافقين": [{"name": "تجديد إقامة سعيد + رسوم مرافقين", "amount": 5703.0}, {"name": "تجديد إقامة هاني + رسوم مرافقين", "amount": 7437.0}], "كهرباء الفروع": [{"name": "فاتورة كهرباء محل فرع 2", "amount": 492.45}, {"name": "فاتورة كهرباء محل فرع 1", "amount": 1446.51}], "اتصالات": [{"name": "فاتورة جوال المدير التنفيذي", "amount": 551.0}, {"name": "فاتورة جوال المدير العام", "amount": 334.02}, {"name": "فاتورة جوال المدير العام", "amount": 334.02}], "مستحقات سابقة رجالي": [{"name": "موردين الرجالي", "amount": 1090.0}], "أخرى": [{"name": "مياه", "amount": 220.0}, {"name": "صدقه", "amount": 624.0}, {"name": "صيانة", "amount": 15.0}, {"name": "أكياس تعبئة \" خيش \"", "amount": 15.0}, {"name": "أكياس بضاعه", "amount": 330.0}, {"name": "لصقه", "amount": 20.0}]}};
-const TAILORS_V2 = {"يناير 26": [{"name": "حنان", "balance": 9000.0}, {"name": "عزيزول", "balance": 4857.0}, {"name": "إرشاد", "balance": 8059.0}, {"name": "ركن", "balance": 2775.0}, {"name": "جعفر", "balance": 5078.0}, {"name": "رقيب", "balance": 2921.0}, {"name": "ناهد", "balance": 1953.0}, {"name": "حبيب", "balance": 2520.0}, {"name": "القصاص الهندي", "balance": 8625.0}, {"name": "جهنكير", "balance": 8000.0}, {"name": "شكيل", "balance": 3253.0}, {"name": "سيفول", "balance": 2939.0}, {"name": "محمد أرجوا", "balance": 200.0}, {"name": "شيمون", "balance": 350.0}, {"name": "صديق", "balance": 1217.0}, {"name": "عمران هندي", "balance": 242.0}, {"name": "عمران بنجالي", "balance": 211.0}, {"name": "هارون", "balance": 210.0}, {"name": "أشرف", "balance": 2568.0}, {"name": "ألطاف", "balance": 550.0}, {"name": "طارق", "balance": 660.0}], "نوفمبر 25": [{"name": "حنان", "balance": 9070.0}, {"name": "عزيزول", "balance": 4696.0}, {"name": "إرشاد", "balance": 7394.0}, {"name": "ركن", "balance": 3189.0}, {"name": "جعفر", "balance": 5332.0}, {"name": "رقيب", "balance": 1886.0}, {"name": "حبيب", "balance": 650.0}, {"name": "القصاص الهندي", "balance": 8948.0}, {"name": "جهنكير", "balance": 8001.0}, {"name": "شكيل", "balance": 3259.0}, {"name": "سيفول", "balance": 3745.0}, {"name": "محمد أرجوا", "balance": 200.0}, {"name": "صديق", "balance": 1417.0}, {"name": "عمران هندي", "balance": 242.0}, {"name": "عمران بنجالي", "balance": 211.0}, {"name": "هارون", "balance": 210.0}, {"name": "أشرف", "balance": 2568.0}, {"name": "ألطاف", "balance": 650.0}, {"name": "طارق", "balance": 660.0}], "فبراير 26": [{"name": "حنان", "balance": 8681.0}, {"name": "عزيزول", "balance": 4346.0}, {"name": "إرشاد", "balance": 6509.0}, {"name": "ركن", "balance": 2580.0}, {"name": "جعفر", "balance": 5000.0}, {"name": "رقيب", "balance": 2449.0}, {"name": "ناهد", "balance": 2711.0}, {"name": "حبيب", "balance": 2375.0}, {"name": "القصاص الهندي", "balance": 8606.0}, {"name": "جهنكير", "balance": 8424.0}, {"name": "شكيل", "balance": 3403.0}, {"name": "سيفول", "balance": 3089.0}, {"name": "محمد أرجوا", "balance": 200.0}, {"name": "شيمون", "balance": 300.0}, {"name": "صديق", "balance": 1117.0}, {"name": "عمران هندي", "balance": 242.0}, {"name": "عمران بنجالي", "balance": 200.0}, {"name": "هارون", "balance": 200.0}, {"name": "أشرف", "balance": 2568.0}, {"name": "ألطاف", "balance": 350.0}, {"name": "طارق", "balance": 660.0}], "مارس 26": [{"name": "حنان", "balance": 8400.0}, {"name": "عزيزول", "balance": 4437.0}, {"name": "إرشاد", "balance": 6021.0}, {"name": "ركن", "balance": 2233.0}, {"name": "جعفر", "balance": 5000.0}, {"name": "رقيب", "balance": 2751.0}, {"name": "ناهد", "balance": 2490.0}, {"name": "حبيب", "balance": 2095.0}, {"name": "القصاص الهندي", "balance": 8593.0}, {"name": "جهنكير", "balance": 8568.0}, {"name": "شكيل", "balance": 3437.0}, {"name": "سيفول", "balance": 3411.0}, {"name": "محمد أرجوا", "balance": 200.0}, {"name": "شيمون", "balance": 300.0}, {"name": "صديق", "balance": 1117.0}, {"name": "عمران هندي", "balance": 242.0}, {"name": "عمران بنجالي", "balance": 200.0}, {"name": "هارون", "balance": 200.0}, {"name": "أشرف", "balance": 2568.0}, {"name": "ألطاف", "balance": 350.0}, {"name": "طارق", "balance": 660.0}], "أبريل 25": [{"name": "حنان", "balance": 10120.0}, {"name": "صديق", "balance": 2417.0}, {"name": "عزيزول", "balance": 3581.0}, {"name": "إرشاد", "balance": 8214.0}, {"name": "جعفر", "balance": 4903.0}, {"name": "عمران", "balance": 14.0}, {"name": "القصاص الهندي", "balance": 5584.0}, {"name": "جهنكير", "balance": 10417.0}, {"name": "شكيل", "balance": 1757.0}, {"name": "سيفول", "balance": 4593.0}, {"name": "أشرف", "balance": 2868.0}, {"name": "جمال", "balance": 1841.0}, {"name": "ألطاف", "balance": 3031.0}, {"name": "طارق", "balance": 2860.0}], "مايو 25": [{"name": "حنان", "balance": 9651.0}, {"name": "صديق", "balance": 2417.0}, {"name": "عزيزول", "balance": 3999.0}, {"name": "إرشاد", "balance": 8344.0}, {"name": "جعفر", "balance": 4767.0}, {"name": "محمد أرجوا", "balance": 2040.0}, {"name": "القصاص الهندي", "balance": 7439.0}, {"name": "جهنكير", "balance": 8427.0}, {"name": "شكيل", "balance": 2025.0}, {"name": "سيفول", "balance": 3961.0}, {"name": "عمران هندي", "balance": 242.0}, {"name": "عمران بنجالي", "balance": 411.0}, {"name": "هارون", "balance": 360.0}, {"name": "أشرف", "balance": 2568.0}, {"name": "جمال", "balance": 1241.0}, {"name": "ألطاف", "balance": 2031.0}, {"name": "طارق", "balance": 1660.0}], "يونيو 25": [{"name": "حنان", "balance": 10212.0}, {"name": "عزيزول", "balance": 5117.0}, {"name": "إرشاد", "balance": 9045.0}, {"name": "محمد أرجوا", "balance": 1380.0}, {"name": "جعفر", "balance": 5278.0}, {"name": "القصاص الهندي", "balance": 8202.0}, {"name": "جهنكير", "balance": 7808.0}, {"name": "شكيل", "balance": 2367.0}, {"name": "سيفول", "balance": 4103.0}, {"name": "صديق", "balance": 2417.0}, {"name": "عمران هندي", "balance": 242.0}, {"name": "عمران بنجالي", "balance": 411.0}, {"name": "هارون", "balance": 360.0}, {"name": "أشرف", "balance": 2568.0}, {"name": "جمال", "balance": 1050.0}, {"name": "ألطاف", "balance": 1831.0}, {"name": "طارق", "balance": 660.0}], "يوليو 25": [{"name": "حنان", "balance": 9290.0}, {"name": "عزيزول", "balance": 4824.0}, {"name": "إرشاد", "balance": 8534.0}, {"name": "محمد أرجوا", "balance": 1799.0}, {"name": "جعفر", "balance": 5590.0}, {"name": "القصاص الهندي", "balance": 9027.0}, {"name": "جهنكير", "balance": 9915.0}, {"name": "شكيل", "balance": 2911.0}, {"name": "سيفول", "balance": 4247.0}, {"name": "شيمون", "balance": 350.0}, {"name": "صديق", "balance": 2417.0}, {"name": "عمران هندي", "balance": 242.0}, {"name": "عمران بنجالي", "balance": 211.0}, {"name": "هارون", "balance": 210.0}, {"name": "أشرف", "balance": 2568.0}, {"name": "جمال", "balance": 900.0}, {"name": "ألطاف", "balance": 1451.0}, {"name": "طارق", "balance": 660.0}], "أغسطس 25": [{"name": "حنان", "balance": 9245.0}, {"name": "عزيزول", "balance": 4779.0}, {"name": "إرشاد", "balance": 8575.0}, {"name": "محمد أرجوا", "balance": 950.0}, {"name": "ركن", "balance": 1030.0}, {"name": "جعفر", "balance": 5492.0}, {"name": "القصاص الهندي", "balance": 9503.0}, {"name": "جهنكير", "balance": 7715.0}, {"name": "شكيل", "balance": 2933.0}, {"name": "سيفول", "balance": 3569.0}, {"name": "شيمون", "balance": 350.0}, {"name": "صديق", "balance": 2417.0}, {"name": "عمران هندي", "balance": 242.0}, {"name": "عمران بنجالي", "balance": 211.0}, {"name": "هارون", "balance": 210.0}, {"name": "أشرف", "balance": 2568.0}, {"name": "جمال", "balance": 700.0}, {"name": "ألطاف", "balance": 1251.0}, {"name": "طارق", "balance": 660.0}], "سبتمبر 25": [{"name": "حنان", "balance": 9073.0}, {"name": "عزيزول", "balance": 4852.0}, {"name": "إرشاد", "balance": 5942.0}, {"name": "ركن", "balance": 530.0}, {"name": "جعفر", "balance": 5451.0}, {"name": "القصاص الهندي", "balance": 9468.0}, {"name": "جهنكير", "balance": 7733.0}, {"name": "شكيل", "balance": 2939.0}, {"name": "سيفول", "balance": 3525.0}, {"name": "صديق", "balance": 1917.0}, {"name": "عمران هندي", "balance": 242.0}, {"name": "عمران بنجالي", "balance": 211.0}, {"name": "هارون", "balance": 210.0}, {"name": "أشرف", "balance": 2568.0}, {"name": "جمال", "balance": 500.0}, {"name": "ألطاف", "balance": 951.0}, {"name": "طارق", "balance": 660.0}]};
-const MONTHLY_DETAIL = {"يناير 25": {"revenue": 285038, "gross_margin": 42756, "expenses": 91363, "profit": -48607, "profit_pct": -17.1, "suppliers_paid": 190459, "purchases": 173491, "tailors_balance": 0, "rent_actual": 47420, "rent_spread": 15807, "exp_breakdown": {"رسوم بنكية": [{"name": "رسوم تحويل", "amount": 4.03}, {"name": "رسوم شبكة مدى", "amount": 113.16}, {"name": "عمولات مشتركة", "amount": 2248.0}], "نقل": [{"name": "سيارة نقل", "amount": 611.0}, {"name": "نقل بضاعه من جده", "amount": 384.0}, {"name": "عربية سوق المرقب", "amount": 160.0}, {"name": "نقل بضاعه من دبي", "amount": 700.0}], "أخرى": [{"name": "مياه", "amount": 468.0}, {"name": "صدقه", "amount": 39.0}, {"name": "فاتورة جوال المدير العام", "amount": 231.79}, {"name": "فاتورة جوال المدير التنفيذي", "amount": 57.0}, {"name": "فاتورة بيت المدير التنفيذي", "amount": 1575.0}, {"name": "فاتورة القيمة المضافه", "amount": 1518.71}, {"name": "مسحقات سابقه ماجد العوبثاني", "amount": 2221.0}, {"name": "أكياس", "amount": 270.0}, {"name": "رسوم عدم استخدام الشبكه", "amount": 230.0}, {"name": "لصقة بضائع", "amount": 30.0}, {"name": "شاهي و كاسات", "amount": 15.0}, {"name": "مسحقات سابقه إبراهيم حسب الرسول", "amount": 2000.0}, {"name": "الاجمالي", "amount": 91363.19}], "رواتب": [{"name": "راتب سعيد ماحيله", "amount": 1452.0}, {"name": "راتب محمد سعيد", "amount": 5257.5}, {"name": "راتب هاني سعيد", "amount": 4698.0}, {"name": "راتب يعقوب متأخر شهر 12", "amount": 2500.0}, {"name": "راتب إسماعيل متأخر شهر 12", "amount": 2500.0}, {"name": "راتب ياسين متأخر شهر 12", "amount": 2500.0}, {"name": "راتب فضل متأخر شهر 11", "amount": 1200.0}], "تراخيص": [{"name": "فاتورة تأمينات إجتماعية مشتركه", "amount": 3550.0}], "إيجار": [{"name": "إيجار الفروع النسائية", "amount": 47420.0}]}, "tailors_list": [], "issues": ["دفع إيجار ربعي (47,420 ر) — يرفع المصاريف بشكل غير اعتيادي", "المصاريف (91,363 ر) تتجاوز الهامش بنسبة 114%"], "notes": [], "revenue_change": null, "expenses_change": null, "profit_change": null, "liquidity_gap": -3216, "needs_external_funding": false, "metric1": -48607, "metric2": 193675, "metric3": 3216}, "فبراير 25": {"revenue": 548674, "gross_margin": 82301, "expenses": 67611, "profit": 14690, "profit_pct": 2.7, "suppliers_paid": 478948, "purchases": 119085, "tailors_balance": 0, "rent_actual": 0, "rent_spread": 15807, "exp_breakdown": {"رسوم بنكية": [{"name": "عمولات مشتركة", "amount": 4383.0}], "نقل": [{"name": "سيارة نقل", "amount": 1150.0}, {"name": "نقل بضاعه من جده", "amount": 380.0}, {"name": "عربية سوق المرقب", "amount": 175.0}], "أخرى": [{"name": "مياه", "amount": 398.0}, {"name": "صدقه", "amount": 396.0}, {"name": "فاتورة جوال المدير التنفيذي", "amount": 805.0}, {"name": "أكياس تغليف", "amount": 35.0}, {"name": "مكنسة نظافه", "amount": 15.0}, {"name": "حبل تربيط و خيش تعبئة بضاعه ولصقه", "amount": 55.0}, {"name": "تجهيز مكتب المحاسب", "amount": 120.0}, {"name": "أكياس بضاعه", "amount": 660.0}, {"name": "مستحقات المحاسب إبراهيم", "amount": 2643.0}, {"name": "سكر و شاهي", "amount": 15.0}, {"name": "مفقودة الصرف", "amount": 130.0}, {"name": "أدوات مكتبية و حبر", "amount": 107.0}, {"name": "صيانة كمبيوتر المحاسب", "amount": 340.0}, {"name": "الاجمالي", "amount": 67611.0}], "رواتب": [{"name": "راتب سعيد ماحيله", "amount": 4226.0}, {"name": "راتب محمد سعيد", "amount": 7309.0}, {"name": "راتب هاني سعيد", "amount": 7687.0}, {"name": "راتب يعقوب متأخر شهر 1", "amount": 2500.0}, {"name": "راتب إسماعيل متأخر شهر 1", "amount": 2500.0}, {"name": "راتب ياسين متأخر شهر 1", "amount": 2500.0}, {"name": "راتب فضل متأخر شهر 12", "amount": 2000.0}], "تراخيص": [{"name": "فاتورة تأمينات إجتماعية مشتركه", "amount": 3407.0}]}, "tailors_list": [], "issues": [], "notes": ["دفع للموردين أكثر من المشتريات بـ 359,863 ر (سداد ديون سابقة)"], "revenue_change": 92.5, "expenses_change": -26.0, "profit_change": -130.2, "liquidity_gap": -2115, "needs_external_funding": false, "metric1": 14690, "metric2": 481063, "metric3": 2115}, "مارس 25": {"revenue": 532048, "gross_margin": 79807, "expenses": 124379, "profit": -44572, "profit_pct": -8.4, "suppliers_paid": 419377, "purchases": 413550, "tailors_balance": 0, "rent_actual": 0, "rent_spread": 15807, "exp_breakdown": {"رواتب": [{"name": "رسوم مرافقين الموظف محمد سعيد", "amount": 5925.0}, {"name": "راتب سعيد ماحيله", "amount": 6825.0}, {"name": "راتب محمد سعيد", "amount": 9666.5}, {"name": "راتب هاني سعيد", "amount": 10440.0}, {"name": "راتب يعقوب متأخر شهر 2", "amount": 2500.0}, {"name": "راتب إسماعيل متأخر شهر 2", "amount": 2500.0}, {"name": "راتب ياسين متأخر شهر 2 و 3", "amount": 5000.0}, {"name": "راتب فضل متأخر شهر 1", "amount": 2000.0}, {"name": "رسوم مرافقين الموظف هاني سعيد", "amount": 12263.0}], "رسوم بنكية": [{"name": "رسوم شبكة مدى", "amount": 690.0}, {"name": "عمولات مشتركة", "amount": 4418.0}, {"name": "رسوم تحويل و استخدام مدى", "amount": 72.27}], "نقل": [{"name": "سيارة نقل", "amount": 1165.0}, {"name": "نقل بضاعه من جده", "amount": 300.0}, {"name": "عربية سوق المرقب", "amount": 420.0}], "أخرى": [{"name": "مياه", "amount": 259.0}, {"name": "صدقه", "amount": 426.0}, {"name": "سداد فاتورة تجديد السجل", "amount": 256.0}, {"name": "فاتورة جوال المدير التنفيذي", "amount": 1650.8}, {"name": "كرت عمل هاني سعيد", "amount": 4850.0}, {"name": "كرت عمل محمد سعيد", "amount": 2425.0}, {"name": "كرت عمل سعيد مبارك", "amount": 4250.0}, {"name": "أكياس تعبئة \" خيش \"", "amount": 490.0}, {"name": "أكياس بضاعه", "amount": 440.0}, {"name": "صيانة لمبات", "amount": 60.0}, {"name": "لصقه", "amount": 50.0}, {"name": "متاخرات رواتب إسماعيل", "amount": 850.0}, {"name": "دفع موردين فاشن", "amount": 1000.0}, {"name": "فاتورة جوال المدير العام", "amount": 283.36}, {"name": "سلك طابعه و كاسات", "amount": 20.0}, {"name": "الاجمالي", "amount": 124379.28}], "تراخيص": [{"name": "فاتورة التامينات الخاصه بسجل الرياض", "amount": 556.35}, {"name": "فاتورة تامينات مشتركه + سعوده", "amount": 2900.0}, {"name": "رسوم تجديد إقامة محمد و هاني", "amount": 737.0}, {"name": "تجديد إقامة ياسين", "amount": 2000.0}], "خياطين المشغل": [{"name": "فاتورة كهرباء المشغل", "amount": 165.0}, {"name": "إيجار المشغل", "amount": 9160.0}], "إيجار": [{"name": "إيجار مكتب المحاسب", "amount": 2000.0}]}, "tailors_list": [], "issues": ["المصاريف (124,379 ر) تتجاوز الهامش بنسبة 56%"], "notes": [], "revenue_change": -3.0, "expenses_change": 84.0, "profit_change": -403.4, "liquidity_gap": 11708, "needs_external_funding": true, "metric1": -44572, "metric2": 407669, "metric3": -11708}, "أبريل 25": {"revenue": 288659, "gross_margin": 43299, "expenses": 48810, "profit": -5511, "profit_pct": -1.9, "suppliers_paid": 232995, "purchases": 0, "tailors_balance": 60200, "rent_actual": 0, "rent_spread": 0, "exp_breakdown": {"رسوم بنكية": [{"name": "رسوم تحويل", "amount": 12.12}, {"name": "رسوم شبكة مدى", "amount": 181.9}, {"name": "عمولات مشتركة", "amount": 2609.0}, {"name": "رسوم عدم إستخدام شبكة مدى", "amount": 115.0}], "نقل": [{"name": "سيارة نقل", "amount": 730.0}, {"name": "عربية سوق المرقب", "amount": 235.0}, {"name": "نقل بضاعه من جده", "amount": 390.0}], "أخرى": [{"name": "مياه", "amount": 410.0}, {"name": "صدقه", "amount": 86.0}, {"name": "تركيبب طاولات و شاحن", "amount": 70.0}, {"name": "فاتورة جوال المدير العام", "amount": 295.18}, {"name": "فاتورة شقة المير العام 2", "amount": 1757.91}, {"name": "فاتورة شقة المدير التنفيذي", "amount": 1028.36}, {"name": "فاتورة كهرباء فرع 2", "amount": 2013.18}, {"name": "فاتورة القيمه المضافه الربع الاول", "amount": 377.9}, {"name": "مناديل", "amount": 27.0}, {"name": "أكياس تعبئة \" خيش \"", "amount": 115.0}, {"name": "أكياس بضاعه", "amount": 330.0}, {"name": "أدوات مكتبيه للمحاسب", "amount": 52.0}, {"name": "كاسات", "amount": 5.0}, {"name": "صيانة البرنامج المحاسبي", "amount": 100.0}, {"name": "صيانة كهرباء الفرع", "amount": 295.0}, {"name": "فاتورة كهرباء المكتب شهرين", "amount": 300.0}, {"name": "متأخرات رواتب قديمه إسماعيل", "amount": 150.0}, {"name": "الاجمالي", "amount": 48810.45}], "رواتب": [{"name": "راتب سعيد ماحيله", "amount": 730.0}, {"name": "راتب محمد سعيد", "amount": 6422.0}, {"name": "راتب هاني سعيد", "amount": 4145.0}, {"name": "راتب يعقوب متأخر شهر 3", "amount": 2500.0}, {"name": "راتب إسماعيل متأخر شهر 3", "amount": 2500.0}, {"name": "راتب فضل متأخر شهر 2", "amount": 2000.0}, {"name": "فاتورة مكتب العمل الموظف إسماعيل", "amount": 2125.0}, {"name": "تأمين صحي للموظفين", "amount": 2551.19}, {"name": "رسوم بطاقات الأعمال", "amount": 248.0}], "تراخيص": [{"name": "فاتورة التامينات الخاصه بسجل الرياض", "amount": 10.71}, {"name": "فاتورة تامينات مشتركه + سعوده", "amount": 3140.0}, {"name": "رسوم تجديد إقامة إسماعيل", "amount": 413.0}], "خياطين المشغل": [{"name": "إيجار المشغل", "amount": 840.0}]}, "tailors_list": [{"name": "حنان", "balance": 10120.0}, {"name": "صديق", "balance": 2417.0}, {"name": "عزيزول", "balance": 3581.0}, {"name": "إرشاد", "balance": 8214.0}, {"name": "جعفر", "balance": 4903.0}, {"name": "عمران", "balance": 14.0}, {"name": "القصاص الهندي", "balance": 5584.0}, {"name": "جهنكير", "balance": 10417.0}, {"name": "شكيل", "balance": 1757.0}, {"name": "سيفول", "balance": 4593.0}, {"name": "أشرف", "balance": 2868.0}, {"name": "جمال", "balance": 1841.0}, {"name": "ألطاف", "balance": 3031.0}, {"name": "طارق", "balance": 2860.0}], "issues": [], "notes": ["رصيد خياطين مرتفع: 60,200 ر"], "revenue_change": -45.7, "expenses_change": -60.8, "profit_change": -87.6, "liquidity_gap": -6854, "needs_external_funding": false, "metric1": -5511, "metric2": 239849, "metric3": 6854}, "مايو 25": {"revenue": 450582, "gross_margin": 67587, "expenses": 59338, "profit": 8249, "profit_pct": 1.8, "suppliers_paid": 391082, "purchases": 303697, "tailors_balance": 60267, "rent_actual": 0, "rent_spread": 0, "exp_breakdown": {"رسوم بنكية": [{"name": "رسوم تحويل", "amount": 20.18}, {"name": "رسوم شبكة مدى", "amount": 403.74}, {"name": "عمولات مشتركة", "amount": 4142.0}], "نقل": [{"name": "سيارة نقل", "amount": 655.0}, {"name": "عربية سوق المرقب", "amount": 360.0}, {"name": "نقل بضاعه من جده", "amount": 110.0}], "أخرى": [{"name": "مياه", "amount": 480.0}, {"name": "صدقه", "amount": 58.0}, {"name": "حبر طابعتين", "amount": 198.0}, {"name": "فاتورة جوال المدير العام", "amount": 260.52}, {"name": "فاتورة جوال المدير التنفيذي", "amount": 518.0}, {"name": "فاتورة جوال المدير التنفيذي 2", "amount": 126.96}, {"name": "فاتورة كهرباء فرع 1", "amount": 1546.32}, {"name": "فاتورة كهرباء فرع 2", "amount": 559.46}, {"name": "فاتورة ماء شقة مدراء الشركه", "amount": 497.73}, {"name": "فاتورة تجديد منصة قوى", "amount": 1075.25}, {"name": "حق أبو نواف", "amount": 3460.0}, {"name": "تذكرة سفر يعقوب", "amount": 950.0}, {"name": "رسوم إصدار بطاقة إيداع", "amount": 115.0}, {"name": "كاسات و لصقه", "amount": 15.0}, {"name": "أكياس تعبئة \" خيش \"", "amount": 205.0}, {"name": "مجهوله لم يعرف لمورد او مصروف", "amount": 150.0}, {"name": "أكياس بضاعه", "amount": 440.0}, {"name": "عيدية حراس سوق المرقب", "amount": 100.0}, {"name": "ديكور علاقات الفرع", "amount": 30.0}, {"name": "فاتورة كهرباء المكتب", "amount": 200.0}], "رواتب": [{"name": "راتب سعيد ماحيله", "amount": 1490.0}, {"name": "راتب هاني سعيد", "amount": 6162.0}, {"name": "راتب يعقوب متأخر شهر 4", "amount": 2500.0}, {"name": "راتب يعقوب متأخر شهر 5", "amount": 2500.0}, {"name": "راتب إسماعيل متأخر شهر 4", "amount": 2500.0}, {"name": "راتب فضل المحاسب شهر 3", "amount": 1200.0}, {"name": "راتب محمد سعيد", "amount": 7156.75}, {"name": "رسوم بطاقات الأعمال", "amount": 248.0}], "تراخيص": [{"name": "فاتورة تامينات مشتركه + سعوده", "amount": 2190.0}, {"name": "تجديد إقامة يعقوب", "amount": 2000.0}], "إيجار": [{"name": "إيجار مكتب المحاسب", "amount": 2000.0}], "خياطين المشغل": [{"name": "صيانة مكيف المشغل", "amount": 300.0}]}, "tailors_list": [{"name": "حنان", "balance": 9651.0}, {"name": "صديق", "balance": 2417.0}, {"name": "عزيزول", "balance": 3999.0}, {"name": "إرشاد", "balance": 8344.0}, {"name": "جعفر", "balance": 4767.0}, {"name": "محمد أرجوا", "balance": 2040.0}, {"name": "القصاص الهندي", "balance": 7439.0}, {"name": "جهنكير", "balance": 8427.0}, {"name": "شكيل", "balance": 2025.0}, {"name": "سيفول", "balance": 3961.0}, {"name": "عمران هندي", "balance": 242.0}, {"name": "عمران بنجالي", "balance": 411.0}, {"name": "هارون", "balance": 360.0}, {"name": "أشرف", "balance": 2568.0}, {"name": "جمال", "balance": 1241.0}, {"name": "ألطاف", "balance": 2031.0}, {"name": "طارق", "balance": 1660.0}], "issues": [], "notes": ["رصيد خياطين مرتفع: 60,267 ر"], "revenue_change": 56.1, "expenses_change": 21.6, "profit_change": -249.7, "liquidity_gap": -162, "needs_external_funding": false, "metric1": 8249, "metric2": 391244, "metric3": 162}, "يونيو 25": {"revenue": 417150, "gross_margin": 62573, "expenses": 80794, "profit": -18221, "profit_pct": -4.4, "suppliers_paid": 341935, "purchases": 206858, "tailors_balance": 62551, "rent_actual": 0, "rent_spread": 0, "exp_breakdown": {"رسوم بنكية": [{"name": "رسوم تحويل", "amount": 17.84}, {"name": "رسوم شبكة مدى", "amount": 186.83}, {"name": "عمولات مشتركة", "amount": 2184.0}], "نقل": [{"name": "سيارة نقل", "amount": 1290.0}, {"name": "عربية سوق المرقب", "amount": 350.0}, {"name": "نقل بضاعه من جده", "amount": 305.0}], "أخرى": [{"name": "مياه", "amount": 340.0}, {"name": "تصفية الرواتب المتأخرة ل اسماعيل", "amount": 1000.0}, {"name": "صدقه", "amount": 62.0}, {"name": "التامين الصحي لأسرة المدير التنفيذي", "amount": 1325.39}, {"name": "التامين الصحي لأسرة المدير العام", "amount": 5636.01}, {"name": "فاتورة جوال المدير التنفيذي", "amount": 518.0}, {"name": "فاتورة مكتب المحاسب القانوني", "amount": 5500.0}, {"name": "فاتورة التقرير الفني للفرعين", "amount": 800.0}, {"name": "فاتورة تجديد رخصة بلدي  فرع 1", "amount": 990.75}, {"name": "فاتورة تجديد رخصة بلدي  فرع 2", "amount": 1305.25}, {"name": "فاتورة مكتب العمل للمدير العام", "amount": 2125.0}, {"name": "ورق تصوير", "amount": 25.0}, {"name": "تعبئة طفاية حريق عدد 2", "amount": 30.0}, {"name": "أكياس تعبئة \" خيش \"", "amount": 580.0}, {"name": "أكياس بضاعه", "amount": 200.0}, {"name": "فاتورة كهرباء المكتب", "amount": 200.0}, {"name": "الاجمالي", "amount": 80794.07}], "رواتب": [{"name": "راتب سعيد ماحيله", "amount": 4870.0}, {"name": "راتب هاني سعيد", "amount": 5890.0}, {"name": "راتب إسماعيل متأخر شهر 5", "amount": 2500.0}, {"name": "راتب فضل المحاسب شهر 4", "amount": 2000.0}, {"name": "راتب محمد سعيد", "amount": 5865.0}, {"name": "رسوم بطاقات الأعمال", "amount": 248.0}, {"name": "عيدية عمال نظافة السوق", "amount": 100.0}], "تراخيص": [{"name": "فاتورة رسوم مرافقين المدير العام", "amount": 5937.0}, {"name": "تجديد إقامة وفصل تابع المدير العام", "amount": 1613.0}]}, "tailors_list": [{"name": "حنان", "balance": 10212.0}, {"name": "عزيزول", "balance": 5117.0}, {"name": "إرشاد", "balance": 9045.0}, {"name": "محمد أرجوا", "balance": 1380.0}, {"name": "جعفر", "balance": 5278.0}, {"name": "القصاص الهندي", "balance": 8202.0}, {"name": "جهنكير", "balance": 7808.0}, {"name": "شكيل", "balance": 2367.0}, {"name": "سيفول", "balance": 4103.0}, {"name": "صديق", "balance": 2417.0}, {"name": "عمران هندي", "balance": 242.0}, {"name": "عمران بنجالي", "balance": 411.0}, {"name": "هارون", "balance": 360.0}, {"name": "أشرف", "balance": 2568.0}, {"name": "جمال", "balance": 1050.0}, {"name": "ألطاف", "balance": 1831.0}, {"name": "طارق", "balance": 660.0}], "issues": [], "notes": ["رصيد خياطين مرتفع: 62,551 ر", "دفع للموردين أكثر من المشتريات بـ 135,077 ر (سداد ديون سابقة)"], "revenue_change": -7.4, "expenses_change": 36.2, "profit_change": -320.9, "liquidity_gap": 5579, "needs_external_funding": true, "metric1": -18221, "metric2": 336356, "metric3": -5579}, "يوليو 25": {"revenue": 316654, "gross_margin": 47498, "expenses": 104640, "profit": -57142, "profit_pct": -18.0, "suppliers_paid": 209885, "purchases": 188271, "tailors_balance": 65146, "rent_actual": 61338, "rent_spread": 20446, "exp_breakdown": {"رسوم بنكية": [{"name": "رسوم تحويل", "amount": 15.11}, {"name": "رسوم شبكة مدى", "amount": 154.58}, {"name": "عمولات مشتركة", "amount": 2066.0}, {"name": "رسوم عدم استخدام شبكة مدى", "amount": 115.0}], "نقل": [{"name": "سيارة نقل", "amount": 705.0}, {"name": "عربية سوق المرقب", "amount": 285.0}, {"name": "نقل بضاعه من جده", "amount": 190.0}], "أخرى": [{"name": "مياه", "amount": 418.0}, {"name": "صدقه", "amount": 30.0}, {"name": "التامين الصحي لأسرة المدير التنفيذي", "amount": 4358.43}, {"name": "فاتورة جوال المدير العام", "amount": 299.92}, {"name": "فاتورة جوال المدير التنفيذي", "amount": 517.0}, {"name": "فاتورة جوال المدير التنفيذي 2", "amount": 115.0}, {"name": "فاتورة جوال المدير العام للشهر الحالي", "amount": 179.93}, {"name": "فواتير الكهرباء - البيت", "amount": 7389.26}, {"name": "فاتورة القيمة المضافة", "amount": 2208.42}, {"name": "دفعة مكتب عتيقه", "amount": 2500.0}, {"name": "أكياس تعبئة \" خيش \" مع لصقه", "amount": 160.0}, {"name": "أكياس بضاعه", "amount": 265.0}, {"name": "فاتورة كهرباء المكتب", "amount": 200.0}, {"name": "ديكور محل", "amount": 745.0}, {"name": "الاجمالي", "amount": 104639.86}], "رواتب": [{"name": "راتب سعيد ماحيله", "amount": 2285.0}, {"name": "راتب هاني سعيد", "amount": 5265.0}, {"name": "راتب إسماعيل متأخر شهر 6", "amount": 2250.0}, {"name": "راتب فضل المحاسب شهر 5", "amount": 1000.0}, {"name": "راتب محمد سعيد", "amount": 4986.66}, {"name": "تجديد إقامة الموظف إسماعيل", "amount": 412.0}, {"name": "فاتورة مكتب العمل للموظف إسماعيل", "amount": 2125.0}, {"name": "رسوم بطاقات الأعمال", "amount": 248.0}], "خياطين المشغل": [{"name": "فاتورة كهرباء المشغل", "amount": 1413.55}], "إيجار": [{"name": "إيجار المحلات", "amount": 38888.0}], "تراخيص": [{"name": "فاتورة تامينات مشتركه + سعوده", "amount": 400.0}]}, "tailors_list": [{"name": "حنان", "balance": 9290.0}, {"name": "عزيزول", "balance": 4824.0}, {"name": "إرشاد", "balance": 8534.0}, {"name": "محمد أرجوا", "balance": 1799.0}, {"name": "جعفر", "balance": 5590.0}, {"name": "القصاص الهندي", "balance": 9027.0}, {"name": "جهنكير", "balance": 9915.0}, {"name": "شكيل", "balance": 2911.0}, {"name": "سيفول", "balance": 4247.0}, {"name": "شيمون", "balance": 350.0}, {"name": "صديق", "balance": 2417.0}, {"name": "عمران هندي", "balance": 242.0}, {"name": "عمران بنجالي", "balance": 211.0}, {"name": "هارون", "balance": 210.0}, {"name": "أشرف", "balance": 2568.0}, {"name": "جمال", "balance": 900.0}, {"name": "ألطاف", "balance": 1451.0}, {"name": "طارق", "balance": 660.0}], "issues": ["دفع إيجار ربعي (61,338 ر) — يرفع المصاريف بشكل غير اعتيادي", "المصاريف (104,640 ر) تتجاوز الهامش بنسبة 120%"], "notes": ["رصيد خياطين مرتفع: 65,146 ر"], "revenue_change": -24.1, "expenses_change": 29.5, "profit_change": 213.6, "liquidity_gap": -2129, "needs_external_funding": false, "metric1": -57142, "metric2": 212014, "metric3": 2129}, "أغسطس 25": {"revenue": 267659, "gross_margin": 40149, "expenses": 49409, "profit": -9260, "profit_pct": -3.5, "suppliers_paid": 216985, "purchases": 243113, "tailors_balance": 62400, "rent_actual": 0, "rent_spread": 20446, "exp_breakdown": {"رسوم بنكية": [{"name": "رسوم تحويل", "amount": 13.41}, {"name": "رسوم شبكة مدى", "amount": 126.77}, {"name": "عمولات مشتركة", "amount": 1645.0}, {"name": "رسوم عدم استخدام نقاط البيع", "amount": 115.0}], "نقل": [{"name": "سيارة نقل", "amount": 805.0}, {"name": "عربية سوق المرقب", "amount": 160.0}, {"name": "نقل بضاعه من جده", "amount": 655.0}], "أخرى": [{"name": "مياه", "amount": 460.0}, {"name": "صدقه", "amount": 64.0}, {"name": "فاتورة جوال المدير العام", "amount": 419.58}, {"name": "فاتورة جوال المدير التنفيذي", "amount": 447.0}, {"name": "فواتير الكهرباء - البيت", "amount": 3392.19}, {"name": "فاتورة كهرباء المكتب", "amount": 200.0}, {"name": "فاتورة البلديه", "amount": 20.0}, {"name": "قلم + مناديل + حبل", "amount": 50.0}, {"name": "صيانة مكيف", "amount": 70.0}, {"name": "دفعة موردين فاشن", "amount": 500.0}, {"name": "أكياس تعبئة \" خيش \"", "amount": 65.0}, {"name": "أكياس بضاعه مع لصقه", "amount": 150.0}, {"name": "الاجمالي", "amount": 49408.7}], "رواتب": [{"name": "راتب سعيد ماحيله", "amount": 3710.0}, {"name": "راتب هاني سعيد", "amount": 5655.0}, {"name": "راتب إسماعيل متأخر شهر 6", "amount": 250.0}, {"name": "راتب ياسين  شهر 7", "amount": 2500.0}, {"name": "راتب إسماعيل شهر 7", "amount": 2500.0}, {"name": "راتب فضل المحاسب شهر 5", "amount": 2015.0}, {"name": "راتب محمد سعيد", "amount": 4220.75}, {"name": "كرت عمل الموظف محمد", "amount": 2425.0}, {"name": "رسوم بطاقات الأعمال", "amount": 248.0}], "خياطين المشغل": [{"name": "فاتورة شراء مكيف المشغل", "amount": 3800.0}], "تراخيص": [{"name": "رسوم تجديد إقامة محمد", "amount": 537.0}, {"name": "رسوم مرافقين محمد", "amount": 6000.0}, {"name": "مخالفة بلدية", "amount": 750.0}]}, "tailors_list": [{"name": "حنان", "balance": 9245.0}, {"name": "عزيزول", "balance": 4779.0}, {"name": "إرشاد", "balance": 8575.0}, {"name": "محمد أرجوا", "balance": 950.0}, {"name": "ركن", "balance": 1030.0}, {"name": "جعفر", "balance": 5492.0}, {"name": "القصاص الهندي", "balance": 9503.0}, {"name": "جهنكير", "balance": 7715.0}, {"name": "شكيل", "balance": 2933.0}, {"name": "سيفول", "balance": 3569.0}, {"name": "شيمون", "balance": 350.0}, {"name": "صديق", "balance": 2417.0}, {"name": "عمران هندي", "balance": 242.0}, {"name": "عمران بنجالي", "balance": 211.0}, {"name": "هارون", "balance": 210.0}, {"name": "أشرف", "balance": 2568.0}, {"name": "جمال", "balance": 700.0}, {"name": "ألطاف", "balance": 1251.0}, {"name": "طارق", "balance": 660.0}], "issues": [], "notes": ["رصيد خياطين مرتفع: 62,400 ر", "مشتريات أكثر من المدفوع بـ 26,128 ر (دين متراكم)"], "revenue_change": -15.5, "expenses_change": -52.8, "profit_change": -83.8, "liquidity_gap": -1265, "needs_external_funding": false, "metric1": -9260, "metric2": 218250, "metric3": 1265}, "سبتمبر 25": {"revenue": 182358, "gross_margin": 27354, "expenses": 50369, "profit": -23015, "profit_pct": -12.6, "suppliers_paid": 134496, "purchases": 151015, "tailors_balance": 56772, "rent_actual": 0, "rent_spread": 20446, "exp_breakdown": {"رسوم بنكية": [{"name": "عمولات مشتركة", "amount": 473.0}, {"name": "رسوم شبكة مدى", "amount": 142.07}, {"name": "رسوم تحويل", "amount": 26.31}, {"name": "رسوم عدم استخدام نقاط البيع", "amount": 345.0}], "نقل": [{"name": "سيارة نقل", "amount": 310.0}, {"name": "نقل بضاعه من جده", "amount": 30.0}, {"name": "عربية سوق المرقب", "amount": 40.0}], "أخرى": [{"name": "مياه", "amount": 350.0}, {"name": "صدقه", "amount": 16.0}, {"name": "فاتورة جوال المدير التنفيذي", "amount": 518.0}, {"name": "فاتورة جوال المدير التنفيذي", "amount": 109.43}, {"name": "فاتورة الماء - البيت", "amount": 1683.9}, {"name": "فاتورة تجديد الغرفة التجاريه", "amount": 2105.48}, {"name": "كهرباء فرع هاني", "amount": 2813.87}, {"name": "فاتورة تقرير الدفاع المدني", "amount": 450.0}, {"name": "فاتورة كهرباء المكتب", "amount": 200.0}, {"name": "شراء جهاز غلاية ماء", "amount": 25.0}, {"name": "فاتورة إشتراك قوى المشترك", "amount": 281.0}, {"name": "أكياس تعبئة \" خيش \"", "amount": 35.0}, {"name": "أكياس بضاعه", "amount": 300.0}, {"name": "الاجمالي", "amount": 50369.06}], "رواتب": [{"name": "راتب سعيد ماحيله", "amount": 1778.0}, {"name": "راتب هاني سعيد", "amount": 7287.0}, {"name": "راتب إسماعيل شهر 8", "amount": 2500.0}, {"name": "راتب ياسين  شهر 8", "amount": 1500.0}, {"name": "راتب محمد سعيد", "amount": 5463.0}, {"name": "كرت عمل الموظف هاني", "amount": 4850.0}, {"name": "رسوم بطاقات الأعمال", "amount": 248.0}], "تراخيص": [{"name": "فاتورة التأمينات المشتركة + السعوده", "amount": 1669.0}, {"name": "فاتورة البلدية - تعديل رخصة", "amount": 20.0}, {"name": "رسوم تجديد إقامة هاني", "amount": 825.0}, {"name": "رسوم مرافقين هاني", "amount": 8775.0}], "خياطين المشغل": [{"name": "إيجار المشغل", "amount": 3000.0}]}, "tailors_list": [{"name": "حنان", "balance": 9073.0}, {"name": "عزيزول", "balance": 4852.0}, {"name": "إرشاد", "balance": 5942.0}, {"name": "ركن", "balance": 530.0}, {"name": "جعفر", "balance": 5451.0}, {"name": "القصاص الهندي", "balance": 9468.0}, {"name": "جهنكير", "balance": 7733.0}, {"name": "شكيل", "balance": 2939.0}, {"name": "سيفول", "balance": 3525.0}, {"name": "صديق", "balance": 1917.0}, {"name": "عمران هندي", "balance": 242.0}, {"name": "عمران بنجالي", "balance": 211.0}, {"name": "هارون", "balance": 210.0}, {"name": "أشرف", "balance": 2568.0}, {"name": "جمال", "balance": 500.0}, {"name": "ألطاف", "balance": 951.0}, {"name": "طارق", "balance": 660.0}], "issues": ["إيرادات منخفضة (276,531 ر) — دون مستوى التعادل", "المصاريف (50,369 ر) تتجاوز الهامش بنسبة 84%"], "notes": ["رصيد خياطين مرتفع: 56,772 ر"], "revenue_change": -31.9, "expenses_change": 1.9, "profit_change": 148.5, "liquidity_gap": 2507, "needs_external_funding": true, "metric1": -23015, "metric2": 131989, "metric3": -2507}, "أكتوبر 25": {"revenue": 181199, "gross_margin": 27180, "expenses": 40460, "profit": -13280, "profit_pct": -7.3, "suppliers_paid": 139915, "purchases": 96265, "tailors_balance": 0, "rent_actual": 0, "rent_spread": 0, "exp_breakdown": {"رسوم بنكية": [{"name": "عمولات مشتركة", "amount": 691.0}, {"name": "رسوم شبكة مدى", "amount": 146.54}, {"name": "رسوم تحويل", "amount": 23.19}, {"name": "رسوم عدم استخدام نقاط البيع", "amount": 345.0}], "نقل": [{"name": "سيارة نقل", "amount": 300.0}, {"name": "نقل بضاعه من جده", "amount": 140.0}, {"name": "عربية سوق المرقب", "amount": 170.0}], "أخرى": [{"name": "مياه", "amount": 190.0}, {"name": "صدقه", "amount": 32.0}, {"name": "فاتورة جوال المدير التنفيذي", "amount": 518.0}, {"name": "فاتورة جوال المدير العام", "amount": 290.26}, {"name": "فاتورة كهرباء فرع محمد", "amount": 2468.76}, {"name": "مناديل", "amount": 5.0}, {"name": "فاتورة تجديد إشتراك قوى", "amount": 2248.25}, {"name": "فاتورة كهرباء فرع هاني", "amount": 590.96}, {"name": "فاتورة القيمة المضافة للربع الثالث", "amount": 303.95}, {"name": "فاتورة كهرباء المكتب", "amount": 200.0}, {"name": "دفع موردين فاشن روز", "amount": 500.0}, {"name": "أكياس تعبئة \" خيش \"", "amount": 160.0}, {"name": "أكياس بضاعه", "amount": 300.0}, {"name": "الاجمالي", "amount": 40459.84}], "رواتب": [{"name": "راتب سعيد ماحيله", "amount": 1370.0}, {"name": "راتب هاني سعيد", "amount": 4310.0}, {"name": "راتب إسماعيل شهر 9", "amount": 1500.0}, {"name": "راتب ياسين  شهر 9", "amount": 2500.0}, {"name": "متأخر راتب ياسين  شهر 8", "amount": 1000.0}, {"name": "راتب فضل المحاسب شهر 6", "amount": 2015.0}, {"name": "دفعة راتب الموظفة السعودية شهر10", "amount": 800.0}, {"name": "راتب محمد سعيد", "amount": 5580.93}, {"name": "فاتورة كروت عمل الموظفين", "amount": 400.0}, {"name": "فاتورة كروت عمل الموظفين", "amount": 600.0}, {"name": "رسوم بطاقات الأعمال", "amount": 248.0}], "تراخيص": [{"name": "فاتورة التأمينات", "amount": 46.0}], "خياطين المشغل": [{"name": "إيجار المشغل", "amount": 9500.0}]}, "tailors_list": [], "issues": ["إيرادات منخفضة (260,498 ر) — دون مستوى التعادل"], "notes": [], "revenue_change": -0.6, "expenses_change": -19.7, "profit_change": -42.3, "liquidity_gap": -824, "needs_external_funding": false, "metric1": -13280, "metric2": 140739, "metric3": 824}, "نوفمبر 25": {"revenue": 468087, "gross_margin": 65052, "expenses": 48745, "profit": 16307, "profit_pct": 3.5, "suppliers_paid": 408390, "purchases": 112969, "tailors_balance": 62328, "rent_actual": 0, "rent_spread": 0, "exp_breakdown": {"رسوم بنكية": [{"name": "عمولات مشتركة", "amount": 902.0}, {"name": "رسوم شبكة مدى", "amount": 265.86}, {"name": "رسوم تحويل", "amount": 80.16}, {"name": "رسوم عدم استخدام نقاط البيع", "amount": 230.0}], "نقل": [{"name": "سيارة نقل", "amount": 975.0}, {"name": "نقل بضاعه من جده", "amount": 340.0}, {"name": "عربية سوق المرقب", "amount": 130.0}], "أخرى": [{"name": "مياه", "amount": 195.0}, {"name": "صدقه", "amount": 68.0}, {"name": "فاتورة جوال المدير التنفيذي", "amount": 534.0}, {"name": "فاتورة تجديد خدمة مقيم", "amount": 1265.0}, {"name": "صندوق محمد الخاص", "amount": 200.0}, {"name": "فاتورة نقاط مقيم", "amount": 57.5}, {"name": "فاتورة كهرباء المكتب", "amount": 200.0}, {"name": "دفع موردين فاشن روز", "amount": 500.0}, {"name": "أكياس تعبئة \" خيش \"", "amount": 190.0}, {"name": "أكياس بضاعه", "amount": 310.0}, {"name": "مناديل و غيرها", "amount": 80.0}, {"name": "الاجمالي", "amount": 48745.06}], "رواتب": [{"name": "راتب سعيد ماحيله", "amount": 5212.0}, {"name": "راتب هاني سعيد", "amount": 5285.0}, {"name": "راتب إسماعيل شهر 10", "amount": 2500.0}, {"name": "راتب ياسين  شهر 10", "amount": 2500.0}, {"name": "متأخر راتب إسماعيل  شهر 9", "amount": 1000.0}, {"name": "راتب فضل المحاسب شهر 7", "amount": 1500.0}, {"name": "دفعة راتب الموظفة السعودية شهر11", "amount": 800.0}, {"name": "راتب محمد سعيد", "amount": 7481.29}, {"name": "رسوم بطاقات الأعمال", "amount": 248.0}], "تراخيص": [{"name": "فاتورة التأمينات", "amount": 1916.71}, {"name": "تجديد إقامة إسماعيل", "amount": 1650.0}], "عائلة": [{"name": "فاتورة كهرباء البيت", "amount": 4109.54}], "خياطين المشغل": [{"name": "فاتورة صيانة كميراء المشغل", "amount": 120.0}, {"name": "فاتورة شراء مواد كهربائية للمشغل", "amount": 200.0}]}, "tailors_list": [{"name": "حنان", "balance": 9070.0}, {"name": "عزيزول", "balance": 4696.0}, {"name": "إرشاد", "balance": 7394.0}, {"name": "ركن", "balance": 3189.0}, {"name": "جعفر", "balance": 5332.0}, {"name": "رقيب", "balance": 1886.0}, {"name": "حبيب", "balance": 650.0}, {"name": "القصاص الهندي", "balance": 8948.0}, {"name": "جهنكير", "balance": 8001.0}, {"name": "شكيل", "balance": 3259.0}, {"name": "سيفول", "balance": 3745.0}, {"name": "محمد أرجوا", "balance": 200.0}, {"name": "صديق", "balance": 1417.0}, {"name": "عمران هندي", "balance": 242.0}, {"name": "عمران بنجالي", "balance": 211.0}, {"name": "هارون", "balance": 210.0}, {"name": "أشرف", "balance": 2568.0}, {"name": "ألطاف", "balance": 650.0}, {"name": "طارق", "balance": 660.0}], "issues": [], "notes": ["رصيد خياطين مرتفع: 62,328 ر", "دفع للموردين أكثر من المشتريات بـ 295,421 ر (سداد ديون سابقة)"], "revenue_change": 158.3, "expenses_change": 20.5, "profit_change": -222.8, "liquidity_gap": -10952, "needs_external_funding": false, "metric1": 16307, "metric2": 419342, "metric3": 10952}, "ديسمبر 25": {"revenue": 399272, "gross_margin": 56408, "expenses": 46429, "profit": 9979, "profit_pct": 2.5, "suppliers_paid": 356595, "purchases": 185888, "tailors_balance": 0, "rent_actual": 0, "rent_spread": 0, "exp_breakdown": {"رسوم بنكية": [{"name": "عمولات مشتركة", "amount": 786.0}, {"name": "رسوم شبكة مدى", "amount": 215.79}, {"name": "رسوم تحويل", "amount": 59.28}, {"name": "رسوم عدم استخدام نقاط البيع", "amount": 115.0}], "نقل": [{"name": "سيارة نقل", "amount": 1145.0}, {"name": "نقل بضاعه من جده", "amount": 365.0}, {"name": "عربية سوق المرقب", "amount": 100.0}], "أخرى": [{"name": "مياه", "amount": 450.0}, {"name": "صدقه", "amount": 34.0}, {"name": "فاتورة البرنامج السحابي للربط", "amount": 828.0}, {"name": "فاتورة جوال المدير التنفيذي", "amount": 517.0}, {"name": "فاتورة جوال المدير العام", "amount": 654.96}, {"name": "صندوق محمد الخاص", "amount": 250.0}, {"name": "فاتورة القيمة المضافة", "amount": 550.0}, {"name": "فاتورة ماء بيت المدير العام", "amount": 1452.94}, {"name": "فاتورة كهرباء المكتب", "amount": 200.0}, {"name": "دفع موردين فاشن روز", "amount": 200.0}, {"name": "ديكور علاقات", "amount": 210.0}, {"name": "أكياس تعبئة \" خيش \"", "amount": 355.0}, {"name": "أكياس بضاعه", "amount": 220.0}, {"name": "مكنسه", "amount": 10.0}, {"name": "الاجمالي", "amount": 46429.41}], "رواتب": [{"name": "راتب سعيد ماحيله", "amount": 5628.0}, {"name": "راتب هاني سعيد", "amount": 5694.0}, {"name": "راتب إسماعيل شهر 11", "amount": 2500.0}, {"name": "راتب ياسين  شهر 11", "amount": 2500.0}, {"name": "راتب يعقوب شهر 11 لمدة 7 ايام", "amount": 665.0}, {"name": "راتب فضل المحاسب شهر 7 + 10", "amount": 1700.0}, {"name": "دفعة راتب الموظفة السعودية شهر12", "amount": 800.0}, {"name": "راتب محمد سعيد", "amount": 5007.89}, {"name": "رسوم بطاقات الأعمال", "amount": 248.0}], "خياطين المشغل": [{"name": "فاتورة كهرباء المشغل", "amount": 1227.58}, {"name": "فاتورة ديكور المشغل", "amount": 900.0}], "عائلة": [{"name": "فاتورة كهرباء البيت", "amount": 2590.97}], "إيجار": [{"name": "دفعة إيجار مكتب عتيقة", "amount": 3400.0}]}, "tailors_list": [], "issues": [], "notes": ["دفع للموردين أكثر من المشتريات بـ 170,707 ر (سداد ديون سابقة)"], "revenue_change": -14.7, "expenses_change": -4.8, "profit_change": -38.8, "liquidity_gap": 3752, "needs_external_funding": true, "metric1": 9979, "metric2": 352843, "metric3": -3752}, "يناير 26": {"revenue": 253649, "gross_margin": 37987, "expenses": 108598, "profit": -70611, "profit_pct": -27.8, "suppliers_paid": 142172, "purchases": 209915, "tailors_balance": 66188, "rent_actual": 77135, "rent_spread": 25712, "exp_breakdown": {"رسوم بنكية": [{"name": "عمولات مشتركة", "amount": 1232.0}, {"name": "رسوم شبكة مدى", "amount": 201.76}, {"name": "رسوم تحويل", "amount": 21.33}, {"name": "فاتورة عدم استخدام مدى", "amount": 115.0}, {"name": "رسوم عدم استخدام نقاط البيع", "amount": 11.5}], "نقل": [{"name": "سيارة نقل", "amount": 835.0}, {"name": "نقل بضاعه من جده", "amount": 50.0}, {"name": "عربية سوق المرقب", "amount": 70.0}], "أخرى": [{"name": "مياه", "amount": 310.0}, {"name": "صدقه", "amount": 519.0}, {"name": "فاتورة جوال المدير التنفيذي", "amount": 518.0}, {"name": "فاتورة كهرباء المكتب", "amount": 200.0}, {"name": "تعبئة طفايات الحريق", "amount": 30.0}, {"name": "أكياس تعبئة \" خيش \"", "amount": 375.0}, {"name": "أكياس بضاعه", "amount": 540.0}, {"name": "ورق + مكيف + قلم + مناديل + حبل", "amount": 190.0}, {"name": "الاجمالي", "amount": 108598.36}], "رواتب": [{"name": "راتب سعيد ماحيله", "amount": 975.0}, {"name": "راتب هاني سعيد", "amount": 5176.0}, {"name": "راتب إسماعيل شهر 12", "amount": 2050.0}, {"name": "راتب ياسين  شهر 12", "amount": 2500.0}, {"name": "راتب يعقوب شهر 12", "amount": 2500.0}, {"name": "راتب فضل المحاسب شهر 7 + 10", "amount": 300.0}, {"name": "راتب فضل المحاسب شهر 11", "amount": 1000.0}, {"name": "راتب محمد سعيد", "amount": 5265.47}, {"name": "رسوم بطاقات الأعمال", "amount": 248.0}], "إيجار": [{"name": "دفعة إيجار المحلات", "amount": 77135.0}]}, "tailors_list": [{"name": "حنان", "balance": 9000.0}, {"name": "عزيزول", "balance": 4857.0}, {"name": "إرشاد", "balance": 8059.0}, {"name": "ركن", "balance": 2775.0}, {"name": "جعفر", "balance": 5078.0}, {"name": "رقيب", "balance": 2921.0}, {"name": "ناهد", "balance": 1953.0}, {"name": "حبيب", "balance": 2520.0}, {"name": "القصاص الهندي", "balance": 8625.0}, {"name": "جهنكير", "balance": 8000.0}, {"name": "شكيل", "balance": 3253.0}, {"name": "سيفول", "balance": 2939.0}, {"name": "محمد أرجوا", "balance": 200.0}, {"name": "شيمون", "balance": 350.0}, {"name": "صديق", "balance": 1217.0}, {"name": "عمران هندي", "balance": 242.0}, {"name": "عمران بنجالي", "balance": 211.0}, {"name": "هارون", "balance": 210.0}, {"name": "أشرف", "balance": 2568.0}, {"name": "ألطاف", "balance": 550.0}, {"name": "طارق", "balance": 660.0}], "issues": ["دفع إيجار ربعي (77,135 ر) — يرفع المصاريف بشكل غير اعتيادي", "المصاريف (108,598 ر) تتجاوز الهامش بنسبة 186%"], "notes": ["رصيد خياطين مرتفع: 66,188 ر", "مشتريات أكثر من المدفوع بـ 67,743 ر (دين متراكم)"], "revenue_change": -36.5, "expenses_change": 133.9, "profit_change": -807.6, "liquidity_gap": -2879, "needs_external_funding": false, "metric1": -70611, "metric2": 145051, "metric3": 2879}, "فبراير 26": {"revenue": 467264, "gross_margin": 70022, "expenses": 83246, "profit": -13224, "profit_pct": -2.8, "suppliers_paid": 385266, "purchases": 266151, "tailors_balance": 64010, "rent_actual": 0, "rent_spread": 25712, "exp_breakdown": {"رسوم بنكية": [{"name": "عمولات مشتركة", "amount": 4021.0}, {"name": "رسوم شبكة مدى", "amount": 489.26}, {"name": "رسوم تحويل", "amount": 20.73}, {"name": "فاتورة عدم استخدام مدى", "amount": 115.0}, {"name": "رسوم عدم استخدام نقاط البيع", "amount": 11.5}], "نقل": [{"name": "سيارة نقل", "amount": 850.0}, {"name": "نقل بضاعه من جده", "amount": 20.0}, {"name": "عربية سوق المرقب", "amount": 125.0}], "أخرى": [{"name": "مياه", "amount": 290.0}, {"name": "صدقه", "amount": 42.0}, {"name": "فاتورة جوال المدير التنفيذي", "amount": 500.0}, {"name": "فاتورة كهرباء محل فرع 2", "amount": 1739.71}, {"name": "فاتورة القيمة المضافة", "amount": 665.0}, {"name": "علاقات ديكور+ صيانة", "amount": 240.0}, {"name": "أكياس تعبئة \" خيش \"", "amount": 30.0}, {"name": "أكياس بضاعه", "amount": 130.0}, {"name": "مناديل + تعبئة طفاية", "amount": 40.0}, {"name": "الاجمالي", "amount": 83245.71}], "رواتب": [{"name": "راتب سعيد ماحيله", "amount": 3785.0}, {"name": "راتب هاني سعيد", "amount": 15145.0}, {"name": "راتب إسماعيل شهر 1", "amount": 2500.0}, {"name": "راتب ياسين  شهر 1", "amount": 2500.0}, {"name": "راتب يعقوب شهر 1", "amount": 2500.0}, {"name": "راتب فضل المحاسب شهر 12", "amount": 1300.0}, {"name": "دفعة راتب الموظفة السعودية شهر12", "amount": 800.0}, {"name": "راتب فضل المحاسب شهر 11", "amount": 1000.0}, {"name": "راتب محمد سعيد", "amount": 6488.56}, {"name": "رسوم بطاقات الأعمال", "amount": 248.0}], "تراخيص": [{"name": "تجدد إقامة ياسين لمدة عام", "amount": 2000.0}, {"name": "فاتورة التأمينات الإجتماعية", "amount": 1049.95}], "خياطين المشغل": [{"name": "دفعة إيجار المشغل", "amount": 10500.0}]}, "tailors_list": [{"name": "حنان", "balance": 8681.0}, {"name": "عزيزول", "balance": 4346.0}, {"name": "إرشاد", "balance": 6509.0}, {"name": "ركن", "balance": 2580.0}, {"name": "جعفر", "balance": 5000.0}, {"name": "رقيب", "balance": 2449.0}, {"name": "ناهد", "balance": 2711.0}, {"name": "حبيب", "balance": 2375.0}, {"name": "القصاص الهندي", "balance": 8606.0}, {"name": "جهنكير", "balance": 8424.0}, {"name": "شكيل", "balance": 3403.0}, {"name": "سيفول", "balance": 3089.0}, {"name": "محمد أرجوا", "balance": 200.0}, {"name": "شيمون", "balance": 300.0}, {"name": "صديق", "balance": 1117.0}, {"name": "عمران هندي", "balance": 242.0}, {"name": "عمران بنجالي", "balance": 200.0}, {"name": "هارون", "balance": 200.0}, {"name": "أشرف", "balance": 2568.0}, {"name": "ألطاف", "balance": 350.0}, {"name": "طارق", "balance": 660.0}], "issues": [], "notes": ["رصيد خياطين مرتفع: 64,010 ر", "دفع للموردين أكثر من المشتريات بـ 119,115 ر (سداد ديون سابقة)"], "revenue_change": 84.2, "expenses_change": -23.3, "profit_change": -81.3, "liquidity_gap": 1248, "needs_external_funding": true, "metric1": -13224, "metric2": 384018, "metric3": -1248}, "مارس 26": {"revenue": 297333, "gross_margin": 44600, "expenses": 69880, "profit": -25280, "profit_pct": -8.5, "suppliers_paid": 233930, "purchases": 175622, "tailors_balance": 63273, "rent_actual": 0, "rent_spread": 25712, "exp_breakdown": {"رسوم بنكية": [{"name": "عمولات مشتركة", "amount": 2315.0}, {"name": "رسوم شبكة مدى", "amount": 167.04}, {"name": "رسوم تحويل", "amount": 15.47}], "نقل": [{"name": "سيارة نقل", "amount": 575.0}, {"name": "نقل بضاعه من جده", "amount": 15.0}, {"name": "عربية سوق المرقب", "amount": 135.0}], "أخرى": [{"name": "مياه", "amount": 220.0}, {"name": "صدقه", "amount": 624.0}, {"name": "فاتورة جوال المدير التنفيذي", "amount": 551.0}, {"name": "فاتورة كهرباء محل فرع 2", "amount": 492.45}, {"name": "فاتورة جوال المدير العام", "amount": 334.02}, {"name": "فاتورة كهرباء محل فرع 1", "amount": 1446.51}, {"name": "فاتورة جوال المدير العام", "amount": 334.02}, {"name": "صيانة", "amount": 15.0}, {"name": "أكياس تعبئة \" خيش \"", "amount": 15.0}, {"name": "أكياس بضاعه", "amount": 330.0}, {"name": "لصقه", "amount": 20.0}, {"name": "الاجمالي", "amount": 69879.69}], "رواتب": [{"name": "راتب سعيد ماحيله", "amount": 3420.0}, {"name": "راتب هاني سعيد", "amount": 7116.0}, {"name": "راتب إسماعيل شهر 2", "amount": 2500.0}, {"name": "راتب ياسين  شهر 2", "amount": 2500.0}, {"name": "راتب يعقوب شهر 2", "amount": 2500.0}, {"name": "راتب فضل المحاسب شهر 1", "amount": 800.0}, {"name": "راتب فضل المحاسب شهر 12", "amount": 700.0}, {"name": "راتب محمد سعيد", "amount": 8511.18}, {"name": "رسوم بطاقات الأعمال", "amount": 248.0}], "تراخيص": [{"name": "تجديد إقامة سعيد + رسوم مرافقين", "amount": 5703.0}, {"name": "تجديد إقامة هاني + رسوم مرافقين", "amount": 7437.0}], "خياطين المشغل": [{"name": "سداد إيجار المشغل", "amount": 2000.0}]}, "tailors_list": [{"name": "حنان", "balance": 8400.0}, {"name": "عزيزول", "balance": 4437.0}, {"name": "إرشاد", "balance": 6021.0}, {"name": "ركن", "balance": 2233.0}, {"name": "جعفر", "balance": 5000.0}, {"name": "رقيب", "balance": 2751.0}, {"name": "ناهد", "balance": 2490.0}, {"name": "حبيب", "balance": 2095.0}, {"name": "القصاص الهندي", "balance": 8593.0}, {"name": "جهنكير", "balance": 8568.0}, {"name": "شكيل", "balance": 3437.0}, {"name": "سيفول", "balance": 3411.0}, {"name": "محمد أرجوا", "balance": 200.0}, {"name": "شيمون", "balance": 300.0}, {"name": "صديق", "balance": 1117.0}, {"name": "عمران هندي", "balance": 242.0}, {"name": "عمران بنجالي", "balance": 200.0}, {"name": "هارون", "balance": 200.0}, {"name": "أشرف", "balance": 2568.0}, {"name": "ألطاف", "balance": 350.0}, {"name": "طارق", "balance": 660.0}], "issues": ["إيرادات منخفضة (297,333 ر) — دون مستوى التعادل", "المصاريف (69,880 ر) تتجاوز الهامش بنسبة 57%"], "notes": ["رصيد خياطين مرتفع: 63,273 ر"], "revenue_change": -36.4, "expenses_change": -16.1, "profit_change": 91.2, "liquidity_gap": 6477, "needs_external_funding": true, "metric1": -25280, "metric2": 227453, "metric3": -6477},
-"أبريل 26": {"revenue": 236283, "gross_margin": 35442, "expenses": 56831, "profit": -21389, "profit_pct": -9.1, "suppliers_paid": 180385, "purchases": 181356, "tailors_balance": 0, "rent_actual": 0, "rent_spread": 0, "exp_breakdown": {"رواتب": [{"name": "راتب سعيد ماحيله", "amount": 3172.0}, {"name": "راتب هاني سعيد", "amount": 5482.16}, {"name": "راتب إسماعيل شهر 3", "amount": 2400.0}, {"name": "راتب ياسين شهر 3", "amount": 2400.0}, {"name": "راتب يعقوب شهر 3", "amount": 2500.0}, {"name": "راتب فضل المحاسب شهر 2", "amount": 1300.0}, {"name": "راتب فضل المحاسب شهر 1", "amount": 1200.0}, {"name": "راتب محمد سعيد", "amount": 5705.8}], "مصاريف حكومية": [{"name": "تجديد إقامة محمد + رسوم مرافقين", "amount": 8250.0}, {"name": "إقامة هاني + رسوم مرافقين جمعية", "amount": 4500.0}], "مصاريف عائلة": [{"name": "فاتورة ماء البيت", "amount": 1689.12}, {"name": "فاتورة كهرباء بيت المدير التنفيذي", "amount": 2484.7}, {"name": "الجمعية اليومية محمد - رسوم مرافقين", "amount": 5800.0}], "رسوم بنكية": [{"name": "عمولات مشتركة", "amount": 1353.0}, {"name": "رسوم شبكة مدى", "amount": 187.96}, {"name": "رسوم تحويل", "amount": 26.2}, {"name": "رسوم أرصدة منخفضة", "amount": 8.9}, {"name": "عدم استخدام مدى", "amount": 115.0}, {"name": "رسوم بطاقات الأعمال", "amount": 248.0}], "نقل": [{"name": "سيارة نقل", "amount": 365.0}, {"name": "عربية سوق المرقب", "amount": 135.0}], "أخرى": [{"name": "مياه", "amount": 390.0}, {"name": "اتصالات", "amount": 459.5}, {"name": "صيانة كاميرا", "amount": 200.0}, {"name": "أتعاب المحامي", "amount": 1000.0}, {"name": "دفعة إيجار مكتب عتيقة", "amount": 1350.0}, {"name": "ربح تمويل", "amount": 3800.0}, {"name": "مستلزمات", "amount": 297.0}, {"name": "صدقة", "amount": 12.0}]}, "tailors_list": [], "issues": ["إيرادات منخفضة (236,283 ر) — دون مستوى التعادل", "رواتب متأخرة من أشهر سابقة ضمن المصاريف"], "notes": ["دفع للموردين أكثر من المشتريات بـ 971 ر (مشتريات أكثر من المدفوع)", "مصاريف الإقامة والرواتب المتأخرة رفعت المصاريف هذا الشهر"], "revenue_change": -20.5, "expenses_change": -13.7, "profit_change": 0, "liquidity_gap": 933, "needs_external_funding": true, "metric1": -21389, "metric2": 179452, "metric3": -933}};
-const CUSTOMERS = [{"name": "متعب العتيبي", "branch_m": 0, "branch_h": 5550.0, "total": 5550.0}, {"name": "أبو عمار", "branch_m": 0, "branch_h": 8650.0, "total": 8650.0}, {"name": "يوسف", "branch_m": 0, "branch_h": 2000.0, "total": 2000.0}, {"name": "شويل", "branch_m": 0, "branch_h": 2100.0, "total": 2100.0}, {"name": "شالوم", "branch_m": 0, "branch_h": 1200.0, "total": 1200.0}, {"name": "رتول", "branch_m": 0, "branch_h": 500.0, "total": 500.0}, {"name": "علي", "branch_m": 0, "branch_h": 270.0, "total": 270.0}, {"name": "خالد موفق", "branch_m": 0, "branch_h": 3280.0, "total": 3280.0}, {"name": "بلال", "branch_m": 0, "branch_h": 3050.0, "total": 3050.0}, {"name": "رفيق", "branch_m": 0, "branch_h": 1900.0, "total": 1900.0}, {"name": "زوايا بلس", "branch_m": 0, "branch_h": 1800.0, "total": 1800.0}, {"name": "صلاح أخو حمود", "branch_m": 0, "branch_h": 760.0, "total": 760.0}, {"name": "المندوب ياسر", "branch_m": 0, "branch_h": 600.0, "total": 600.0}, {"name": "محل الفاخرة للقمصان", "branch_m": 4055.0, "branch_h": 0, "total": 4055.0}, {"name": "أبو الكلام السوداني", "branch_m": 1100.0, "branch_h": 0, "total": 1100.0}, {"name": "أحمد السوداني", "branch_m": 300.0, "branch_h": 0, "total": 300.0}, {"name": "أم محمد المصرية", "branch_m": 860.0, "branch_h": 0, "total": 860.0}, {"name": "مؤسسة تحطيم السعر", "branch_m": 3140.0, "branch_h": 0, "total": 3140.0}, {"name": "حمود الرشيدي", "branch_m": 1410.0, "branch_h": 0, "total": 1410.0}, {"name": "الهاشمي", "branch_m": 12069.0, "branch_h": 0, "total": 12069.0}];
-const SUPPLIERS = [{"name": "ثوب السفير - سند امر", "opening_balance": 28448.34, "paid": 24000.0, "discount": 4448.34, "remaining": 0.0, "status": "تم التصفية", "notes": "تم السداد", "monthly_payment": 0, "total_paid": 24000.0}, {"name": "مؤسسة غريفين", "opening_balance": 4189.77, "paid": 1700.0, "discount": 2489.77, "remaining": 0.0, "status": "تم التصفية", "notes": "تم السداد", "monthly_payment": 0.0, "total_paid": 1700.0}, {"name": "أبو شام السوري", "opening_balance": 6560.0, "paid": 4500.0, "discount": 2060.0, "remaining": 0.0, "status": "تم التصفية", "notes": "تم السداد", "monthly_payment": 0.0, "total_paid": 4500.0}, {"name": "شركة كروزا للتجارة", "opening_balance": 567.0, "paid": 500.0, "discount": 67.0, "remaining": 0.0, "status": "تم التصفية", "notes": "تم السداد", "monthly_payment": 0.0, "total_paid": 500.0}, {"name": "مؤسسة أصالة الأنيق للمحلابس - فتحي", "opening_balance": 1000.0, "paid": 500.0, "discount": 500.0, "remaining": 0.0, "status": "تم التصفية", "notes": "تم السداد", "monthly_payment": 0, "total_paid": 500.0}, {"name": "مؤسسة قلوب الاخوين", "opening_balance": 700.0, "paid": 500.0, "discount": 200.0, "remaining": 0.0, "status": "تم التصفية", "notes": "تم السداد", "monthly_payment": 0, "total_paid": 500.0}, {"name": "شركة خيوط الفخامة التجارية", "opening_balance": 5475.0, "paid": 3900.0, "discount": 1575.0, "remaining": 0.0, "status": "تم التصفية", "notes": "تم السداد", "monthly_payment": 0.0, "total_paid": 3900.0}, {"name": "شركة إسدام العربية", "opening_balance": 1293.0, "paid": 1290.0, "discount": 3.0, "remaining": 0.0, "status": "تم التصفية", "notes": "تم السداد", "monthly_payment": 0.0, "total_paid": 1290.0}, {"name": "مؤسسة نجاح الشمري - زكريا", "opening_balance": 15795.0, "paid": 10500.0, "discount": 5295.0, "remaining": 0.0, "status": "تم التصفية", "notes": "تم السداد", "monthly_payment": 0.0, "total_paid": 10500.0}, {"name": "عبدالعزيز عتين", "opening_balance": 2240.0, "paid": 1900.0, "discount": 340.0, "remaining": 0.0, "status": "تم التصفية", "notes": "تم السداد", "monthly_payment": 0.0, "total_paid": 1900.0}, {"name": "مؤسسة خالد زعيل للتجارة", "opening_balance": 2141.0, "paid": 2000.0, "discount": 141.0, "remaining": 0.0, "status": "تم التصفية", "notes": "تم السداد", "monthly_payment": 0.0, "total_paid": 2000.0}, {"name": "ايكاف", "opening_balance": 1094.0, "paid": 1000.0, "discount": 94.0, "remaining": 0.0, "status": "تم التصفية", "notes": "تم السداد", "monthly_payment": 0, "total_paid": 1000.0}, {"name": "شركة أبناء محمد السعد العجلان - البسام", "opening_balance": 3766.0, "paid": 3766.0, "discount": 0, "remaining": 0.0, "status": "تم التصفية", "notes": "تم السداد", "monthly_payment": 0.0, "total_paid": 3766.0}, {"name": "العجلان - سند الامر", "opening_balance": 100736.56, "paid": 5000.0, "discount": 0, "remaining": 95736.56, "status": "اشعار", "notes": "تم رفع سند الامر وعرض خصم قدره 25%", "monthly_payment": 0.0, "total_paid": 5000.0}, {"name": "ثوب الأصيل - سند الامر", "opening_balance": 40468.0, "paid": 21000.0, "discount": 0, "remaining": 19468.0, "status": "اشعار", "notes": "تم سداد هذا المبلغ من أبو نواف", "monthly_payment": 0.0, "total_paid": 21000.0}, {"name": "مؤسسة دنيا الجوارب", "opening_balance": 3216.9, "paid": 1125.0, "discount": 0, "remaining": 2091.9, "status": "عدم اشعار", "notes": "يأخذ دفع كل شهرين 300", "monthly_payment": 0.0, "total_paid": 1125.0}, {"name": "شركة الإمتياز المحدودة - سند الامر", "opening_balance": 16152.0, "paid": 4120.0, "discount": 0, "remaining": 12032.0, "status": "اشعار", "notes": "يأخذ دفع كل شهر 300 ريال", "monthly_payment": 0.0, "total_paid": 4120.0}, {"name": "شركة زهرة بيرحا للتجارة", "opening_balance": 23300.0, "paid": 15000.0, "discount": 8300.0, "remaining": 0.0, "status": "اشعار", "notes": "تم السداد", "monthly_payment": 0.0, "total_paid": 15000.0}, {"name": "مؤسسة بصمة إمتياز", "opening_balance": 8964.5, "paid": 0.0, "discount": 0, "remaining": 8964.5, "status": "عدم اشعار", "notes": "لم يأخذ دفع و لا يمانع 500 ريال شهريا", "monthly_payment": 0.0, "total_paid": 0.0}, {"name": "شركة الخياطة العربية", "opening_balance": 1300.0, "paid": 1300.0, "discount": 0, "remaining": 0.0, "status": "عدم اشعار", "notes": "تم السداد", "monthly_payment": 0, "total_paid": 1300.0}, {"name": "شركة قطونيل", "opening_balance": 1575.3299999999988, "paid": 1575.33, "discount": 0, "remaining": -1.1368683772161603e-12, "status": "عدم اشعار", "notes": "تم السداد", "monthly_payment": 0.0, "total_paid": 1575.33}, {"name": "شركة ملبوسات الإبداع", "opening_balance": 900.0, "paid": 0.0, "discount": 0, "remaining": 900.0, "status": "تصفية حساب", "notes": " لا يمانع من سداده عن طريق الدفع", "monthly_payment": 0.0, "total_paid": 0.0}, {"name": "مؤسسة عالم التذكار", "opening_balance": 1050.0, "paid": 1000.0, "discount": 50.0, "remaining": 0.0, "status": "عدم اشعار", "notes": "تم السداد", "monthly_payment": 0.0, "total_paid": 1000.0}, {"name": "مؤسسة الرجل الأنيق - سند الامر", "opening_balance": 20000.0, "paid": 4500.0, "discount": 0, "remaining": 15500.0, "status": "خصم بتصفية", "notes": "لم يأخذ دفع و لا يمانع 1000 ريال شهريا", "monthly_payment": 0.0, "total_paid": 4500.0}, {"name": "شركة ردائي الدولية", "opening_balance": 4090.0, "paid": 4040.0, "discount": 50.0, "remaining": 0.0, "status": "اشعار", "notes": "تم السداد", "monthly_payment": 0.0, "total_paid": 4040.0}, {"name": "شركة نخبة العود التجارية - العسلي", "opening_balance": 1159.5, "paid": 0.0, "discount": 0, "remaining": 1159.5, "status": "عدم اشعار", "notes": "لم يأخذ دفع و لا يمانع 200 ريال شهريا", "monthly_payment": 0.0, "total_paid": 0.0}, {"name": "مؤسسة منى اليامي - الخياط فيصل", "opening_balance": 5200.0, "paid": 3520.0, "discount": 0, "remaining": 1680.0, "status": "اشعار", "notes": "يأخذ دفع كل شهر 300", "monthly_payment": 0.0, "total_paid": 3520.0}, {"name": "شركة دنيا الأصواف للتجارة المحدودة -الشياكة - سند امر", "opening_balance": 66717.58, "paid": 30600.0, "discount": 0, "remaining": 36117.58, "status": "اشعار", "notes": "له سند خارجي ب 11535 ريال", "monthly_payment": 0.0, "total_paid": 30600.0}, {"name": "مؤسسة تميز المنتجات الحديثة للتجارة - سند امر", "opening_balance": 26936.0, "paid": 9050.0, "discount": 7386.0, "remaining": 10500.0, "status": "اشعار", "notes": "تم الاتفاق معه على خصم 3836 ريال", "monthly_payment": 0.0, "total_paid": 9050.0}, {"name": "شركة محمد سراج عطار واخويه - سند امر", "opening_balance": 9407.0, "paid": 1000.0, "discount": 0, "remaining": 8407.0, "status": "اشعار", "notes": "لم يأخذ دفع و لا يمانع 500 ريال شهريا", "monthly_payment": 0.0, "total_paid": 1000.0}, {"name": "شركة الدفة - سند امر", "opening_balance": 51368.62, "paid": 46164.0, "discount": 5204.62, "remaining": 0.0, "status": "اشعار", "notes": "تم السداد", "monthly_payment": 0.0, "total_paid": 46164.0}, {"name": "شركة نماء العربية للألبسة المحدودة - سند امر - مرفوع", "opening_balance": 39457.65, "paid": 0.0, "discount": 0, "remaining": 39457.65, "status": "مرفوع", "notes": "رفع سند الامر وعرض خصم قدره 9457 ريال", "monthly_payment": 0, "total_paid": 0.0}, {"name": "نجاح الشمري _ محمد", "opening_balance": 1100.0, "paid": 1000.0, "discount": 100.0, "remaining": 0.0, "status": "تصفية حساب", "notes": "تم السداد", "monthly_payment": 0, "total_paid": 1000.0}, {"name": "مؤسسة لباس الأصلية للتجارة", "opening_balance": 2880.0, "paid": 500.0, "discount": 0, "remaining": 2380.0, "status": "عدم اشعار", "notes": " يعطي ل المهندس طارق 2000 ريال دفعه مسبقا للمورد أما المتبقي 380 يريد خصم 80 ريال", "monthly_payment": 0.0, "total_paid": 500.0}, {"name": "شركة مجمع الشنط الراقية المحدودة", "opening_balance": 3831.68, "paid": 1925.0, "discount": 0, "remaining": 1906.6799999999998, "status": "اشعار", "notes": "لم يأخذ دفع و لا يمانع 300 ريال شهريا", "monthly_payment": 0.0, "total_paid": 1925.0}, {"name": "مؤسسة سيف التجارية", "opening_balance": 11639.0, "paid": 7580.0, "discount": 0, "remaining": 4059.0, "status": "اشعار", "notes": "يأخذ دفع كل شهر 500 ريال", "monthly_payment": 0.0, "total_paid": 7580.0}, {"name": "مؤسسة الجمال الحقيقي", "opening_balance": 769.5, "paid": 700.0, "discount": 69.5, "remaining": 0.0, "status": "تصفية حساب", "notes": "تم السداد", "monthly_payment": 0.0, "total_paid": 700.0}, {"name": "مؤسسة هدف الثقة", "opening_balance": 1242.0, "paid": 1150.0, "discount": 92.0, "remaining": 0.0, "status": "اشعار", "notes": "تم السداد", "monthly_payment": 0.0, "total_paid": 1150.0}, {"name": "أرجنتوا", "opening_balance": 750.0, "paid": 750.0, "discount": 0, "remaining": 0, "status": "", "notes": "تم السداد", "monthly_payment": 0, "total_paid": 750.0}];
-const CATS = ["رواتب", "مصاريف المشغل", "إيجار", "رسوم بنكية", "عمولات مشتركة", "نقل", "مصاريف حكومية", "رسوم مرافقين", "مصاريف عائلة", "الزكاة والدخل", "تأمينات", "كهرباء الفروع", "اتصالات", "مستحقات سابقة رجالي", "أخرى"];
-const CAT_COLORS = {"رواتب": "#3B82F6", "مصاريف المشغل": "#8B5CF6", "إيجار": "#EF4444", "رسوم بنكية": "#F59E0B", "عمولات مشتركة": "#F97316", "نقل": "#EC4899", "مصاريف حكومية": "#10B981", "رسوم مرافقين": "#06B6D4", "مصاريف عائلة": "#6B7280", "الزكاة والدخل": "#7C3AED", "تأمينات": "#14B8A6", "كهرباء الفروع": "#84CC16", "اتصالات": "#F43F5E", "مستحقات سابقة رجالي": "#DC2626", "أخرى": "#9CA3AF"};
-</script>
-
-<!-- ===== TAB 5: التقرير التحليلي الشامل ===== -->
 <div id="tab-report" class="tab-content">
 
   <!-- ملخص تنفيذي -->
@@ -2767,5 +1800,857 @@ function sortWomenTable(tableId, colIndex) {
 // ===== نهاية دوال موردين النسائي =====
 
 </script>
+
+<div id="tab-women-suppliers" class="tab-content" >
+
+  <!-- بطاقات الإجمالي -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px">
+    <div class="kpi-card" style="border-right:4px solid #dc2626">
+      <div class="kpi-label">إجمالي الديون</div>
+      <div class="kpi-value" style="color:#dc2626">1,333,155</div>
+      <div class="kpi-sub">ريال سعودي — حتى 23/05/2026</div>
+    </div>
+    <div class="kpi-card" style="border-right:4px solid #1e3a5f">
+      <div class="kpi-label">فرع محمد</div>
+      <div class="kpi-value" style="color:#1e3a5f">890,804</div>
+      <div class="kpi-sub">66.8% من الإجمالي</div>
+    </div>
+    <div class="kpi-card" style="border-right:4px solid #0369a1">
+      <div class="kpi-label">فرع هاني</div>
+      <div class="kpi-value" style="color:#0369a1">442,351</div>
+      <div class="kpi-sub">33.2% من الإجمالي</div>
+    </div>
+    <div class="kpi-card" style="border-right:4px solid #15803d">
+      <div class="kpi-label">عدد الموردين</div>
+      <div class="kpi-value" style="color:#15803d">85</div>
+      <div class="kpi-sub">27 مورد بضاعة + 58 مشغل خياطة</div>
+    </div>
+  </div>
+
+  <!-- أزرار الفلترة -->
+  <div style="display:flex;gap:8px;margin-bottom:16px;align-items:center;flex-wrap:wrap">
+    <span style="font-size:0.85rem;color:#64748b;font-weight:600">تصفية حسب الفرع:</span>
+    <button id="ws-filter-all" onclick="filterWomenSuppliers('all')"
+      style="padding:5px 14px;border-radius:20px;border:1.5px solid #1e3a5f;background:#1e3a5f;color:#fff;font-size:0.82rem;cursor:pointer;font-family:inherit">
+      الكل (85)
+    </button>
+    <button id="ws-filter-m" onclick="filterWomenSuppliers('m')"
+      style="padding:5px 14px;border-radius:20px;border:1.5px solid #1e3a5f;background:#fff;color:#1e3a5f;font-size:0.82rem;cursor:pointer;font-family:inherit">
+      فرع محمد فقط
+    </button>
+    <button id="ws-filter-h" onclick="filterWomenSuppliers('h')"
+      style="padding:5px 14px;border-radius:20px;border:1.5px solid #1e3a5f;background:#fff;color:#1e3a5f;font-size:0.82rem;cursor:pointer;font-family:inherit">
+      فرع هاني فقط
+    </button>
+    <button id="ws-filter-both" onclick="filterWomenSuppliers('both')"
+      style="padding:5px 14px;border-radius:20px;border:1.5px solid #15803d;background:#fff;color:#15803d;font-size:0.82rem;cursor:pointer;font-family:inherit">
+      الفرعين معاً
+    </button>
+  </div>
+
+  <!-- جدول موردين البضاعة -->
+  <div class="table-card" style="margin-bottom:24px">
+    <h3 style="margin-bottom:12px">🏪 موردين البضاعة
+      <span style="font-size:0.85rem;font-weight:400;color:#64748b;margin-right:8px">
+        (27 مورد — إجمالي: <strong style="color:#dc2626">833,416 ر</strong>)
+      </span>
+    </h3>
+    <div style="overflow-x:auto">
+      <table id="goods-suppliers-table" style="width:100%;border-collapse:collapse;font-size:0.88rem">
+        <thead>
+          <tr>
+            <th onclick="sortWomenTable('goods-suppliers-table',0)" style="cursor:pointer">اسم المورد ↕</th>
+            <th onclick="sortWomenTable('goods-suppliers-table',1)" class="branch-m-col" style="cursor:pointer;color:#1e3a5f">فرع محمد ↕</th>
+            <th onclick="sortWomenTable('goods-suppliers-table',2)" class="branch-h-col" style="cursor:pointer;color:#0369a1">فرع هاني ↕</th>
+            <th onclick="sortWomenTable('goods-suppliers-table',3)" style="cursor:pointer">الإجمالي ↕</th>
+            <th>خطة السداد</th>
+          </tr>
+        </thead>
+        <tbody id="goods-suppliers-body">
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">شركة درة النسيج</td>
+<td class="branch-m-col">262,272</td>
+<td class="branch-h-col">37,950</td>
+<td style="color:#dc2626;font-weight:700">300,222</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 4000</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">مؤسسة الشريعة و الحياة</td>
+<td class="branch-m-col">59,350</td>
+<td class="branch-h-col">118,000</td>
+<td style="color:#dc2626;font-weight:700">177,350</td>
+<td style="font-size:0.82rem;color:#64748b">حساب جاري</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">مؤسسة المدى المحدودة - معمر</td>
+<td class="branch-m-col">28,500</td>
+<td class="branch-h-col">28,000</td>
+<td style="color:#dc2626;font-weight:700">56,500</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 1000</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مايك - التل البوشية</td>
+<td class="branch-m-col">34,616</td>
+<td class="branch-h-col">—</td>
+<td style="color:#b45309;font-weight:700">34,616</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 1000</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">مؤسسة يوسف البارقي</td>
+<td class="branch-m-col">11,000</td>
+<td class="branch-h-col">21,000</td>
+<td style="color:#b45309;font-weight:700">32,000</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 2000</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مؤسسة أمان أمنه -عمران</td>
+<td class="branch-m-col">31,400</td>
+<td class="branch-h-col">—</td>
+<td style="color:#b45309;font-weight:700">31,400</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 2000</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">شركة نواف الذهبية - سلفة خليل</td>
+<td class="branch-m-col">29,555</td>
+<td class="branch-h-col">—</td>
+<td style="color:#b45309;font-weight:700">29,555</td>
+<td style="font-size:0.82rem;color:#64748b">لم يطلبها</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">شركة لمسات الهدى - عبدالباسط</td>
+<td class="branch-m-col">9,585</td>
+<td class="branch-h-col">18,150</td>
+<td style="color:#b45309;font-weight:700">27,735</td>
+<td style="font-size:0.82rem;color:#64748b">لم يطلبها </td>
+</tr>
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">مؤسسة منى اليامي - امتياز</td>
+<td class="branch-m-col">7,800</td>
+<td class="branch-h-col">15,000</td>
+<td style="color:#b45309;font-weight:700">22,800</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 500</td>
+</tr>
+<tr data-branch-m="false" data-branch-h="true">
+<td style="font-weight:600">مؤسسة بصمة وفاء</td>
+<td class="branch-m-col">—</td>
+<td class="branch-h-col">21,476</td>
+<td style="color:#b45309;font-weight:700">21,476</td>
+<td style="font-size:0.82rem;color:#64748b">—</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">فنون الموضه</td>
+<td class="branch-m-col">19,350</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">19,350</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 1000</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">جوهرة التوفير - عبدالاله</td>
+<td class="branch-m-col">6,010</td>
+<td class="branch-h-col">7,360</td>
+<td style="color:#15803d;font-weight:700">13,370</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 500</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">منير المهري - سوق القدس</td>
+<td class="branch-m-col">12,570</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">12,570</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 1400</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">المشيطي</td>
+<td class="branch-m-col">9,123</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">9,123</td>
+<td style="font-size:0.82rem;color:#64748b">حسب شراءه</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مؤسسة نصف القمر- عبدالله جده</td>
+<td class="branch-m-col">7,660</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">7,660</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 1500</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">معرض الكلف - باغازي - جده</td>
+<td class="branch-m-col">6,629</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">6,629</td>
+<td style="font-size:0.82rem;color:#64748b">لم يطلبها</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">ريتاج</td>
+<td class="branch-m-col">6,335</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">6,335</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 400</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">عثمان - هامات</td>
+<td class="branch-m-col">4,470</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">4,470</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 300</td>
+</tr>
+<tr data-branch-m="false" data-branch-h="true">
+<td style="font-weight:600">الشاطر للأقمشة</td>
+<td class="branch-m-col">—</td>
+<td class="branch-h-col">4,000</td>
+<td style="color:#15803d;font-weight:700">4,000</td>
+<td style="font-size:0.82rem;color:#64748b">—</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">بامخش - جده</td>
+<td class="branch-m-col">3,860</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">3,860</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 500</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">شركة سيزار المحدودة</td>
+<td class="branch-m-col">3,000</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">3,000</td>
+<td style="font-size:0.82rem;color:#64748b">واجب السداد</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">شركة نسائم الشرق - الأبي</td>
+<td class="branch-m-col">2,485</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">2,485</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 300</td>
+</tr>
+<tr data-branch-m="false" data-branch-h="true">
+<td style="font-weight:600">عدة مشاغل</td>
+<td class="branch-m-col">—</td>
+<td class="branch-h-col">2,200</td>
+<td style="color:#15803d;font-weight:700">2,200</td>
+<td style="font-size:0.82rem;color:#64748b">—</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">الوديان</td>
+<td class="branch-m-col">1,500</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">1,500</td>
+<td style="font-size:0.82rem;color:#64748b">لم يطلبها</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">عبدالرزاق - كلف</td>
+<td class="branch-m-col">1,240</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">1,240</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 300</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">عباس - هامات</td>
+<td class="branch-m-col">1,220</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">1,220</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 100</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مؤسسة صالح البديوي</td>
+<td class="branch-m-col">750</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">750</td>
+<td style="font-size:0.82rem;color:#64748b">لم يطلبها</td>
+</tr>
+        </tbody>
+        <tfoot>
+          <tr style="background:#1e3a5f;color:#fff;font-weight:700">
+            <td>الإجمالي</td>
+            <td class="branch-m-col" id="goods-total-m">560,280</td>
+            <td class="branch-h-col" id="goods-total-h">273,136</td>
+            <td style="color:#fbbf24">833,416</td>
+            <td></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+
+  <!-- جدول مشاغل الخياطة -->
+  <div class="table-card">
+    <h3 style="margin-bottom:12px">✂️ مشاغل الخياطة
+      <span style="font-size:0.85rem;font-weight:400;color:#64748b;margin-right:8px">
+        (58 مشغل — إجمالي: <strong style="color:#dc2626">499,739 ر</strong>)
+      </span>
+    </h3>
+    <div style="overflow-x:auto">
+      <table id="workshops-suppliers-table" style="width:100%;border-collapse:collapse;font-size:0.88rem">
+        <thead>
+          <tr>
+            <th onclick="sortWomenTable('workshops-suppliers-table',0)" style="cursor:pointer">اسم المشغل ↕</th>
+            <th onclick="sortWomenTable('workshops-suppliers-table',1)" class="branch-m-col" style="cursor:pointer;color:#1e3a5f">فرع محمد ↕</th>
+            <th onclick="sortWomenTable('workshops-suppliers-table',2)" class="branch-h-col" style="cursor:pointer;color:#0369a1">فرع هاني ↕</th>
+            <th onclick="sortWomenTable('workshops-suppliers-table',3)" style="cursor:pointer">الإجمالي ↕</th>
+            <th>خطة السداد</th>
+          </tr>
+        </thead>
+        <tbody id="workshops-suppliers-body">
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">مشغل جابر علي</td>
+<td class="branch-m-col">28,150</td>
+<td class="branch-h-col">29,000</td>
+<td style="color:#dc2626;font-weight:700">57,150</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 1000</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">مشغل أمير حمزة</td>
+<td class="branch-m-col">19,330</td>
+<td class="branch-h-col">16,900</td>
+<td style="color:#b45309;font-weight:700">36,230</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 400</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل الصبحي راشد</td>
+<td class="branch-m-col">34,685</td>
+<td class="branch-h-col">—</td>
+<td style="color:#b45309;font-weight:700">34,685</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 2000</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">مشغل أول حسين</td>
+<td class="branch-m-col">17,620</td>
+<td class="branch-h-col">9,300</td>
+<td style="color:#b45309;font-weight:700">26,920</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 500</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">مشغل عبدالستار</td>
+<td class="branch-m-col">19,180</td>
+<td class="branch-h-col">3,480</td>
+<td style="color:#b45309;font-weight:700">22,660</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 300</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">مغسلة المشغل</td>
+<td class="branch-m-col">5,370</td>
+<td class="branch-h-col">16,000</td>
+<td style="color:#b45309;font-weight:700">21,370</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 300</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">مشغل أبو أنس</td>
+<td class="branch-m-col">10,980</td>
+<td class="branch-h-col">7,900</td>
+<td style="color:#15803d;font-weight:700">18,880</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 500</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل منير للخياطة</td>
+<td class="branch-m-col">16,630</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">16,630</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 800</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل وجه القمر - وادي الدواسر</td>
+<td class="branch-m-col">15,168</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">15,168</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 500</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">مشغل فن سهرتي - غلام</td>
+<td class="branch-m-col">9,660</td>
+<td class="branch-h-col">5,400</td>
+<td style="color:#15803d;font-weight:700">15,060</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 300</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">مشغل عناية</td>
+<td class="branch-m-col">12,600</td>
+<td class="branch-h-col">2,400</td>
+<td style="color:#15803d;font-weight:700">15,000</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 200</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل خورشيد</td>
+<td class="branch-m-col">15,000</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">15,000</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 500</td>
+</tr>
+<tr data-branch-m="false" data-branch-h="true">
+<td style="font-weight:600">مشغل مغسلة أنعام</td>
+<td class="branch-m-col">—</td>
+<td class="branch-h-col">14,500</td>
+<td style="color:#15803d;font-weight:700">14,500</td>
+<td style="font-size:0.82rem;color:#64748b">—</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">مشغل صميم ميه</td>
+<td class="branch-m-col">10,890</td>
+<td class="branch-h-col">3,100</td>
+<td style="color:#15803d;font-weight:700">13,990</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 300</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">مشغل أبو عرفات</td>
+<td class="branch-m-col">2,700</td>
+<td class="branch-h-col">9,000</td>
+<td style="color:#15803d;font-weight:700">11,700</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 300</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">مشغل ليتون</td>
+<td class="branch-m-col">4,500</td>
+<td class="branch-h-col">7,090</td>
+<td style="color:#15803d;font-weight:700">11,590</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 200</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">مشغل عبدالرزاق</td>
+<td class="branch-m-col">7,600</td>
+<td class="branch-h-col">3,400</td>
+<td style="color:#15803d;font-weight:700">11,000</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 500</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">مشغل مصطفى</td>
+<td class="branch-m-col">4,830</td>
+<td class="branch-h-col">4,665</td>
+<td style="color:#15803d;font-weight:700">9,495</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 300</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل عبدالجليل</td>
+<td class="branch-m-col">8,880</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">8,880</td>
+<td style="font-size:0.82rem;color:#64748b">لم يطلبها</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">مشغل أم ناصر الباكستانية</td>
+<td class="branch-m-col">3,600</td>
+<td class="branch-h-col">4,500</td>
+<td style="color:#15803d;font-weight:700">8,100</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 300</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل تويل - أبو خالد</td>
+<td class="branch-m-col">7,041</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">7,041</td>
+<td style="font-size:0.82rem;color:#64748b">لم يطلبها</td>
+</tr>
+<tr data-branch-m="false" data-branch-h="true">
+<td style="font-weight:600">مشغل عيسى الخياط</td>
+<td class="branch-m-col">—</td>
+<td class="branch-h-col">7,000</td>
+<td style="color:#15803d;font-weight:700">7,000</td>
+<td style="font-size:0.82rem;color:#64748b">—</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل مختار</td>
+<td class="branch-m-col">6,750</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">6,750</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 200</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">مشغل ريس أحمد</td>
+<td class="branch-m-col">900</td>
+<td class="branch-h-col">5,700</td>
+<td style="color:#15803d;font-weight:700">6,600</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 200</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل عبدالقيوم</td>
+<td class="branch-m-col">6,400</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">6,400</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 300</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل جابر علي - الجديد</td>
+<td class="branch-m-col">6,155</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">6,155</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 500</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">مشغل أبو الهنا</td>
+<td class="branch-m-col">1,200</td>
+<td class="branch-h-col">3,500</td>
+<td style="color:#15803d;font-weight:700">4,700</td>
+<td style="font-size:0.82rem;color:#64748b">حساب جاري</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل جمال</td>
+<td class="branch-m-col">4,625</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">4,625</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 300</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">مشغل محمد علي</td>
+<td class="branch-m-col">2,000</td>
+<td class="branch-h-col">2,600</td>
+<td style="color:#15803d;font-weight:700">4,600</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 300</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">مشغل أمير حمزة - الجديد</td>
+<td class="branch-m-col">2,340</td>
+<td class="branch-h-col">1,900</td>
+<td style="color:#15803d;font-weight:700">4,240</td>
+<td style="font-size:0.82rem;color:#64748b">حساب جاري</td>
+</tr>
+<tr data-branch-m="false" data-branch-h="true">
+<td style="font-weight:600">مشغل بشير</td>
+<td class="branch-m-col">—</td>
+<td class="branch-h-col">4,180</td>
+<td style="color:#15803d;font-weight:700">4,180</td>
+<td style="font-size:0.82rem;color:#64748b">—</td>
+</tr>
+<tr data-branch-m="false" data-branch-h="true">
+<td style="font-weight:600">مشغل سليم شلحة</td>
+<td class="branch-m-col">—</td>
+<td class="branch-h-col">3,900</td>
+<td style="color:#15803d;font-weight:700">3,900</td>
+<td style="font-size:0.82rem;color:#64748b">—</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل عبدالستار الجديد</td>
+<td class="branch-m-col">3,700</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">3,700</td>
+<td style="font-size:0.82rem;color:#64748b">حساب جاري</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل عناية - جديد</td>
+<td class="branch-m-col">3,615</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">3,615</td>
+<td style="font-size:0.82rem;color:#64748b">حساب جاري</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل معصوم</td>
+<td class="branch-m-col">3,430</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">3,430</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 200</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل شهيد الإسلام</td>
+<td class="branch-m-col">3,145</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">3,145</td>
+<td style="font-size:0.82rem;color:#64748b">لم يطلبها</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل مختار - الجديد</td>
+<td class="branch-m-col">2,990</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">2,990</td>
+<td style="font-size:0.82rem;color:#64748b">حساب جاري</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل ميراج</td>
+<td class="branch-m-col">2,800</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">2,800</td>
+<td style="font-size:0.82rem;color:#64748b">لم يطلبها</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل ريبون - عبايات</td>
+<td class="branch-m-col">2,635</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">2,635</td>
+<td style="font-size:0.82rem;color:#64748b">مسافر لم يتواصل معنا</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل أخو خورشيد</td>
+<td class="branch-m-col">2,500</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">2,500</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 300</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">مشغل شهيد الإسلام - الجديد</td>
+<td class="branch-m-col">1,000</td>
+<td class="branch-h-col">1,100</td>
+<td style="color:#15803d;font-weight:700">2,100</td>
+<td style="font-size:0.82rem;color:#64748b">حساب جاري</td>
+</tr>
+<tr data-branch-m="false" data-branch-h="true">
+<td style="font-weight:600">مشغل أمين</td>
+<td class="branch-m-col">—</td>
+<td class="branch-h-col">2,000</td>
+<td style="color:#15803d;font-weight:700">2,000</td>
+<td style="font-size:0.82rem;color:#64748b">—</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل إسلام</td>
+<td class="branch-m-col">1,870</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">1,870</td>
+<td style="font-size:0.82rem;color:#64748b">لم يطلبها</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل سلطان</td>
+<td class="branch-m-col">1,820</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">1,820</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 200</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل أبو عرفات - الجديد</td>
+<td class="branch-m-col">1,820</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">1,820</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 100</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل معرض الحجاز</td>
+<td class="branch-m-col">1,800</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">1,800</td>
+<td style="font-size:0.82rem;color:#64748b">لم يطلبها</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل طاهر</td>
+<td class="branch-m-col">1,710</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">1,710</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 300</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل أوجل</td>
+<td class="branch-m-col">1,550</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">1,550</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 300</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل ريبون - خالد العامر</td>
+<td class="branch-m-col">1,530</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">1,530</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 200</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل معصود</td>
+<td class="branch-m-col">1,460</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">1,460</td>
+<td style="font-size:0.82rem;color:#64748b">حساب جاري</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل شويل</td>
+<td class="branch-m-col">1,435</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">1,435</td>
+<td style="font-size:0.82rem;color:#64748b">لم يطلبها</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل صدام</td>
+<td class="branch-m-col">1,400</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">1,400</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 200</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل عبدالجليل - الجديد</td>
+<td class="branch-m-col">1,250</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">1,250</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 300</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">مشغل أول حسين - الجديد</td>
+<td class="branch-m-col">480</td>
+<td class="branch-h-col">700</td>
+<td style="color:#15803d;font-weight:700">1,180</td>
+<td style="font-size:0.82rem;color:#64748b">حساب جاري</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل وليد</td>
+<td class="branch-m-col">930</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">930</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 200</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل أم ناصر الباكستانية - الجديد</td>
+<td class="branch-m-col">300</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">300</td>
+<td style="font-size:0.82rem;color:#64748b">حساب جاري</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل عبدالقيوم -الجديد</td>
+<td class="branch-m-col">300</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">300</td>
+<td style="font-size:0.82rem;color:#64748b">يتم التصفية</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل جابر علي - الجديد</td>
+<td class="branch-m-col">270</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">270</td>
+<td style="font-size:0.82rem;color:#64748b">حساب جاري</td>
+</tr>
+        </tbody>
+        <tfoot>
+          <tr style="background:#1e3a5f;color:#fff;font-weight:700">
+            <td>الإجمالي</td>
+            <td class="branch-m-col" id="workshops-total-m">330,524</td>
+            <td class="branch-h-col" id="workshops-total-h">169,215</td>
+            <td style="color:#fbbf24">499,739</td>
+            <td></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+
+</div>
+<!-- ===== نهاية تبويب موردين النسائي ===== -->
+
+<!-- ===== قسم المخزون وتحليل COGS ===== -->
+<div class="table-card" style="margin-top:20px">
+  <h3>📦 تحليل المخزون وتكلفة البضاعة المباعة (COGS) — 2025</h3>
+  
+  <!-- بطاقات المؤشرات الرئيسية -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px">
+    
+    <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:16px;text-align:center">
+      <div style="font-size:0.8rem;color:#166534;margin-bottom:6px">مجمل الربح الحقيقي (COGS)</div>
+      <div style="font-size:1.5rem;font-weight:800;color:#15803d">1,607,537 ر</div>
+      <div style="font-size:0.85rem;color:#16a34a;margin-top:4px">37.1% من الإيرادات</div>
+    </div>
+    
+    <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:16px;text-align:center">
+      <div style="font-size:0.8rem;color:#1e40af;margin-bottom:6px">صافي الربح (بعد المصاريف)</div>
+      <div style="font-size:1.5rem;font-weight:800;color:#1d4ed8">795,190 ر</div>
+      <div style="font-size:0.85rem;color:#2563eb;margin-top:4px">18.3% من الإيرادات</div>
+    </div>
+    
+    <div style="background:#fefce8;border:1px solid #fde68a;border-radius:10px;padding:16px;text-align:center">
+      <div style="font-size:0.8rem;color:#854d0e;margin-bottom:6px">تكلفة البضاعة المباعة (COGS)</div>
+      <div style="font-size:1.5rem;font-weight:800;color:#92400e">2,729,843 ر</div>
+      <div style="font-size:0.85rem;color:#a16207;margin-top:4px">62.9% من الإيرادات</div>
+    </div>
+    
+    <div style="background:#fdf4ff;border:1px solid #e9d5ff;border-radius:10px;padding:16px;text-align:center">
+      <div style="font-size:0.8rem;color:#6b21a8;margin-bottom:6px">معدل دوران المخزون</div>
+      <div style="font-size:1.5rem;font-weight:800;color:#7e22ce">6.8x</div>
+      <div style="font-size:0.85rem;color:#9333ea;margin-top:4px">كل 54 يوم</div>
+    </div>
+    
+  </div>
+  
+  <!-- معادلة COGS -->
+  <div style="background:#f8fafc;border-radius:10px;padding:16px;margin-bottom:20px;font-size:0.9rem">
+    <div style="font-weight:700;color:#1e3a5f;margin-bottom:10px">📐 معادلة COGS لعام 2025</div>
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;direction:rtl">
+      <span style="background:#dbeafe;padding:6px 12px;border-radius:6px;font-weight:600">مخزون بداية 2025<br><span style="color:#1d4ed8">669,672 ر</span></span>
+      <span style="font-size:1.2rem;font-weight:700;color:#64748b">+</span>
+      <span style="background:#dcfce7;padding:6px 12px;border-radius:6px;font-weight:600">مشتريات 2025<br><span style="color:#15803d">2,194,202 ر</span></span>
+      <span style="font-size:1.2rem;font-weight:700;color:#64748b">−</span>
+      <span style="background:#fee2e2;padding:6px 12px;border-radius:6px;font-weight:600">مخزون نهاية 2025<br><span style="color:#dc2626">134,031 ر</span></span>
+      <span style="font-size:1.2rem;font-weight:700;color:#64748b">=</span>
+      <span style="background:#fef3c7;padding:6px 12px;border-radius:6px;font-weight:700;border:2px solid #f59e0b">COGS<br><span style="color:#92400e">2,729,843 ر</span></span>
+    </div>
+  </div>
+  
+  <!-- مقارنة المخزون -->
+  <div style="font-weight:700;color:#1e3a5f;margin-bottom:12px;font-size:0.95rem">📊 مقارنة المخزون: بداية 2025 مقابل بداية 2026</div>
+  <table>
+    <thead>
+      <tr>
+        <th>البيان</th>
+        <th>بداية 2025 (يناير 25)</th>
+        <th>بداية 2026 (يناير 26)</th>
+        <th>التغيير</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>إجمالي التكلفة</strong></td>
+        <td style="font-weight:700">669,672 ر</td>
+        <td style="font-weight:700">134,031 ر</td>
+        <td style="color:#dc2626;font-weight:700">▼ 535,641 ر (80%↓)</td>
+      </tr>
+      <tr style="background:#f8fafc">
+        <td>إجمالي سعر البيع</td>
+        <td>—</td>
+        <td>174,930 ر</td>
+        <td style="color:#16a34a">هامش 23.4%</td>
+      </tr>
+      <tr>
+        <td>عدد الأصناف</td>
+        <td>143 صنف (فرعين)</td>
+        <td>142 صنف (فرعين)</td>
+        <td style="color:#64748b">ثابت تقريباً</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <!-- تفصيل فروع 2026 -->
+  <div style="font-weight:700;color:#1e3a5f;margin:16px 0 12px;font-size:0.95rem">🏪 تفصيل مخزون بداية 2026 حسب الفرع</div>
+  <table>
+    <thead>
+      <tr>
+        <th>الفرع</th>
+        <th>عدد الأصناف</th>
+        <th>إجمالي التكلفة</th>
+        <th>إجمالي سعر البيع</th>
+        <th>هامش الربح</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>فرع محمد</strong></td>
+        <td>71</td>
+        <td>68,962 ر</td>
+        <td>90,273 ر</td>
+        <td style="color:#16a34a;font-weight:700">23.6%</td>
+      </tr>
+      <tr style="background:#f8fafc">
+        <td><strong>فرع هاني</strong></td>
+        <td>71</td>
+        <td>65,069 ر</td>
+        <td>84,657 ر</td>
+        <td style="color:#16a34a;font-weight:700">23.1%</td>
+      </tr>
+      <tr style="font-weight:700;background:#eff6ff">
+        <td>الإجمالي</td>
+        <td>142</td>
+        <td>134,031 ر</td>
+        <td>174,930 ر</td>
+        <td style="color:#16a34a;font-weight:700">23.4%</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <!-- ملاحظة تحليلية -->
+  <div style="background:#fef3c7;border-right:4px solid #f59e0b;padding:12px 16px;border-radius:6px;margin-top:16px;font-size:0.85rem;color:#78350f">
+    <strong>📌 ملاحظة:</strong> انخفض المخزون بنسبة 80% خلال 2025 (من 669,672 إلى 134,031 ريال)، مما يعني أن المبيعات تجاوزت المشتريات بفارق 535,641 ريال. هامش الربح الحقيقي بعد احتساب COGS هو <strong>37.1%</strong> — أعلى بكثير من الهامش المحسوب شهرياً (14.8%) لأن الحساب الشهري لا يأخذ في الاعتبار تغير المخزون.
+  </div>
+</div>
+
+<!-- Modal Overlay -->
+<div id="modal-overlay" onclick="closeModal(event)">
+  <div class="modal" id="modal-box">
+    <button class="modal-close" onclick="closeModalBtn()">✕</button>
+    <div class="modal-title" id="modal-title"></div>
+    <div class="modal-total" id="modal-total"></div>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<!-- Scripts -->
+<script src="data.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/charts.js"></script>
+<script src="js/tables.js"></script>
+
 </body>
 </html>

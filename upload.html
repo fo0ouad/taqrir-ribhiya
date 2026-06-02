@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>رفع بيانات شهر جديد — داشبورد محلات العائلة</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div>
+    <h1>📤 رفع بيانات شهر جديد</h1>
+    <div class="header-sub">تحديث الداشبورد بدون الحاجة لمساعدة خارجية</div>
+  </div>
+  <div style="display:flex;gap:12px;align-items:center">
+    <a href="index.html" style="background:rgba(255,255,255,0.15);color:white;padding:6px 14px;border-radius:20px;font-size:0.8rem;text-decoration:none">← العودة للداشبورد</a>
+    <button class="logout-btn" onclick="logout()">خروج</button>
+  </div>
+</div>
+
+<div class="upload-page">
+
+  <!-- معلومات الشهر -->
+  <div class="upload-section">
+    <h3>📅 معلومات الشهر الجديد</h3>
+    <div class="upload-grid">
+      <div class="upload-field">
+        <label>الشهر</label>
+        <select id="month-select">
+          <option value="">اختر الشهر</option>
+          <option>يناير</option><option>فبراير</option><option>مارس</option>
+          <option>أبريل</option><option>مايو</option><option>يونيو</option>
+          <option>يوليو</option><option>أغسطس</option><option>سبتمبر</option>
+          <option>أكتوبر</option><option>نوفمبر</option><option>ديسمبر</option>
+        </select>
+      </div>
+      <div class="upload-field">
+        <label>السنة</label>
+        <select id="year-select">
+          <option value="26">2026</option>
+          <option value="27">2027</option>
+          <option value="28">2028</option>
+        </select>
+      </div>
+      <div class="upload-field">
+        <label>الإيرادات الإجمالية (ريال)</label>
+        <input type="text" id="revenue-input" placeholder="مثال: 350000" dir="ltr">
+      </div>
+      <div class="upload-field">
+        <label>المدفوع للموردين (ريال)</label>
+        <input type="text" id="suppliers-paid-input" placeholder="مثال: 280000" dir="ltr">
+      </div>
+      <div class="upload-field">
+        <label>المشتريات (ريال)</label>
+        <input type="text" id="purchases-input" placeholder="مثال: 200000" dir="ltr">
+      </div>
+      <div class="upload-field">
+        <label>رصيد الخياطين (ريال)</label>
+        <input type="text" id="tailors-input" placeholder="مثال: 65000" dir="ltr">
+      </div>
+      <div class="upload-field">
+        <label>عدد أيام الشهر الفعلية</label>
+        <input type="text" id="days-input" placeholder="مثال: 30" dir="ltr" value="30">
+      </div>
+      <div class="upload-field">
+        <label>ملاحظات (اختياري)</label>
+        <input type="text" id="notes-input" placeholder="أي ملاحظات عن الشهر">
+      </div>
+    </div>
+  </div>
+
+  <!-- المصاريف التفصيلية -->
+  <div class="upload-section">
+    <h3>💸 المصاريف التفصيلية</h3>
+    <p style="font-size:0.85rem;color:#64748b;margin-bottom:16px">
+      أضف كل بند مصروف مع تصنيفه. يمكن إضافة عدة بنود لنفس الفئة.
+    </p>
+    
+    <div id="expenses-list">
+      <!-- سيتم إضافة بنود هنا -->
+    </div>
+    
+    <button onclick="addExpenseRow()" class="btn-secondary" style="margin-top:12px;padding:8px 20px;font-size:0.85rem">
+      + إضافة بند مصروف
+    </button>
+    
+    <div style="margin-top:16px;padding:12px;background:#f8faff;border-radius:8px;font-size:0.82rem;color:#475569">
+      <strong>الإجمالي المحسوب:</strong> <span id="total-expenses-display" style="font-weight:800;color:#1e3a5f">0 ر</span>
+    </div>
+  </div>
+
+  <!-- إعدادات GitHub API -->
+  <div class="upload-section">
+    <h3>🔑 إعدادات GitHub (مرة واحدة فقط)</h3>
+    <p style="font-size:0.85rem;color:#64748b;margin-bottom:16px">
+      هذه البيانات تُحفظ في المتصفح ولا تُرسل لأي خادم خارجي.
+    </p>
+    <div class="upload-grid">
+      <div class="upload-field">
+        <label>GitHub Token</label>
+        <input type="password" id="github-token" placeholder="github_pat_..." dir="ltr">
+      </div>
+      <div class="upload-field">
+        <label>اسم المستودع</label>
+        <input type="text" id="github-repo" placeholder="fo0ouad/taqrir-ribhiya" dir="ltr" value="fo0ouad/taqrir-ribhiya">
+      </div>
+    </div>
+    <div style="margin-top:10px">
+      <button onclick="saveGithubSettings()" class="btn-secondary" style="padding:8px 20px;font-size:0.85rem">💾 حفظ الإعدادات</button>
+      <span id="settings-saved" style="color:#10B981;font-size:0.82rem;margin-right:10px;display:none">✓ تم الحفظ</span>
+    </div>
+  </div>
+
+  <!-- معاينة البيانات -->
+  <div class="upload-section" id="preview-section" style="display:none">
+    <h3>👁️ معاينة البيانات قبل الرفع</h3>
+    <div id="preview-content"></div>
+  </div>
+
+  <!-- أزرار الإجراءات -->
+  <div class="upload-actions">
+    <button onclick="previewData()" class="btn-secondary">👁️ معاينة</button>
+    <button onclick="uploadData()" class="btn-primary" id="upload-btn">🚀 رفع وتحديث الداشبورد</button>
+  </div>
+
+  <!-- شريط التقدم -->
+  <div class="upload-progress" id="upload-progress">
+    <div class="progress-step" id="step-1">
+      <span class="progress-icon">⏳</span>
+      <span>جاري التحقق من البيانات...</span>
+    </div>
+    <div class="progress-step" id="step-2" style="color:#94a3b8">
+      <span class="progress-icon">⏳</span>
+      <span>جاري قراءة data.js الحالي من GitHub...</span>
+    </div>
+    <div class="progress-step" id="step-3" style="color:#94a3b8">
+      <span class="progress-icon">⏳</span>
+      <span>جاري إضافة بيانات الشهر الجديد...</span>
+    </div>
+    <div class="progress-step" id="step-4" style="color:#94a3b8">
+      <span class="progress-icon">⏳</span>
+      <span>جاري رفع data.js المحدّث إلى GitHub...</span>
+    </div>
+    <div class="progress-step" id="step-5" style="color:#94a3b8">
+      <span class="progress-icon">⏳</span>
+      <span>اكتمل! GitHub Pages يحتاج 1-2 دقيقة للتحديث.</span>
+    </div>
+  </div>
+
+  <!-- رابط سجل الرفع -->
+  <div class="upload-history-link">
+    <a href="https://github.com/fo0ouad/taqrir-ribhiya/commits/gh-pages" target="_blank">📋 عرض سجل التحديثات على GitHub</a>
+  </div>
+
+</div>
+
+<script src="js/auth.js"></script>
+<script>
+// ===== إعدادات GitHub =====
+function loadGithubSettings() {
+  const token = localStorage.getItem('gh_token') || '';
+  const repo = localStorage.getItem('gh_repo') || 'fo0ouad/taqrir-ribhiya';
+  document.getElementById('github-token').value = token;
+  document.getElementById('github-repo').value = repo;
+}
+
+function saveGithubSettings() {
+  const token = document.getElementById('github-token').value.trim();
+  const repo = document.getElementById('github-repo').value.trim();
+  if (token) localStorage.setItem('gh_token', token);
+  if (repo) localStorage.setItem('gh_repo', repo);
+  document.getElementById('settings-saved').style.display = 'inline';
+  setTimeout(() => document.getElementById('settings-saved').style.display = 'none', 3000);
+}
+
+// ===== قاموس التصنيفات =====
+const CATS_LIST = ["رواتب", "مصاريف المشغل", "إيجار", "رسوم بنكية", "عمولات مشتركة", "نقل", "مصاريف حكومية", "رسوم مرافقين", "مصاريف عائلة", "الزكاة والدخل", "تأمينات", "كهرباء الفروع", "اتصالات", "مستحقات سابقة رجالي", "أخرى"];
+
+// ===== إضافة بند مصروف =====
+let expenseRowCount = 0;
+function addExpenseRow(name='', cat='أخرى', amount='') {
+  expenseRowCount++;
+  const id = expenseRowCount;
+  const catsOptions = CATS_LIST.map(c => `<option value="${c}" ${c===cat?'selected':''}>${c}</option>`).join('');
+  
+  const row = document.createElement('div');
+  row.id = `exp-row-${id}`;
+  row.style.cssText = 'display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:10px;margin-bottom:10px;align-items:center';
+  row.innerHTML = `
+    <input type="text" placeholder="اسم البند (مثال: راتب سعيد)" value="${name}" 
+           style="padding:8px 12px;border:2px solid #e2e8f0;border-radius:8px;font-family:inherit;font-size:0.85rem;direction:rtl"
+           onchange="updateTotal()">
+    <select style="padding:8px 12px;border:2px solid #e2e8f0;border-radius:8px;font-family:inherit;font-size:0.85rem"
+            onchange="updateTotal()">
+      ${catsOptions}
+    </select>
+    <input type="number" placeholder="المبلغ" value="${amount}" 
+           style="padding:8px 12px;border:2px solid #e2e8f0;border-radius:8px;font-family:inherit;font-size:0.85rem"
+           oninput="updateTotal()">
+    <button onclick="document.getElementById('exp-row-${id}').remove();updateTotal()" 
+            style="padding:6px 10px;background:#fef2f2;border:1px solid #fca5a5;border-radius:6px;cursor:pointer;color:#dc2626;font-size:0.9rem">✕</button>
+  `;
+  document.getElementById('expenses-list').appendChild(row);
+  updateTotal();
+}
+
+function updateTotal() {
+  let total = 0;
+  document.querySelectorAll('#expenses-list input[type="number"]').forEach(inp => {
+    total += parseFloat(inp.value) || 0;
+  });
+  document.getElementById('total-expenses-display').textContent = total.toLocaleString('ar-SA', {maximumFractionDigits:0}) + ' ر';
+}
+
+// ===== جمع بيانات المصاريف =====
+function collectExpenses() {
+  const breakdown = {};
+  const rows = document.querySelectorAll('#expenses-list > div');
+  rows.forEach(row => {
+    const inputs = row.querySelectorAll('input, select');
+    const name = inputs[0]?.value.trim();
+    const cat = inputs[1]?.value;
+    const amount = parseFloat(inputs[2]?.value) || 0;
+    if (name && amount > 0) {
+      if (!breakdown[cat]) breakdown[cat] = [];
+      breakdown[cat].push({name, amount});
+    }
+  });
+  return breakdown;
+}
+
+// ===== حساب إجمالي المصاريف =====
+function calcTotalExpenses(breakdown) {
+  let total = 0;
+  Object.values(breakdown).forEach(items => {
+    items.forEach(i => total += i.amount);
+  });
+  return total;
+}
+
+// ===== معاينة البيانات =====
+function previewData() {
+  const monthName = document.getElementById('month-select').value;
+  const year = document.getElementById('year-select').value;
+  if (!monthName) { alert('الرجاء اختيار الشهر'); return; }
+  
+  const revenue = parseFloat(document.getElementById('revenue-input').value.replace(/,/g,'')) || 0;
+  const suppliersPaid = parseFloat(document.getElementById('suppliers-paid-input').value.replace(/,/g,'')) || 0;
+  const purchases = parseFloat(document.getElementById('purchases-input').value.replace(/,/g,'')) || 0;
+  const tailors = parseFloat(document.getElementById('tailors-input').value.replace(/,/g,'')) || 0;
+  const days = parseInt(document.getElementById('days-input').value) || 30;
+  const breakdown = collectExpenses();
+  const totalExp = calcTotalExpenses(breakdown);
+  const grossMargin = Math.round(revenue * 0.15);
+  const profit = grossMargin - totalExp;
+  const dailyAvg = Math.round(grossMargin / days);
+  
+  const monthKey = `${monthName} ${year}`;
+  
+  let expHtml = '';
+  Object.entries(breakdown).forEach(([cat, items]) => {
+    const catTotal = items.reduce((s,i) => s+i.amount, 0);
+    expHtml += `<tr><td style="font-weight:600;color:#1e3a5f">${cat}</td><td>${catTotal.toLocaleString('ar-SA')} ر</td></tr>`;
+    items.forEach(i => {
+      expHtml += `<tr style="background:#f8faff"><td style="padding-right:20px;color:#64748b;font-size:0.82rem">↳ ${i.name}</td><td style="color:#64748b;font-size:0.82rem">${i.amount.toLocaleString('ar-SA')} ر</td></tr>`;
+    });
+  });
+  
+  document.getElementById('preview-content').innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px">
+      <div style="background:#eff6ff;border-radius:8px;padding:12px;text-align:center">
+        <div style="font-size:0.75rem;color:#1e40af">الشهر</div>
+        <div style="font-size:1.2rem;font-weight:800;color:#1d4ed8">${monthKey}</div>
+      </div>
+      <div style="background:#f0fdf4;border-radius:8px;padding:12px;text-align:center">
+        <div style="font-size:0.75rem;color:#166534">الإيرادات</div>
+        <div style="font-size:1.2rem;font-weight:800;color:#15803d">${revenue.toLocaleString('ar-SA')} ر</div>
+      </div>
+      <div style="background:${profit>=0?'#f0fdf4':'#fef2f2'};border-radius:8px;padding:12px;text-align:center">
+        <div style="font-size:0.75rem;color:${profit>=0?'#166534':'#9f1239'}">الربح/الخسارة التقديري</div>
+        <div style="font-size:1.2rem;font-weight:800;color:${profit>=0?'#15803d':'#be123c'}">${profit>=0?'+':''}${profit.toLocaleString('ar-SA')} ر</div>
+      </div>
+      <div style="background:#fef3c7;border-radius:8px;padding:12px;text-align:center">
+        <div style="font-size:0.75rem;color:#854d0e">المصاريف الإجمالية</div>
+        <div style="font-size:1.2rem;font-weight:800;color:#92400e">${totalExp.toLocaleString('ar-SA')} ر</div>
+      </div>
+      <div style="background:#fdf4ff;border-radius:8px;padding:12px;text-align:center">
+        <div style="font-size:0.75rem;color:#6b21a8">المدفوع للموردين</div>
+        <div style="font-size:1.2rem;font-weight:800;color:#7e22ce">${suppliersPaid.toLocaleString('ar-SA')} ر</div>
+      </div>
+      <div style="background:#f0fdf4;border-radius:8px;padding:12px;text-align:center">
+        <div style="font-size:0.75rem;color:#166534">متوسط يومي</div>
+        <div style="font-size:1.2rem;font-weight:800;color:#15803d">${dailyAvg.toLocaleString('ar-SA')} ر/يوم</div>
+      </div>
+    </div>
+    ${expHtml ? `<table><thead><tr><th>الفئة / البند</th><th>المبلغ</th></tr></thead><tbody>${expHtml}</tbody></table>` : '<p style="color:#94a3b8;text-align:center">لم تُضف أي مصاريف</p>'}
+  `;
+  
+  document.getElementById('preview-section').style.display = 'block';
+  document.getElementById('preview-section').scrollIntoView({behavior:'smooth'});
+}
+
+// ===== رفع البيانات عبر GitHub API =====
+async function uploadData() {
+  const token = localStorage.getItem('gh_token') || document.getElementById('github-token').value.trim();
+  const repo = localStorage.getItem('gh_repo') || 'fo0ouad/taqrir-ribhiya';
+  
+  if (!token) {
+    alert('الرجاء إدخال GitHub Token أولاً');
+    return;
+  }
+  
+  const monthName = document.getElementById('month-select').value;
+  const year = document.getElementById('year-select').value;
+  if (!monthName) { alert('الرجاء اختيار الشهر'); return; }
+  
+  const revenue = parseFloat(document.getElementById('revenue-input').value.replace(/,/g,'')) || 0;
+  const suppliersPaid = parseFloat(document.getElementById('suppliers-paid-input').value.replace(/,/g,'')) || 0;
+  const purchases = parseFloat(document.getElementById('purchases-input').value.replace(/,/g,'')) || 0;
+  const tailors = parseFloat(document.getElementById('tailors-input').value.replace(/,/g,'')) || 0;
+  const days = parseInt(document.getElementById('days-input').value) || 30;
+  const notes = document.getElementById('notes-input').value.trim();
+  const breakdown = collectExpenses();
+  const totalExp = calcTotalExpenses(breakdown);
+  const grossMargin = Math.round(revenue * 0.15);
+  const profit = grossMargin - totalExp;
+  const dailyAvg = Math.round(grossMargin / days);
+  const monthKey = `${monthName} ${year}`;
+  
+  // إظهار شريط التقدم
+  const progress = document.getElementById('upload-progress');
+  progress.classList.add('show');
+  document.getElementById('upload-btn').disabled = true;
+  
+  function setStep(n, status) {
+    const step = document.getElementById(`step-${n}`);
+    if (!step) return;
+    step.style.color = status === 'done' ? '#16a34a' : status === 'error' ? '#dc2626' : '#1e3a5f';
+    step.querySelector('.progress-icon').textContent = status === 'done' ? '✅' : status === 'error' ? '❌' : '⏳';
+  }
+  
+  try {
+    // الخطوة 1: التحقق
+    setStep(1, 'active');
+    if (!revenue) throw new Error('الإيرادات مطلوبة');
+    await sleep(500);
+    setStep(1, 'done');
+    
+    // الخطوة 2: قراءة data.js من GitHub
+    setStep(2, 'active');
+    const apiUrl = `https://api.github.com/repos/${repo}/contents/data.js`;
+    const headers = {
+      'Authorization': `token ${token}`,
+      'Accept': 'application/vnd.github.v3+json'
+    };
+    
+    const getResp = await fetch(apiUrl, { headers });
+    if (!getResp.ok) throw new Error(`خطأ في قراءة data.js: ${getResp.status}`);
+    const fileData = await getResp.json();
+    const currentContent = atob(fileData.content.replace(/\n/g, ''));
+    const sha = fileData.sha;
+    setStep(2, 'done');
+    
+    // الخطوة 3: إضافة بيانات الشهر الجديد
+    setStep(3, 'active');
+    const newContent = addMonthToDataJs(currentContent, monthKey, {
+      revenue, grossMargin, totalExp, profit, suppliersPaid, purchases, tailors,
+      days, dailyAvg, breakdown, notes
+    });
+    await sleep(500);
+    setStep(3, 'done');
+    
+    // الخطوة 4: رفع data.js المحدّث
+    setStep(4, 'active');
+    const encodedContent = btoa(unescape(encodeURIComponent(newContent)));
+    const putResp = await fetch(apiUrl, {
+      method: 'PUT',
+      headers: { ...headers, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        message: `إضافة بيانات ${monthKey}`,
+        content: encodedContent,
+        sha: sha,
+        branch: 'gh-pages'
+      })
+    });
+    
+    if (!putResp.ok) {
+      const errData = await putResp.json();
+      throw new Error(`خطأ في الرفع: ${errData.message || putResp.status}`);
+    }
+    setStep(4, 'done');
+    
+    // الخطوة 5: اكتمل
+    setStep(5, 'done');
+    
+    setTimeout(() => {
+      if (confirm('✅ تم رفع البيانات بنجاح!\n\nهل تريد العودة للداشبورد الآن؟\n(قد يحتاج 1-2 دقيقة للتحديث)')) {
+        window.location.href = 'index.html';
+      }
+    }, 1000);
+    
+  } catch (err) {
+    console.error(err);
+    alert('❌ خطأ: ' + err.message);
+    document.getElementById('upload-btn').disabled = false;
+  }
+}
+
+// ===== إضافة شهر جديد لـ data.js =====
+function addMonthToDataJs(content, monthKey, data) {
+  const { revenue, grossMargin, totalExp, profit, suppliersPaid, purchases, tailors, days, dailyAvg, breakdown, notes } = data;
+  
+  // بناء كائن MONTHLY_DETAIL للشهر الجديد
+  const monthDetail = {
+    revenue,
+    gross_margin: grossMargin,
+    expenses: totalExp,
+    profit,
+    profit_pct: revenue > 0 ? parseFloat((profit/revenue*100).toFixed(1)) : 0,
+    suppliers_paid: suppliersPaid,
+    purchases,
+    tailors_balance: tailors,
+    rent_actual: 0,
+    rent_spread: 0,
+    exp_breakdown: breakdown,
+    tailors_list: [],
+    issues: profit < 0 ? [`إيرادات منخفضة (${revenue.toLocaleString('ar-SA')} ر) — دون مستوى التعادل`] : [],
+    notes: notes ? [notes] : [],
+    revenue_change: null,
+    expenses_change: null,
+    profit_change: null,
+    liquidity_gap: Math.max(0, suppliersPaid + totalExp - revenue),
+    needs_external_funding: (suppliersPaid + totalExp) > revenue,
+    metric1: profit,
+    metric2: revenue - totalExp,
+    metric3: revenue - totalExp - suppliersPaid
+  };
+  
+  // تحديث MONTHS array
+  let newContent = content;
+  
+  // إضافة الشهر لـ MONTHS
+  const monthsMatch = newContent.match(/const MONTHS = \[(.*?)\];/s);
+  if (monthsMatch) {
+    const monthsArr = monthsMatch[1];
+    if (!monthsArr.includes(`"${monthKey}"`)) {
+      const newMonths = monthsArr.trimEnd() + `, "${monthKey}"`;
+      newContent = newContent.replace(monthsMatch[0], `const MONTHS = [${newMonths}];`);
+    }
+  }
+  
+  // إضافة الإيرادات
+  newContent = appendToArray(newContent, 'REVENUES', revenue);
+  newContent = appendToArray(newContent, 'GROSS_MARGINS', grossMargin);
+  newContent = appendToArray(newContent, 'EXPENSES', totalExp);
+  newContent = appendToArray(newContent, 'SUPPLIERS_PAID', suppliersPaid);
+  newContent = appendToArray(newContent, 'PURCHASES', purchases);
+  newContent = appendToArray(newContent, 'TAILORS_BALANCE', tailors);
+  newContent = appendToArray(newContent, 'PROFIT_ACTUAL', profit);
+  newContent = appendToArray(newContent, 'PROFIT_SPREAD', profit);
+  newContent = appendToArray(newContent, 'RENT_ACTUAL', 0);
+  
+  // إضافة EXP_TOTALS
+  newContent = addToExpTotals(newContent, breakdown);
+  
+  // إضافة EXP_DETAILS
+  newContent = addToExpDetails(newContent, monthKey, breakdown);
+  
+  // إضافة MONTHLY_DETAIL
+  newContent = addToMonthlyDetail(newContent, monthKey, monthDetail);
+  
+  return newContent;
+}
+
+function appendToArray(content, varName, value) {
+  const regex = new RegExp(`(const ${varName} = \\[)(.*?)(\\];)`, 's');
+  return content.replace(regex, (match, start, middle, end) => {
+    return `${start}${middle.trimEnd()}, ${value}${end}`;
+  });
+}
+
+function addToExpTotals(content, breakdown) {
+  // لكل فئة في breakdown، أضف القيمة لمصفوفتها في EXP_TOTALS
+  let newContent = content;
+  const catTotal = {};
+  Object.entries(breakdown).forEach(([cat, items]) => {
+    catTotal[cat] = items.reduce((s,i) => s+i.amount, 0);
+  });
+  
+  // تحديث EXP_TOTALS
+  const expTotalsMatch = newContent.match(/const EXP_TOTALS = (\{.*?\});/s);
+  if (expTotalsMatch) {
+    try {
+      const expTotals = JSON.parse(expTotalsMatch[1]);
+      // إضافة قيمة لكل فئة
+      const allCats = ["رواتب", "مصاريف المشغل", "إيجار", "رسوم بنكية", "عمولات مشتركة", "نقل", "مصاريف حكومية", "رسوم مرافقين", "مصاريف عائلة", "الزكاة والدخل", "تأمينات", "كهرباء الفروع", "اتصالات", "مستحقات سابقة رجالي", "أخرى"];
+      allCats.forEach(cat => {
+        if (!expTotals[cat]) expTotals[cat] = [];
+        expTotals[cat].push(catTotal[cat] || 0);
+      });
+      newContent = newContent.replace(expTotalsMatch[0], `const EXP_TOTALS = ${JSON.stringify(expTotals)};`);
+    } catch(e) {
+      console.warn('Could not update EXP_TOTALS:', e);
+    }
+  }
+  return newContent;
+}
+
+function addToExpDetails(content, monthKey, breakdown) {
+  const expDetailsMatch = content.match(/const EXP_DETAILS = (\{.*?\});/s);
+  if (expDetailsMatch) {
+    try {
+      const expDetails = JSON.parse(expDetailsMatch[1]);
+      expDetails[monthKey] = breakdown;
+      return content.replace(expDetailsMatch[0], `const EXP_DETAILS = ${JSON.stringify(expDetails)};`);
+    } catch(e) {
+      console.warn('Could not update EXP_DETAILS:', e);
+    }
+  }
+  return content;
+}
+
+function addToMonthlyDetail(content, monthKey, monthDetail) {
+  const mdMatch = content.match(/const MONTHLY_DETAIL = (\{.*?\});/s);
+  if (mdMatch) {
+    try {
+      const md = JSON.parse(mdMatch[1]);
+      md[monthKey] = monthDetail;
+      return content.replace(mdMatch[0], `const MONTHLY_DETAIL = ${JSON.stringify(md)};`);
+    } catch(e) {
+      console.warn('Could not update MONTHLY_DETAIL:', e);
+    }
+  }
+  return content;
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// ===== تهيئة الصفحة =====
+loadGithubSettings();
+// إضافة بند مصروف أول تلقائياً
+addExpenseRow();
+</script>
+</body>
+</html>
