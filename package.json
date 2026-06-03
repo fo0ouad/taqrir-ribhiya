@@ -1,0 +1,20 @@
+{
+  "name": "taqrir-ribhiya",
+  "private": true,
+  "version": "1.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist"
+  },
+  "dependencies": {
+    "chart.js": "^4.4.1"
+  },
+  "devDependencies": {
+    "vite": "^5.2.11",
+    "gh-pages": "^6.1.1"
+  }
+}

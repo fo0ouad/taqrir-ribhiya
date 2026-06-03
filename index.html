@@ -1,557 +1,2247 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
+  <!-- يتم استدعاء ملف الـ CSS والـ JS عن طريق Vite كـ Module -->
+  <script type="module" src="/src/main.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>تقرير الربحية وضغط الكاش فلو — 2025/2026</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-<style>
-* { box-sizing:border-box; margin:0; padding:0; }
-body { font-family:'Segoe UI',Tahoma,Arial,sans-serif; background:#f0f2f5; color:#1a1a2e; direction:rtl; font-size:14px; }
+<title>داشبورد محلات العائلة — 2025/2026</title>
 
-.header { background:linear-gradient(135deg,#0f3460,#16213e); color:white; padding:36px 48px; }
-.header h1 { font-size:1.8rem; font-weight:700; margin-bottom:6px; }
-.header p { opacity:.7; font-size:.95rem; }
-.header .tags { margin-top:14px; display:flex; gap:10px; flex-wrap:wrap; }
-.tag { background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.2); border-radius:20px; padding:4px 14px; font-size:.78rem; }
 
-.nav-tabs { background:white; border-bottom:2px solid #e5e7eb; display:flex; gap:0; padding:0 40px; }
-.nav-tab { padding:16px 28px; cursor:pointer; font-size:.9rem; font-weight:600; color:#6b7280; border-bottom:3px solid transparent; margin-bottom:-2px; transition:.2s; }
-.nav-tab.active { color:#0f3460; border-bottom-color:#0f3460; }
-.nav-tab:hover { color:#0f3460; }
-
-.tab-content { display:none; }
-.tab-content.active { display:block; }
-
-.container { max-width:1400px; margin:0 auto; padding:28px 24px; }
-
-/* KPI strip */
-.kpi-strip { display:grid; grid-template-columns:repeat(5,1fr); gap:14px; margin-bottom:28px; }
-.kpi { background:white; border-radius:14px; padding:18px 16px; box-shadow:0 2px 10px rgba(0,0,0,.05); border-top:3px solid #0f3460; text-align:center; }
-.kpi.green { border-top-color:#10b981; }
-.kpi.red { border-top-color:#ef4444; }
-.kpi.orange { border-top-color:#f59e0b; }
-.kpi.purple { border-top-color:#8b5cf6; }
-.kpi-val { font-size:1.4rem; font-weight:700; color:#111; }
-.kpi-lbl { font-size:.72rem; color:#9ca3af; margin-top:4px; text-transform:uppercase; letter-spacing:.04em; }
-
-/* Chart cards */
-.card { background:white; border-radius:16px; padding:24px; box-shadow:0 2px 10px rgba(0,0,0,.05); margin-bottom:20px; }
-.card h3 { font-size:.95rem; font-weight:700; color:#374151; margin-bottom:18px; padding-bottom:10px; border-bottom:1px solid #f3f4f6; }
-.card-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
-.card-grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:20px; }
-
-/* Tables */
-.tbl { width:100%; border-collapse:collapse; font-size:.82rem; }
-.tbl th { background:#f8fafc; padding:10px 12px; text-align:center; color:#64748b; font-weight:600; border-bottom:2px solid #e2e8f0; white-space:nowrap; }
-.tbl td { padding:9px 12px; text-align:center; border-bottom:1px solid #f1f5f9; }
-.tbl tr:hover td { background:#fafbfc; }
-.tbl .lbl { font-weight:700; color:#0f3460; text-align:right; white-space:nowrap; }
-.profit { color:#10b981; font-weight:700; }
-.loss { color:#ef4444; font-weight:700; }
-.neutral { color:#6b7280; }
-.warn { background:rgba(245,158,11,.08); color:#92400e; font-weight:600; }
-.highlight-green { background:rgba(16,185,129,.06); }
-.highlight-red { background:rgba(239,68,68,.05); }
-.section-divider { font-size:.75rem; color:#0f3460; font-weight:700; background:#eff6ff; padding:8px 14px; text-align:right; letter-spacing:.05em; }
-
-/* Insight boxes */
-.insight { border-radius:12px; padding:14px 18px; margin:10px 0; font-size:.85rem; line-height:1.7; }
-.insight.warn { background:#fffbeb; border:1px solid #fcd34d; }
-.insight.danger { background:#fef2f2; border:1px solid #fca5a5; }
-.insight.good { background:#f0fdf4; border:1px solid #86efac; }
-.insight.info { background:#eff6ff; border:1px solid #93c5fd; }
-.insight-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
-
-/* Expense bars */
-.exp-bar-row { display:flex; align-items:center; gap:10px; margin-bottom:8px; }
-.exp-bar-lbl { width:90px; font-size:.78rem; color:#374151; text-align:right; }
-.exp-bar-track { flex:1; height:18px; background:#f1f5f9; border-radius:9px; overflow:hidden; }
-.exp-bar-fill { height:100%; border-radius:9px; }
-.exp-bar-val { width:80px; font-size:.78rem; color:#6b7280; }
-
-/* Problem cards */
-.problem-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }
-.problem-card { border-radius:14px; padding:20px; }
-.problem-card.critical { background:#fef2f2; border:1px solid #fca5a5; }
-.problem-card.warning { background:#fffbeb; border:1px solid #fde68a; }
-.problem-card.info { background:#eff6ff; border:1px solid #bfdbfe; }
-.problem-card.good { background:#f0fdf4; border:1px solid #bbf7d0; }
-.problem-card h4 { font-size:.88rem; font-weight:700; margin-bottom:8px; }
-.problem-card .score { font-size:1.6rem; font-weight:800; margin-bottom:6px; }
-.problem-card p { font-size:.78rem; line-height:1.6; color:#555; }
-.problem-card.critical h4,.problem-card.critical .score { color:#dc2626; }
-.problem-card.warning h4,.problem-card.warning .score { color:#d97706; }
-.problem-card.info h4,.problem-card.info .score { color:#2563eb; }
-.problem-card.good h4,.problem-card.good .score { color:#16a34a; }
-
-footer { text-align:center; padding:20px; color:#9ca3af; font-size:.75rem; border-top:1px solid #e5e7eb; margin-top:12px; }
-</style>
 </head>
 <body>
 
+  <!-- 🔒 واجهة تسجيل الدخول والتحقق من الهوية (شاشة الحماية الزجاجية) -->
+  <div id="authOverlay" class="auth-overlay hidden">
+    <div class="auth-card">
+      <div class="logo-area">📊</div>
+      <h2>تقرير الأداء المالي</h2>
+      <p class="sub">محلات العائلة — لوحة التحكم المحمية</p>
+      <form id="authForm" class="auth-form">
+        <div class="input-group">
+          <input type="password" id="passwordInput" placeholder="أدخل كلمة المرور لدخول التقرير..." required autocomplete="current-password">
+        </div>
+        <button type="submit" class="auth-btn">تسجيل الدخول</button>
+        <div id="authError" class="auth-error"></div>
+      </form>
+    </div>
+  </div>
+    
+  <!-- 📦 الحاوية الرئيسية للتطبيق (يتم تشويشها قبل تسجيل الدخول) -->
+  <div id="dashboardContainer" class="app-blurred">
+
 <div class="header">
-  <h1>📊 تقرير الربحية وضغط الكاش فلو</h1>
-  <p>محلات العائلة — يناير 2025 إلى فبراير 2026</p>
-  <div class="tags">
-    <span class="tag">هامش ربح إجمالي 15%</span>
-    <span class="tag">الجمعية مستبعدة من المصاريف</span>
-    <span class="tag">مصاريف العائلة مفصولة</span>
-    <span class="tag">14 شهراً</span>
+  <div>
+    <h1>📊 داشبورد محلات العائلة</h1>
+    <div class="header-sub">يناير 2025 — أبريل 2026 · 16 شهراً من البيانات</div>
+  </div>
+  <div class="last-update">آخر تحديث: أبريل 2026</div>
+</div>
+
+<div class="tabs">
+  <button class="tab-btn active" onclick="switchTab('tab-summary', event)">📈 الملخص التنفيذي</button>
+  <button class="tab-btn" onclick="switchTab('tab-expenses', event)">💸 المصاريف التفصيلية</button>
+  <button class="tab-btn" onclick="switchTab('tab-suppliers', event)">🏪 الموردين</button>
+  <button class="tab-btn" onclick="switchTab('tab-customers', event)">👥 عملاء النسائي</button>
+  <button class="tab-btn" onclick="switchTab('tab-report', event)">📋 التقرير التحليلي</button>
+  <button class="tab-btn" onclick="switchTab('tab-women-suppliers', event)" id="btn-tab-women-suppliers">👗 موردين النسائي</button>
+</div>
+
+<!-- KPI Cards -->
+<div class="kpi-grid">
+  <div class="kpi-card" style="border-color:#3B82F6">
+    <div class="kpi-value" style="color:#3B82F6">5355.6K</div>
+    <div class="kpi-label">إجمالي الإيرادات<br>16 شهر</div>
+  </div>
+  <div class="kpi-card" style="border-color:#dc2626">
+    <div class="kpi-value" style="color:#dc2626">-279.5K</div>
+    <div class="kpi-label">صافي النتيجة التشغيلية<br>هامش − مصاريف</div>
+  </div>
+  <div class="kpi-card" style="border-color:#8B5CF6">
+    <div class="kpi-value" style="color:#8B5CF6">4/15</div>
+    <div class="kpi-label">أشهر الربح<br>شهراً رابحاً</div>
+  </div>
+  <div class="kpi-card" style="border-color:#EF4444">
+    <div class="kpi-value" style="color:#EF4444">-328.7K</div>
+    <div class="kpi-label">مجموع الخسائر<br>أشهر الخسارة</div>
+  </div>
+  <div class="kpi-card" style="border-color:#10B981">
+    <div class="kpi-value" style="color:#10B981">+49.2K</div>
+    <div class="kpi-label">مجموع الأرباح<br>أشهر الربح</div>
   </div>
 </div>
 
-<div class="nav-tabs">
-  <div class="nav-tab active" onclick="showTab('pl')">📋 قائمة الربح والخسارة</div>
-  <div class="nav-tab" onclick="showTab('cash')">💧 ضغط الكاش فلو</div>
-  <div class="nav-tab" onclick="showTab('expenses')">📦 تفصيل المصاريف</div>
-  <div class="nav-tab" onclick="showTab('diagnosis')">🔍 تشخيص المشاكل</div>
+<!-- ===== TAB 1: الملخص التنفيذي ===== -->
+<div id="tab-summary" class="tab-content active">
+  <div class="charts-grid">
+    <div class="chart-card full">
+      <div class="chart-title">الإيرادات الشهرية مقابل هامش الربح الإجمالي (ريال)</div>
+      <canvas id="ch-revenue" height="90"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">الربح / الخسارة الشهرية (ريال)</div>
+      <canvas id="ch-profit" height="160"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">المدفوع للموردين مقابل المشتريات (ريال)</div>
+      <canvas id="ch-suppliers" height="160"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">المصاريف التشغيلية الشهرية (ريال)</div>
+      <canvas id="ch-expenses" height="160"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">رصيد الخياطين المستحق (ريال)</div>
+      <canvas id="ch-tailors" height="160"></canvas>
+    </div>
+  </div>
+  
+  <div class="table-card">
+    <h3>جدول الملخص الشهري — انقر على أي شهر لعرض تفاصيله</h3>
+<div style="display:flex;gap:8px;margin-bottom:12px;align-items:center;flex-wrap:wrap">
+  <span style="font-size:0.85rem;color:#64748b;font-weight:600">تصفية حسب السنة:</span>
+  <button id="filter-all" onclick="filterByYear('all')" style="padding:5px 14px;border-radius:20px;border:1.5px solid #1e3a5f;background:#1e3a5f;color:#fff;font-size:0.82rem;cursor:pointer;font-family:inherit">الكل (16)</button>
+  <button id="filter-2025" onclick="filterByYear('2025')" style="padding:5px 14px;border-radius:20px;border:1.5px solid #1e3a5f;background:#fff;color:#1e3a5f;font-size:0.82rem;cursor:pointer;font-family:inherit">2025 (12)</button>
+  <button id="filter-2026" onclick="filterByYear('2026')" style="padding:5px 14px;border-radius:20px;border:1.5px solid #1e3a5f;background:#fff;color:#1e3a5f;font-size:0.82rem;cursor:pointer;font-family:inherit">2026 (4)</button>
+</div>
+    <table id="summary-table">
+      <thead>
+        <tr>
+          <th onclick="sortTable('summary-table',0)">الشهر ↕</th>
+          <th onclick="sortTable('summary-table',1)">الإيراد ↕</th>
+          <th onclick="sortTable('summary-table',2)">هامش 15% ↕</th>
+          <th onclick="sortTable('summary-table',3)" title="الهامش الفعلي ÷ أيام الشهر" style="background:#1a4a7a;cursor:help">متوسط يومي ↕ ℹ️</th>
+          <th onclick="sortTable('summary-table',4)">المصاريف ↕</th>
+          <th onclick="sortTable('summary-table',5)" title="هامش 15% − مصاريف" style="background:#1a4a7a;cursor:help">ربح تقديري ↕ ℹ️</th>
+          <th onclick="sortTable('summary-table',6)" title="مبيعات − مصاريف" style="background:#1a4a7a;cursor:help">فائض تشغيلي ↕ ℹ️</th>
+          <th onclick="sortTable('summary-table',7)" title="مبيعات − مصاريف − موردين مدفوع" style="background:#1a4a7a;cursor:help">فائض نقدي ↕ ℹ️</th>
+          <th onclick="sortTable('summary-table',8)">موردين مدفوع ↕</th>
+          <th onclick="sortTable('summary-table',9)">مشتريات ↕</th>
+          <th onclick="sortTable('summary-table',10)">فجوة الموردين ↕</th>
+        </tr>
+      </thead>
+      <tbody id="summary-tbody"><tr onclick="openMonthDetail('يناير 25')">
+<td style="font-weight:600;color:#1e3a5f;text-decoration:underline;text-underline-offset:3px">يناير 25</td>
+<td>285,038</td>
+<td>42,756</td>
+<td style="color:#b45309;font-weight:700">1,379 ر</td>
+<td>91,363</td>
+<td style="color:#dc2626;font-weight:700">-48,607</td>
+<td style="color:#16a34a;font-weight:700">+193,675</td>
+<td style="color:#16a34a;font-weight:700">+3,216</td>
+<td>190,459</td>
+<td>173,491</td>
+<td style="color:#16a34a">+16,968</td>
+</tr><tr onclick="openMonthDetail('فبراير 25')">
+<td style="font-weight:600;color:#1e3a5f;text-decoration:underline;text-underline-offset:3px">فبراير 25</td>
+<td>548,674</td>
+<td>82,301</td>
+<td style="color:#15803d;font-weight:700">2,939 ر</td>
+<td>67,611</td>
+<td style="color:#16a34a;font-weight:700">+14,690</td>
+<td style="color:#16a34a;font-weight:700">+481,063</td>
+<td style="color:#16a34a;font-weight:700">+2,115</td>
+<td>478,948</td>
+<td>119,085</td>
+<td style="color:#16a34a">+359,863</td>
+</tr><tr onclick="openMonthDetail('مارس 25')">
+<td style="font-weight:600;color:#1e3a5f;text-decoration:underline;text-underline-offset:3px">مارس 25</td>
+<td>532,048</td>
+<td>79,807</td>
+<td style="color:#15803d;font-weight:700">2,574 ر</td>
+<td>124,379</td>
+<td style="color:#dc2626;font-weight:700">-44,572</td>
+<td style="color:#16a34a;font-weight:700">+407,669</td>
+<td style="color:#dc2626;font-weight:700">-11,708</td>
+<td>419,377</td>
+<td>413,550</td>
+<td style="color:#16a34a">+5,827</td>
+</tr><tr onclick="openMonthDetail('أبريل 25')">
+<td style="font-weight:600;color:#1e3a5f;text-decoration:underline;text-underline-offset:3px">أبريل 25</td>
+<td>288,659</td>
+<td>43,299</td>
+<td style="color:#b45309;font-weight:700">1,443 ر</td>
+<td>48,810</td>
+<td style="color:#dc2626;font-weight:700">-5,511</td>
+<td style="color:#16a34a;font-weight:700">+239,849</td>
+<td style="color:#16a34a;font-weight:700">+6,854</td>
+<td>232,995</td>
+<td>0</td>
+<td style="color:#16a34a">+232,995</td>
+</tr><tr onclick="openMonthDetail('مايو 25')">
+<td style="font-weight:600;color:#1e3a5f;text-decoration:underline;text-underline-offset:3px">مايو 25</td>
+<td>450,582</td>
+<td>67,587</td>
+<td style="color:#15803d;font-weight:700">2,180 ر</td>
+<td>59,338</td>
+<td style="color:#16a34a;font-weight:700">+8,249</td>
+<td style="color:#16a34a;font-weight:700">+391,244</td>
+<td style="color:#16a34a;font-weight:700">+162</td>
+<td>391,082</td>
+<td>303,697</td>
+<td style="color:#16a34a">+87,385</td>
+</tr><tr onclick="openMonthDetail('يونيو 25')">
+<td style="font-weight:600;color:#1e3a5f;text-decoration:underline;text-underline-offset:3px">يونيو 25</td>
+<td>417,150</td>
+<td>62,573</td>
+<td style="color:#15803d;font-weight:700">2,086 ر</td>
+<td>80,794</td>
+<td style="color:#dc2626;font-weight:700">-18,221</td>
+<td style="color:#16a34a;font-weight:700">+336,356</td>
+<td style="color:#dc2626;font-weight:700">-5,579</td>
+<td>341,935</td>
+<td>206,858</td>
+<td style="color:#16a34a">+135,077</td>
+</tr><tr onclick="openMonthDetail('يوليو 25')">
+<td style="font-weight:600;color:#1e3a5f;text-decoration:underline;text-underline-offset:3px">يوليو 25</td>
+<td>316,654</td>
+<td>47,498</td>
+<td style="color:#0369a1;font-weight:700">1,532 ر</td>
+<td>104,640</td>
+<td style="color:#dc2626;font-weight:700">-57,142</td>
+<td style="color:#16a34a;font-weight:700">+212,014</td>
+<td style="color:#16a34a;font-weight:700">+2,129</td>
+<td>209,885</td>
+<td>188,271</td>
+<td style="color:#16a34a">+21,614</td>
+</tr><tr onclick="openMonthDetail('أغسطس 25')">
+<td style="font-weight:600;color:#1e3a5f;text-decoration:underline;text-underline-offset:3px">أغسطس 25</td>
+<td>267,659</td>
+<td>40,149</td>
+<td style="color:#b45309;font-weight:700">1,295 ر</td>
+<td>49,409</td>
+<td style="color:#dc2626;font-weight:700">-9,260</td>
+<td style="color:#16a34a;font-weight:700">+218,250</td>
+<td style="color:#16a34a;font-weight:700">+1,265</td>
+<td>216,985</td>
+<td>243,113</td>
+<td style="color:#dc2626">-26,128</td>
+</tr><tr onclick="openMonthDetail('سبتمبر 25')">
+<td style="font-weight:600;color:#1e3a5f;text-decoration:underline;text-underline-offset:3px">سبتمبر 25</td>
+<td>182,358</td>
+<td>27,354</td>
+<td style="color:#dc2626;font-weight:700">912 ر</td>
+<td>50,369</td>
+<td style="color:#dc2626;font-weight:700">-23,015</td>
+<td style="color:#16a34a;font-weight:700">+131,989</td>
+<td style="color:#dc2626;font-weight:700">-2,507</td>
+<td>134,496</td>
+<td>151,015</td>
+<td style="color:#dc2626">-16,519</td>
+</tr><tr onclick="openMonthDetail('أكتوبر 25')">
+<td style="font-weight:600;color:#1e3a5f;text-decoration:underline;text-underline-offset:3px">أكتوبر 25</td>
+<td>181,199</td>
+<td>27,180</td>
+<td style="color:#dc2626;font-weight:700">877 ر</td>
+<td>40,460</td>
+<td style="color:#dc2626;font-weight:700">-13,280</td>
+<td style="color:#16a34a;font-weight:700">+140,739</td>
+<td style="color:#16a34a;font-weight:700">+824</td>
+<td>139,915</td>
+<td>96,265</td>
+<td style="color:#16a34a">+43,650</td>
+</tr><tr onclick="openMonthDetail('نوفمبر 25')">
+<td style="font-weight:600;color:#1e3a5f;text-decoration:underline;text-underline-offset:3px">نوفمبر 25</td>
+<td>468,087</td>
+<td>65,052</td>
+<td style="color:#15803d;font-weight:700">2,168 ر</td>
+<td>48,745</td>
+<td style="color:#16a34a;font-weight:700">+16,307</td>
+<td style="color:#16a34a;font-weight:700">+419,342</td>
+<td style="color:#16a34a;font-weight:700">+10,952</td>
+<td>408,390</td>
+<td>112,969</td>
+<td style="color:#16a34a">+295,421</td>
+</tr><tr onclick="openMonthDetail('ديسمبر 25')">
+<td style="font-weight:600;color:#1e3a5f;text-decoration:underline;text-underline-offset:3px">ديسمبر 25</td>
+<td>399,272</td>
+<td>56,408</td>
+<td style="color:#0369a1;font-weight:700">1,820 ر</td>
+<td>46,429</td>
+<td style="color:#16a34a;font-weight:700">+9,979</td>
+<td style="color:#16a34a;font-weight:700">+352,843</td>
+<td style="color:#dc2626;font-weight:700">-3,752</td>
+<td>356,595</td>
+<td>185,888</td>
+<td style="color:#16a34a">+170,707</td>
+</tr><tr onclick="openMonthDetail('يناير 26')">
+<td style="font-weight:600;color:#1e3a5f;text-decoration:underline;text-underline-offset:3px">يناير 26</td>
+<td>253,649</td>
+<td>37,987</td>
+<td style="color:#b45309;font-weight:700">1,225 ر</td>
+<td>108,598</td>
+<td style="color:#dc2626;font-weight:700">-70,611</td>
+<td style="color:#16a34a;font-weight:700">+145,051</td>
+<td style="color:#16a34a;font-weight:700">+2,879</td>
+<td>142,172</td>
+<td>209,915</td>
+<td style="color:#dc2626">-67,743</td>
+</tr><tr onclick="openMonthDetail('فبراير 26')">
+<td style="font-weight:600;color:#1e3a5f;text-decoration:underline;text-underline-offset:3px">فبراير 26</td>
+<td>467,264</td>
+<td>70,022</td>
+<td style="color:#15803d;font-weight:700">2,501 ر</td>
+<td>83,246</td>
+<td style="color:#dc2626;font-weight:700">-13,224</td>
+<td style="color:#16a34a;font-weight:700">+384,018</td>
+<td style="color:#dc2626;font-weight:700">-1,248</td>
+<td>385,266</td>
+<td>266,151</td>
+<td style="color:#16a34a">+119,115</td>
+</tr><tr onclick="openMonthDetail('مارس 26')">
+<td style="font-weight:600;color:#1e3a5f;text-decoration:underline;text-underline-offset:3px">مارس 26</td>
+<td>297,333</td>
+<td>44,600</td>
+<td style="color:#b45309;font-weight:700">1,439 ر</td>
+<td>69,880</td>
+<td style="color:#dc2626;font-weight:700">-25,280</td>
+<td style="color:#16a34a;font-weight:700">+227,453</td>
+<td style="color:#dc2626;font-weight:700">-6,477</td>
+<td>233,930</td>
+<td>175,622</td>
+<td style="color:#16a34a">+58,308</td>
+</tr>
+<tr onclick="openMonthDetail('أبريل 26')">
+<td style="font-weight:600;color:#1e3a5f;text-decoration:underline;text-underline-offset:3px">أبريل 26</td>
+<td>236,283</td>
+<td>35,442</td>
+<td style="color:#b45309;font-weight:700">1,356 ر</td>
+<td>56,831</td>
+<td style="color:#dc2626;font-weight:700">-21,389</td>
+<td style="color:#16a34a;font-weight:700">+179,452</td>
+<td style="color:#dc2626;font-weight:700">-933</td>
+<td>180,385</td>
+<td>181,356</td>
+<td style="color:#16a34a">+971</td>
+</tr></tbody>
+    </table>
+  </div>
 </div>
 
-<!-- ===== TAB 1: P&L ===== -->
-<div id="tab-pl" class="tab-content active">
-<div class="container">
 
-  <div class="kpi-strip" id="plKpiStrip">
-    <div class="kpi green"><div class="kpi-val" id="kpiTotalProfit">—</div><div class="kpi-lbl">مجموع الأرباح (أشهر الربح)</div></div>
-    <div class="kpi red"><div class="kpi-val" id="kpiTotalLoss">—</div><div class="kpi-lbl">مجموع الخسائر (أشهر الخسارة)</div></div>
-    <div class="kpi orange"><div class="kpi-val" id="kpiNet">—</div><div class="kpi-lbl">صافي النتيجة التشغيلية</div></div>
-    <div class="kpi purple"><div class="kpi-val" id="kpiProfitMonths">—</div><div class="kpi-lbl">أشهر ربح تشغيلي</div></div>
-    <div class="kpi"><div class="kpi-val" id="kpiAvgMargin">—</div><div class="kpi-lbl">متوسط هامش صافي</div></div>
+
+<!-- ===== تبويب موردين النسائي ===== -->
+<div id="tab-women-suppliers" class="tab-content" style="display:none">
+
+  <!-- بطاقات الإجمالي -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px">
+    <div class="kpi-card" style="border-right:4px solid #dc2626">
+      <div class="kpi-label">إجمالي الديون</div>
+      <div class="kpi-value" style="color:#dc2626">1,333,155</div>
+      <div class="kpi-sub">ريال سعودي — حتى 23/05/2026</div>
+    </div>
+    <div class="kpi-card" style="border-right:4px solid #1e3a5f">
+      <div class="kpi-label">فرع محمد</div>
+      <div class="kpi-value" style="color:#1e3a5f">890,804</div>
+      <div class="kpi-sub">66.8% من الإجمالي</div>
+    </div>
+    <div class="kpi-card" style="border-right:4px solid #0369a1">
+      <div class="kpi-label">فرع هاني</div>
+      <div class="kpi-value" style="color:#0369a1">442,351</div>
+      <div class="kpi-sub">33.2% من الإجمالي</div>
+    </div>
+    <div class="kpi-card" style="border-right:4px solid #15803d">
+      <div class="kpi-label">عدد الموردين</div>
+      <div class="kpi-value" style="color:#15803d">85</div>
+      <div class="kpi-sub">27 مورد بضاعة + 58 مشغل خياطة</div>
+    </div>
   </div>
 
-  <div class="card">
-    <h3>قائمة الربح والخسارة الشهرية — بالريال والنسبة</h3>
-    <p style="font-size:.78rem;color:#9ca3af;margin-bottom:14px;">
-      ⬤ الفائدة = 15% من الإيرادات (هامش ربح إجمالي تقديري) &nbsp;|&nbsp;
-      مصاريف تشغيلية = رواتب + إيجار + مرافق + بنكية + نقل + تراخيص &nbsp;|&nbsp;
-      مصاريف عائلة = مرافق البيت &nbsp;|&nbsp;
-      الجمعية مستبعدة
-    </p>
+  <!-- أزرار الفلترة -->
+  <div style="display:flex;gap:8px;margin-bottom:16px;align-items:center;flex-wrap:wrap">
+    <span style="font-size:0.85rem;color:#64748b;font-weight:600">تصفية حسب الفرع:</span>
+    <button id="ws-filter-all" onclick="filterWomenSuppliers('all')"
+      style="padding:5px 14px;border-radius:20px;border:1.5px solid #1e3a5f;background:#1e3a5f;color:#fff;font-size:0.82rem;cursor:pointer;font-family:inherit">
+      الكل (85)
+    </button>
+    <button id="ws-filter-m" onclick="filterWomenSuppliers('m')"
+      style="padding:5px 14px;border-radius:20px;border:1.5px solid #1e3a5f;background:#fff;color:#1e3a5f;font-size:0.82rem;cursor:pointer;font-family:inherit">
+      فرع محمد فقط
+    </button>
+    <button id="ws-filter-h" onclick="filterWomenSuppliers('h')"
+      style="padding:5px 14px;border-radius:20px;border:1.5px solid #1e3a5f;background:#fff;color:#1e3a5f;font-size:0.82rem;cursor:pointer;font-family:inherit">
+      فرع هاني فقط
+    </button>
+    <button id="ws-filter-both" onclick="filterWomenSuppliers('both')"
+      style="padding:5px 14px;border-radius:20px;border:1.5px solid #15803d;background:#fff;color:#15803d;font-size:0.82rem;cursor:pointer;font-family:inherit">
+      الفرعين معاً
+    </button>
+  </div>
+
+  <!-- جدول موردين البضاعة -->
+  <div class="table-card" style="margin-bottom:24px">
+    <h3 style="margin-bottom:12px">🏪 موردين البضاعة
+      <span style="font-size:0.85rem;font-weight:400;color:#64748b;margin-right:8px">
+        (27 مورد — إجمالي: <strong style="color:#dc2626">833,416 ر</strong>)
+      </span>
+    </h3>
     <div style="overflow-x:auto">
-    <table class="tbl" id="plTable"></table>
+      <table id="goods-suppliers-table" style="width:100%;border-collapse:collapse;font-size:0.88rem">
+        <thead>
+          <tr>
+            <th onclick="sortWomenTable('goods-suppliers-table',0)" style="cursor:pointer">اسم المورد ↕</th>
+            <th onclick="sortWomenTable('goods-suppliers-table',1)" class="branch-m-col" style="cursor:pointer;color:#1e3a5f">فرع محمد ↕</th>
+            <th onclick="sortWomenTable('goods-suppliers-table',2)" class="branch-h-col" style="cursor:pointer;color:#0369a1">فرع هاني ↕</th>
+            <th onclick="sortWomenTable('goods-suppliers-table',3)" style="cursor:pointer">الإجمالي ↕</th>
+            <th>خطة السداد</th>
+          </tr>
+        </thead>
+        <tbody id="goods-suppliers-body">
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">شركة درة النسيج</td>
+<td class="branch-m-col">262,272</td>
+<td class="branch-h-col">37,950</td>
+<td style="color:#dc2626;font-weight:700">300,222</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 4000</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">مؤسسة الشريعة و الحياة</td>
+<td class="branch-m-col">59,350</td>
+<td class="branch-h-col">118,000</td>
+<td style="color:#dc2626;font-weight:700">177,350</td>
+<td style="font-size:0.82rem;color:#64748b">حساب جاري</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">مؤسسة المدى المحدودة - معمر</td>
+<td class="branch-m-col">28,500</td>
+<td class="branch-h-col">28,000</td>
+<td style="color:#dc2626;font-weight:700">56,500</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 1000</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مايك - التل البوشية</td>
+<td class="branch-m-col">34,616</td>
+<td class="branch-h-col">—</td>
+<td style="color:#b45309;font-weight:700">34,616</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 1000</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">مؤسسة يوسف البارقي</td>
+<td class="branch-m-col">11,000</td>
+<td class="branch-h-col">21,000</td>
+<td style="color:#b45309;font-weight:700">32,000</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 2000</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مؤسسة أمان أمنه -عمران</td>
+<td class="branch-m-col">31,400</td>
+<td class="branch-h-col">—</td>
+<td style="color:#b45309;font-weight:700">31,400</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 2000</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">شركة نواف الذهبية - سلفة خليل</td>
+<td class="branch-m-col">29,555</td>
+<td class="branch-h-col">—</td>
+<td style="color:#b45309;font-weight:700">29,555</td>
+<td style="font-size:0.82rem;color:#64748b">لم يطلبها</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">شركة لمسات الهدى - عبدالباسط</td>
+<td class="branch-m-col">9,585</td>
+<td class="branch-h-col">18,150</td>
+<td style="color:#b45309;font-weight:700">27,735</td>
+<td style="font-size:0.82rem;color:#64748b">لم يطلبها </td>
+</tr>
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">مؤسسة منى اليامي - امتياز</td>
+<td class="branch-m-col">7,800</td>
+<td class="branch-h-col">15,000</td>
+<td style="color:#b45309;font-weight:700">22,800</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 500</td>
+</tr>
+<tr data-branch-m="false" data-branch-h="true">
+<td style="font-weight:600">مؤسسة بصمة وفاء</td>
+<td class="branch-m-col">—</td>
+<td class="branch-h-col">21,476</td>
+<td style="color:#b45309;font-weight:700">21,476</td>
+<td style="font-size:0.82rem;color:#64748b">—</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">فنون الموضه</td>
+<td class="branch-m-col">19,350</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">19,350</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 1000</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">جوهرة التوفير - عبدالاله</td>
+<td class="branch-m-col">6,010</td>
+<td class="branch-h-col">7,360</td>
+<td style="color:#15803d;font-weight:700">13,370</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 500</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">منير المهري - سوق القدس</td>
+<td class="branch-m-col">12,570</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">12,570</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 1400</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">المشيطي</td>
+<td class="branch-m-col">9,123</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">9,123</td>
+<td style="font-size:0.82rem;color:#64748b">حسب شراءه</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مؤسسة نصف القمر- عبدالله جده</td>
+<td class="branch-m-col">7,660</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">7,660</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 1500</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">معرض الكلف - باغازي - جده</td>
+<td class="branch-m-col">6,629</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">6,629</td>
+<td style="font-size:0.82rem;color:#64748b">لم يطلبها</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">ريتاج</td>
+<td class="branch-m-col">6,335</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">6,335</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 400</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">عثمان - هامات</td>
+<td class="branch-m-col">4,470</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">4,470</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 300</td>
+</tr>
+<tr data-branch-m="false" data-branch-h="true">
+<td style="font-weight:600">الشاطر للأقمشة</td>
+<td class="branch-m-col">—</td>
+<td class="branch-h-col">4,000</td>
+<td style="color:#15803d;font-weight:700">4,000</td>
+<td style="font-size:0.82rem;color:#64748b">—</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">بامخش - جده</td>
+<td class="branch-m-col">3,860</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">3,860</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 500</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">شركة سيزار المحدودة</td>
+<td class="branch-m-col">3,000</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">3,000</td>
+<td style="font-size:0.82rem;color:#64748b">واجب السداد</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">شركة نسائم الشرق - الأبي</td>
+<td class="branch-m-col">2,485</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">2,485</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 300</td>
+</tr>
+<tr data-branch-m="false" data-branch-h="true">
+<td style="font-weight:600">عدة مشاغل</td>
+<td class="branch-m-col">—</td>
+<td class="branch-h-col">2,200</td>
+<td style="color:#15803d;font-weight:700">2,200</td>
+<td style="font-size:0.82rem;color:#64748b">—</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">الوديان</td>
+<td class="branch-m-col">1,500</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">1,500</td>
+<td style="font-size:0.82rem;color:#64748b">لم يطلبها</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">عبدالرزاق - كلف</td>
+<td class="branch-m-col">1,240</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">1,240</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 300</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">عباس - هامات</td>
+<td class="branch-m-col">1,220</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">1,220</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 100</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مؤسسة صالح البديوي</td>
+<td class="branch-m-col">750</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">750</td>
+<td style="font-size:0.82rem;color:#64748b">لم يطلبها</td>
+</tr>
+        </tbody>
+        <tfoot>
+          <tr style="background:#1e3a5f;color:#fff;font-weight:700">
+            <td>الإجمالي</td>
+            <td class="branch-m-col" id="goods-total-m">560,280</td>
+            <td class="branch-h-col" id="goods-total-h">273,136</td>
+            <td style="color:#fbbf24">833,416</td>
+            <td></td>
+          </tr>
+        </tfoot>
+      </table>
     </div>
   </div>
 
-  <div class="card-grid">
-    <div class="card">
-      <h3>الربح / الخسارة الشهرية — الإيجار الفعلي</h3>
-      <div style="height:260px"><canvas id="profitActualChart"></canvas></div>
-    </div>
-    <div class="card">
-      <h3>الربح / الخسارة — بعد توزيع الإيجار (÷3 ربعياً)</h3>
-      <div style="height:260px"><canvas id="profitSpreadChart"></canvas></div>
+  <!-- جدول مشاغل الخياطة -->
+  <div class="table-card">
+    <h3 style="margin-bottom:12px">✂️ مشاغل الخياطة
+      <span style="font-size:0.85rem;font-weight:400;color:#64748b;margin-right:8px">
+        (58 مشغل — إجمالي: <strong style="color:#dc2626">499,739 ر</strong>)
+      </span>
+    </h3>
+    <div style="overflow-x:auto">
+      <table id="workshops-suppliers-table" style="width:100%;border-collapse:collapse;font-size:0.88rem">
+        <thead>
+          <tr>
+            <th onclick="sortWomenTable('workshops-suppliers-table',0)" style="cursor:pointer">اسم المشغل ↕</th>
+            <th onclick="sortWomenTable('workshops-suppliers-table',1)" class="branch-m-col" style="cursor:pointer;color:#1e3a5f">فرع محمد ↕</th>
+            <th onclick="sortWomenTable('workshops-suppliers-table',2)" class="branch-h-col" style="cursor:pointer;color:#0369a1">فرع هاني ↕</th>
+            <th onclick="sortWomenTable('workshops-suppliers-table',3)" style="cursor:pointer">الإجمالي ↕</th>
+            <th>خطة السداد</th>
+          </tr>
+        </thead>
+        <tbody id="workshops-suppliers-body">
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">مشغل جابر علي</td>
+<td class="branch-m-col">28,150</td>
+<td class="branch-h-col">29,000</td>
+<td style="color:#dc2626;font-weight:700">57,150</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 1000</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">مشغل أمير حمزة</td>
+<td class="branch-m-col">19,330</td>
+<td class="branch-h-col">16,900</td>
+<td style="color:#b45309;font-weight:700">36,230</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 400</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل الصبحي راشد</td>
+<td class="branch-m-col">34,685</td>
+<td class="branch-h-col">—</td>
+<td style="color:#b45309;font-weight:700">34,685</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 2000</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">مشغل أول حسين</td>
+<td class="branch-m-col">17,620</td>
+<td class="branch-h-col">9,300</td>
+<td style="color:#b45309;font-weight:700">26,920</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 500</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">مشغل عبدالستار</td>
+<td class="branch-m-col">19,180</td>
+<td class="branch-h-col">3,480</td>
+<td style="color:#b45309;font-weight:700">22,660</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 300</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">مغسلة المشغل</td>
+<td class="branch-m-col">5,370</td>
+<td class="branch-h-col">16,000</td>
+<td style="color:#b45309;font-weight:700">21,370</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 300</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">مشغل أبو أنس</td>
+<td class="branch-m-col">10,980</td>
+<td class="branch-h-col">7,900</td>
+<td style="color:#15803d;font-weight:700">18,880</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 500</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل منير للخياطة</td>
+<td class="branch-m-col">16,630</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">16,630</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 800</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل وجه القمر - وادي الدواسر</td>
+<td class="branch-m-col">15,168</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">15,168</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 500</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">مشغل فن سهرتي - غلام</td>
+<td class="branch-m-col">9,660</td>
+<td class="branch-h-col">5,400</td>
+<td style="color:#15803d;font-weight:700">15,060</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 300</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">مشغل عناية</td>
+<td class="branch-m-col">12,600</td>
+<td class="branch-h-col">2,400</td>
+<td style="color:#15803d;font-weight:700">15,000</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 200</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل خورشيد</td>
+<td class="branch-m-col">15,000</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">15,000</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 500</td>
+</tr>
+<tr data-branch-m="false" data-branch-h="true">
+<td style="font-weight:600">مشغل مغسلة أنعام</td>
+<td class="branch-m-col">—</td>
+<td class="branch-h-col">14,500</td>
+<td style="color:#15803d;font-weight:700">14,500</td>
+<td style="font-size:0.82rem;color:#64748b">—</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">مشغل صميم ميه</td>
+<td class="branch-m-col">10,890</td>
+<td class="branch-h-col">3,100</td>
+<td style="color:#15803d;font-weight:700">13,990</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 300</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">مشغل أبو عرفات</td>
+<td class="branch-m-col">2,700</td>
+<td class="branch-h-col">9,000</td>
+<td style="color:#15803d;font-weight:700">11,700</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 300</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">مشغل ليتون</td>
+<td class="branch-m-col">4,500</td>
+<td class="branch-h-col">7,090</td>
+<td style="color:#15803d;font-weight:700">11,590</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 200</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">مشغل عبدالرزاق</td>
+<td class="branch-m-col">7,600</td>
+<td class="branch-h-col">3,400</td>
+<td style="color:#15803d;font-weight:700">11,000</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 500</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">مشغل مصطفى</td>
+<td class="branch-m-col">4,830</td>
+<td class="branch-h-col">4,665</td>
+<td style="color:#15803d;font-weight:700">9,495</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 300</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل عبدالجليل</td>
+<td class="branch-m-col">8,880</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">8,880</td>
+<td style="font-size:0.82rem;color:#64748b">لم يطلبها</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">مشغل أم ناصر الباكستانية</td>
+<td class="branch-m-col">3,600</td>
+<td class="branch-h-col">4,500</td>
+<td style="color:#15803d;font-weight:700">8,100</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 300</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل تويل - أبو خالد</td>
+<td class="branch-m-col">7,041</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">7,041</td>
+<td style="font-size:0.82rem;color:#64748b">لم يطلبها</td>
+</tr>
+<tr data-branch-m="false" data-branch-h="true">
+<td style="font-weight:600">مشغل عيسى الخياط</td>
+<td class="branch-m-col">—</td>
+<td class="branch-h-col">7,000</td>
+<td style="color:#15803d;font-weight:700">7,000</td>
+<td style="font-size:0.82rem;color:#64748b">—</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل مختار</td>
+<td class="branch-m-col">6,750</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">6,750</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 200</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">مشغل ريس أحمد</td>
+<td class="branch-m-col">900</td>
+<td class="branch-h-col">5,700</td>
+<td style="color:#15803d;font-weight:700">6,600</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 200</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل عبدالقيوم</td>
+<td class="branch-m-col">6,400</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">6,400</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 300</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل جابر علي - الجديد</td>
+<td class="branch-m-col">6,155</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">6,155</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 500</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">مشغل أبو الهنا</td>
+<td class="branch-m-col">1,200</td>
+<td class="branch-h-col">3,500</td>
+<td style="color:#15803d;font-weight:700">4,700</td>
+<td style="font-size:0.82rem;color:#64748b">حساب جاري</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل جمال</td>
+<td class="branch-m-col">4,625</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">4,625</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 300</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">مشغل محمد علي</td>
+<td class="branch-m-col">2,000</td>
+<td class="branch-h-col">2,600</td>
+<td style="color:#15803d;font-weight:700">4,600</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 300</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">مشغل أمير حمزة - الجديد</td>
+<td class="branch-m-col">2,340</td>
+<td class="branch-h-col">1,900</td>
+<td style="color:#15803d;font-weight:700">4,240</td>
+<td style="font-size:0.82rem;color:#64748b">حساب جاري</td>
+</tr>
+<tr data-branch-m="false" data-branch-h="true">
+<td style="font-weight:600">مشغل بشير</td>
+<td class="branch-m-col">—</td>
+<td class="branch-h-col">4,180</td>
+<td style="color:#15803d;font-weight:700">4,180</td>
+<td style="font-size:0.82rem;color:#64748b">—</td>
+</tr>
+<tr data-branch-m="false" data-branch-h="true">
+<td style="font-weight:600">مشغل سليم شلحة</td>
+<td class="branch-m-col">—</td>
+<td class="branch-h-col">3,900</td>
+<td style="color:#15803d;font-weight:700">3,900</td>
+<td style="font-size:0.82rem;color:#64748b">—</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل عبدالستار الجديد</td>
+<td class="branch-m-col">3,700</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">3,700</td>
+<td style="font-size:0.82rem;color:#64748b">حساب جاري</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل عناية - جديد</td>
+<td class="branch-m-col">3,615</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">3,615</td>
+<td style="font-size:0.82rem;color:#64748b">حساب جاري</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل معصوم</td>
+<td class="branch-m-col">3,430</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">3,430</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 200</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل شهيد الإسلام</td>
+<td class="branch-m-col">3,145</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">3,145</td>
+<td style="font-size:0.82rem;color:#64748b">لم يطلبها</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل مختار - الجديد</td>
+<td class="branch-m-col">2,990</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">2,990</td>
+<td style="font-size:0.82rem;color:#64748b">حساب جاري</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل ميراج</td>
+<td class="branch-m-col">2,800</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">2,800</td>
+<td style="font-size:0.82rem;color:#64748b">لم يطلبها</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل ريبون - عبايات</td>
+<td class="branch-m-col">2,635</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">2,635</td>
+<td style="font-size:0.82rem;color:#64748b">مسافر لم يتواصل معنا</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل أخو خورشيد</td>
+<td class="branch-m-col">2,500</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">2,500</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 300</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">مشغل شهيد الإسلام - الجديد</td>
+<td class="branch-m-col">1,000</td>
+<td class="branch-h-col">1,100</td>
+<td style="color:#15803d;font-weight:700">2,100</td>
+<td style="font-size:0.82rem;color:#64748b">حساب جاري</td>
+</tr>
+<tr data-branch-m="false" data-branch-h="true">
+<td style="font-weight:600">مشغل أمين</td>
+<td class="branch-m-col">—</td>
+<td class="branch-h-col">2,000</td>
+<td style="color:#15803d;font-weight:700">2,000</td>
+<td style="font-size:0.82rem;color:#64748b">—</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل إسلام</td>
+<td class="branch-m-col">1,870</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">1,870</td>
+<td style="font-size:0.82rem;color:#64748b">لم يطلبها</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل سلطان</td>
+<td class="branch-m-col">1,820</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">1,820</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 200</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل أبو عرفات - الجديد</td>
+<td class="branch-m-col">1,820</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">1,820</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 100</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل معرض الحجاز</td>
+<td class="branch-m-col">1,800</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">1,800</td>
+<td style="font-size:0.82rem;color:#64748b">لم يطلبها</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل طاهر</td>
+<td class="branch-m-col">1,710</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">1,710</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 300</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل أوجل</td>
+<td class="branch-m-col">1,550</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">1,550</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 300</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل ريبون - خالد العامر</td>
+<td class="branch-m-col">1,530</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">1,530</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 200</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل معصود</td>
+<td class="branch-m-col">1,460</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">1,460</td>
+<td style="font-size:0.82rem;color:#64748b">حساب جاري</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل شويل</td>
+<td class="branch-m-col">1,435</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">1,435</td>
+<td style="font-size:0.82rem;color:#64748b">لم يطلبها</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل صدام</td>
+<td class="branch-m-col">1,400</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">1,400</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 200</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل عبدالجليل - الجديد</td>
+<td class="branch-m-col">1,250</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">1,250</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 300</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="true">
+<td style="font-weight:600">مشغل أول حسين - الجديد</td>
+<td class="branch-m-col">480</td>
+<td class="branch-h-col">700</td>
+<td style="color:#15803d;font-weight:700">1,180</td>
+<td style="font-size:0.82rem;color:#64748b">حساب جاري</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل وليد</td>
+<td class="branch-m-col">930</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">930</td>
+<td style="font-size:0.82rem;color:#64748b">كل شهر دفعه 200</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل أم ناصر الباكستانية - الجديد</td>
+<td class="branch-m-col">300</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">300</td>
+<td style="font-size:0.82rem;color:#64748b">حساب جاري</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل عبدالقيوم -الجديد</td>
+<td class="branch-m-col">300</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">300</td>
+<td style="font-size:0.82rem;color:#64748b">يتم التصفية</td>
+</tr>
+<tr data-branch-m="true" data-branch-h="false">
+<td style="font-weight:600">مشغل جابر علي - الجديد</td>
+<td class="branch-m-col">270</td>
+<td class="branch-h-col">—</td>
+<td style="color:#15803d;font-weight:700">270</td>
+<td style="font-size:0.82rem;color:#64748b">حساب جاري</td>
+</tr>
+        </tbody>
+        <tfoot>
+          <tr style="background:#1e3a5f;color:#fff;font-weight:700">
+            <td>الإجمالي</td>
+            <td class="branch-m-col" id="workshops-total-m">330,524</td>
+            <td class="branch-h-col" id="workshops-total-h">169,215</td>
+            <td style="color:#fbbf24">499,739</td>
+            <td></td>
+          </tr>
+        </tfoot>
+      </table>
     </div>
   </div>
 
-  <div class="insight-grid">
-    <div class="insight warn">
-      <strong>🏠 الإيجار يصنع الخسارة لا البيع:</strong>
-      أشهر الخسارة الكبيرة (يناير 25، يوليو 25، يناير 26) ترتبط مباشرة بدفع الإيجار الربعي. عند توزيع الإيجار شهرياً تتحول معظمها لأرباح صغيرة.
+</div>
+<!-- ===== نهاية تبويب موردين النسائي ===== -->
+
+<!-- ===== قسم المخزون وتحليل COGS ===== -->
+<div class="table-card" style="margin-top:20px">
+  <h3>📦 تحليل المخزون وتكلفة البضاعة المباعة (COGS) — 2025</h3>
+  
+  <!-- بطاقات المؤشرات الرئيسية -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px">
+    
+    <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:16px;text-align:center">
+      <div style="font-size:0.8rem;color:#166534;margin-bottom:6px">مجمل الربح الحقيقي (COGS)</div>
+      <div style="font-size:1.5rem;font-weight:800;color:#15803d">1,607,537 ر</div>
+      <div style="font-size:0.85rem;color:#16a34a;margin-top:4px">37.1% من الإيرادات</div>
     </div>
-    <div class="insight danger">
-      <strong>📉 سبتمبر وأكتوبر — ضعف هيكلي:</strong>
-      حتى بعد توزيع الإيجار، هذان الشهران يحققان خسارة لأن الإيرادات (~181K) لا تكفي لتغطية هامش الرواتب والمصاريف الثابتة.
+    
+    <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:16px;text-align:center">
+      <div style="font-size:0.8rem;color:#1e40af;margin-bottom:6px">صافي الربح (بعد المصاريف)</div>
+      <div style="font-size:1.5rem;font-weight:800;color:#1d4ed8">795,190 ر</div>
+      <div style="font-size:0.85rem;color:#2563eb;margin-top:4px">18.3% من الإيرادات</div>
     </div>
-    <div class="insight good">
-      <strong>✅ فبراير ومايو ونوفمبر وديسمبر:</strong>
-      هي الأشهر الرابحة بوضوح. رمضان والموسم الشتوي هما المحركان الرئيسيان للربحية.
+    
+    <div style="background:#fefce8;border:1px solid #fde68a;border-radius:10px;padding:16px;text-align:center">
+      <div style="font-size:0.8rem;color:#854d0e;margin-bottom:6px">تكلفة البضاعة المباعة (COGS)</div>
+      <div style="font-size:1.5rem;font-weight:800;color:#92400e">2,729,843 ر</div>
+      <div style="font-size:0.85rem;color:#a16207;margin-top:4px">62.9% من الإيرادات</div>
     </div>
-    <div class="insight info">
-      <strong>👨‍👩‍👧 مصاريف العائلة في بعض الأشهر:</strong>
-      تظهر في يوليو، أغسطس، سبتمبر، نوفمبر، ديسمبر. تراوحت بين 1,684 و7,389 ريال/شهر. تأثيرها محدود لكن فصلها ضروري لقياء ربح المحلات بمعزل.
+    
+    <div style="background:#fdf4ff;border:1px solid #e9d5ff;border-radius:10px;padding:16px;text-align:center">
+      <div style="font-size:0.8rem;color:#6b21a8;margin-bottom:6px">معدل دوران المخزون</div>
+      <div style="font-size:1.5rem;font-weight:800;color:#7e22ce">6.8x</div>
+      <div style="font-size:0.85rem;color:#9333ea;margin-top:4px">كل 54 يوم</div>
     </div>
+    
+  </div>
+  
+  <!-- معادلة COGS -->
+  <div style="background:#f8fafc;border-radius:10px;padding:16px;margin-bottom:20px;font-size:0.9rem">
+    <div style="font-weight:700;color:#1e3a5f;margin-bottom:10px">📐 معادلة COGS لعام 2025</div>
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;direction:rtl">
+      <span style="background:#dbeafe;padding:6px 12px;border-radius:6px;font-weight:600">مخزون بداية 2025<br><span style="color:#1d4ed8">669,672 ر</span></span>
+      <span style="font-size:1.2rem;font-weight:700;color:#64748b">+</span>
+      <span style="background:#dcfce7;padding:6px 12px;border-radius:6px;font-weight:600">مشتريات 2025<br><span style="color:#15803d">2,194,202 ر</span></span>
+      <span style="font-size:1.2rem;font-weight:700;color:#64748b">−</span>
+      <span style="background:#fee2e2;padding:6px 12px;border-radius:6px;font-weight:600">مخزون نهاية 2025<br><span style="color:#dc2626">134,031 ر</span></span>
+      <span style="font-size:1.2rem;font-weight:700;color:#64748b">=</span>
+      <span style="background:#fef3c7;padding:6px 12px;border-radius:6px;font-weight:700;border:2px solid #f59e0b">COGS<br><span style="color:#92400e">2,729,843 ر</span></span>
+    </div>
+  </div>
+  
+  <!-- مقارنة المخزون -->
+  <div style="font-weight:700;color:#1e3a5f;margin-bottom:12px;font-size:0.95rem">📊 مقارنة المخزون: بداية 2025 مقابل بداية 2026</div>
+  <table>
+    <thead>
+      <tr>
+        <th>البيان</th>
+        <th>بداية 2025 (يناير 25)</th>
+        <th>بداية 2026 (يناير 26)</th>
+        <th>التغيير</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>إجمالي التكلفة</strong></td>
+        <td style="font-weight:700">669,672 ر</td>
+        <td style="font-weight:700">134,031 ر</td>
+        <td style="color:#dc2626;font-weight:700">▼ 535,641 ر (80%↓)</td>
+      </tr>
+      <tr style="background:#f8fafc">
+        <td>إجمالي سعر البيع</td>
+        <td>—</td>
+        <td>174,930 ر</td>
+        <td style="color:#16a34a">هامش 23.4%</td>
+      </tr>
+      <tr>
+        <td>عدد الأصناف</td>
+        <td>143 صنف (فرعين)</td>
+        <td>142 صنف (فرعين)</td>
+        <td style="color:#64748b">ثابت تقريباً</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <!-- تفصيل فروع 2026 -->
+  <div style="font-weight:700;color:#1e3a5f;margin:16px 0 12px;font-size:0.95rem">🏪 تفصيل مخزون بداية 2026 حسب الفرع</div>
+  <table>
+    <thead>
+      <tr>
+        <th>الفرع</th>
+        <th>عدد الأصناف</th>
+        <th>إجمالي التكلفة</th>
+        <th>إجمالي سعر البيع</th>
+        <th>هامش الربح</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>فرع محمد</strong></td>
+        <td>71</td>
+        <td>68,962 ر</td>
+        <td>90,273 ر</td>
+        <td style="color:#16a34a;font-weight:700">23.6%</td>
+      </tr>
+      <tr style="background:#f8fafc">
+        <td><strong>فرع هاني</strong></td>
+        <td>71</td>
+        <td>65,069 ر</td>
+        <td>84,657 ر</td>
+        <td style="color:#16a34a;font-weight:700">23.1%</td>
+      </tr>
+      <tr style="font-weight:700;background:#eff6ff">
+        <td>الإجمالي</td>
+        <td>142</td>
+        <td>134,031 ر</td>
+        <td>174,930 ر</td>
+        <td style="color:#16a34a;font-weight:700">23.4%</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <!-- ملاحظة تحليلية -->
+  <div style="background:#fef3c7;border-right:4px solid #f59e0b;padding:12px 16px;border-radius:6px;margin-top:16px;font-size:0.85rem;color:#78350f">
+    <strong>📌 ملاحظة:</strong> انخفض المخزون بنسبة 80% خلال 2025 (من 669,672 إلى 134,031 ريال)، مما يعني أن المبيعات تجاوزت المشتريات بفارق 535,641 ريال. هامش الربح الحقيقي بعد احتساب COGS هو <strong>37.1%</strong> — أعلى بكثير من الهامش المحسوب شهرياً (14.8%) لأن الحساب الشهري لا يأخذ في الاعتبار تغير المخزون.
   </div>
 </div>
-</div>
 
-<!-- ===== TAB 2: CASH FLOW ===== -->
-<div id="tab-cash" class="tab-content">
-<div class="container">
-
-  <div class="kpi-strip">
-    <div class="kpi green"><div class="kpi-val">5.06M</div><div class="kpi-lbl">إجمالي الإيرادات</div></div>
-    <div class="kpi red"><div class="kpi-val">3.50M</div><div class="kpi-lbl">مدفوع للموردين (كاش)</div></div>
-    <div class="kpi orange"><div class="kpi-val">880K</div><div class="kpi-lbl">إجمالي المصاريف التشغيلية</div></div>
-    <div class="kpi purple"><div class="kpi-val">2.47M</div><div class="kpi-lbl">إجمالي المشتريات (بضاعة)</div></div>
-    <div class="kpi red"><div class="kpi-val">−1.0M</div><div class="kpi-lbl">فجوة الدفع للموردين</div></div>
-  </div>
-
-  <div class="card">
-    <h3>تحليل الكاش فلو الشهري — أين يذهب كل ريال من الإيراد؟</h3>
-    <div style="height:300px"><canvas id="cashFlowChart"></canvas></div>
-  </div>
-
-  <div class="card-grid">
-    <div class="card">
-      <h3>الفائض النقدي الشهري بعد كل المدفوعات</h3>
-      <div style="height:240px"><canvas id="surplusChart"></canvas></div>
-    </div>
-    <div class="card">
-      <h3>المدفوع للموردين مقابل المشتريات الفعلية</h3>
-      <div style="height:240px"><canvas id="supVsPurchChart"></canvas></div>
-    </div>
-  </div>
-
-  <div class="card">
-    <h3>جدول ضغط الكاش فلو الشهري</h3>
-    <div style="overflow-x:auto"><table class="tbl" id="cashTable"></table></div>
-  </div>
-
-  <div class="insight-grid">
-    <div class="insight danger">
-      <strong>🔴 المشكلة الأولى — الموردون يُدفعون أكثر من المشتريات:</strong>
-      في نوفمبر 25 مثلاً، دُفع للموردين 408K بينما المشتريات 113K فقط — يعني 295K كانت سداداً لديون أشهر سابقة. هذا يستنزف الكاش في أشهر الدخل العالي.
-    </div>
-    <div class="insight warn">
-      <strong>🟡 المشكلة الثانية — تراكم الدين في المواسم:</strong>
-      مارس وأبريل ومايو (رمضان والعيد): المشتريات تتجاوز 300-400K بينما الدفع أقل → يتراكم الدين → ثم يُسدَّد لاحقاً في أشهر ضعيفة.
-    </div>
-    <div class="insight danger">
-      <strong>🔴 المشكلة الثالثة — سبتمبر بلا فائض:</strong>
-      سبتمبر 25 كان الشهر الوحيد بفائض نقدي سلبي (−1,407 ريال). أي طارئ في هذا الشهر يحتاج تمويلاً خارجياً.
-    </div>
-    <div class="insight info">
-      <strong>💡 الفرصة — ديسمبر 25 كان قريباً من الصفر (+48 ريال):</strong>
-      رغم كونه شهراً جيداً في الإيرادات (399K)، الفائض كان صفرياً. السبب: مدفوعات موردين ضخمة (356K) هي سداد لمشتريات رمضان القادم.
-    </div>
-  </div>
-</div>
-</div>
-
-<!-- ===== TAB 3: EXPENSES ===== -->
+<!-- ===== TAB 2: المصاريف التفصيلية ===== -->
 <div id="tab-expenses" class="tab-content">
-<div class="container">
-  <div class="card-grid">
-    <div class="card">
-      <h3>توزيع المصاريف التشغيلية الكلية (14 شهر)</h3>
-      <div style="height:280px"><canvas id="expPieChart"></canvas></div>
-    </div>
-    <div class="card">
-      <h3>تطور أكبر بنود المصاريف شهرياً</h3>
-      <div style="height:280px"><canvas id="expTrendChart"></canvas></div>
-    </div>
+  <div class="info-banner">💡 انقر على أي خلية ملوّنة لعرض تفاصيل المصروفات الفردية لذلك الشهر والفئة. الجمعية مستبعدة. مصاريف العائلة في عمود منفصل ولا تدخل في الربح التشغيلي.</div>
+  
+  <div class="chart-card" style="margin-bottom:20px">
+    <div class="chart-title">المصاريف حسب الفئة — شهرياً (ريال)</div>
+    <canvas id="ch-exp-stack" height="100"></canvas>
   </div>
-
-  <div class="card">
-    <h3>تفصيل المصاريف التشغيلية شهرياً (مكدّس)</h3>
-    <div style="height:320px"><canvas id="expStackChart"></canvas></div>
-  </div>
-
-  <div class="card">
-    <h3>أكبر بند مصروف في كل شهر</h3>
-    <div style="overflow-x:auto"><table class="tbl" id="expTopTable"></table></div>
-  </div>
-
-  <div class="insight-grid">
-    <div class="insight danger">
-      <strong>🔴 الرواتب البند الأثقل دائماً:</strong>
-      تتراوح بين 15K و40K شهرياً، وكثير منها متأخرة (راتب شهر 9 يُدفع في شهر 10). هذا يُصعّب قراءة الأرقام الحقيقية لكل شهر.
-    </div>
-    <div class="insight warn">
-      <strong>🟡 الإيجار غير منتظم = ضغط ربعي:</strong>
-      3 دفعات ضخمة في يناير، يوليو، يناير 2026. الحل: تحويل الإيجار لدفعات شهرية أصغر أو بناء احتياطي مخصص.
-    </div>
-    <div class="insight warn">
-      <strong>🟡 رسوم بنكية في مارس 25 شاذة (23K):</strong>
-      رسوم بنكية في مارس كانت 23,368 ريال — أعلى من المعتاد (1-9K). يحتاج مراجعة لمعرفة السبب.
-    </div>
-    <div class="insight good">
-      <strong>✅ مرافق واتصالات تحت السيطرة:</strong>
-      تتراوح بين 1K و11K. يوليو كان الأعلى بسبب ارتفاع الكهرباء صيفاً. لا توجد تجاوزات مقلقة.
+  
+  <div class="table-card">
+    <h3>مصفوفة المصاريف: الفئة × الشهر (ريال)</h3>
+    <div class="exp-matrix">
+      <table id="exp-table">
+        <thead><tr><th>الفئة</th><th>يناير 25</th><th>فبراير 25</th><th>مارس 25</th><th>أبريل 25</th><th>مايو 25</th><th>يونيو 25</th><th>يوليو 25</th><th>أغسطس 25</th><th>سبتمبر 25</th><th>أكتوبر 25</th><th>نوفمبر 25</th><th>ديسمبر 25</th><th>يناير 26</th><th>فبراير 26</th><th>مارس 26</th><th>أبريل 26</th><th>الإجمالي</th></tr></thead>
+        <tbody><tr><td style="font-weight:700;color:#3B82F6;white-space:nowrap">رواتب</td><td class="exp-cell" onclick="openExpDetail('يناير 25','رواتب')" style="cursor:pointer;background:rgba(59,130,246,0.12);color:#1e3a5f;font-weight:600">20,108</td><td class="exp-cell" onclick="openExpDetail('فبراير 25','رواتب')" style="cursor:pointer;background:rgba(59,130,246,0.12);color:#1e3a5f;font-weight:600">31,365</td><td class="exp-cell" onclick="openExpDetail('مارس 25','رواتب')" style="cursor:pointer;background:rgba(59,130,246,0.12);color:#1e3a5f;font-weight:600">41,782</td><td class="exp-cell" onclick="openExpDetail('أبريل 25','رواتب')" style="cursor:pointer;background:rgba(59,130,246,0.12);color:#1e3a5f;font-weight:600">18,447</td><td class="exp-cell" onclick="openExpDetail('مايو 25','رواتب')" style="cursor:pointer;background:rgba(59,130,246,0.12);color:#1e3a5f;font-weight:600">23,509</td><td class="exp-cell" onclick="openExpDetail('يونيو 25','رواتب')" style="cursor:pointer;background:rgba(59,130,246,0.12);color:#1e3a5f;font-weight:600">22,125</td><td class="exp-cell" onclick="openExpDetail('يوليو 25','رواتب')" style="cursor:pointer;background:rgba(59,130,246,0.12);color:#1e3a5f;font-weight:600">15,787</td><td class="exp-cell" onclick="openExpDetail('أغسطس 25','رواتب')" style="cursor:pointer;background:rgba(59,130,246,0.12);color:#1e3a5f;font-weight:600">20,851</td><td class="exp-cell" onclick="openExpDetail('سبتمبر 25','رواتب')" style="cursor:pointer;background:rgba(59,130,246,0.12);color:#1e3a5f;font-weight:600">18,528</td><td class="exp-cell" onclick="openExpDetail('أكتوبر 25','رواتب')" style="cursor:pointer;background:rgba(59,130,246,0.12);color:#1e3a5f;font-weight:600">19,076</td><td class="exp-cell" onclick="openExpDetail('نوفمبر 25','رواتب')" style="cursor:pointer;background:rgba(59,130,246,0.12);color:#1e3a5f;font-weight:600">26,278</td><td class="exp-cell" onclick="openExpDetail('ديسمبر 25','رواتب')" style="cursor:pointer;background:rgba(59,130,246,0.12);color:#1e3a5f;font-weight:600">24,495</td><td class="exp-cell" onclick="openExpDetail('يناير 26','رواتب')" style="cursor:pointer;background:rgba(59,130,246,0.12);color:#1e3a5f;font-weight:600">19,766</td><td class="exp-cell" onclick="openExpDetail('فبراير 26','رواتب')" style="cursor:pointer;background:rgba(59,130,246,0.12);color:#1e3a5f;font-weight:600">38,019</td><td class="exp-cell" onclick="openExpDetail('مارس 26','رواتب')" style="cursor:pointer;background:rgba(59,130,246,0.12);color:#1e3a5f;font-weight:600">28,047</td><td class="exp-cell" onclick="openExpDetail('أبريل 26','رواتب')" style="cursor:pointer;background:rgba(59,130,246,0.12);color:#1e3a5f;font-weight:600">28,870</td><td style="font-weight:700;background:#f0f4ff">397,051</td></tr><tr><td style="font-weight:700;color:#8B5CF6;white-space:nowrap">مصاريف المشغل</td><td style="color:#ccc">—</td><td style="color:#ccc">—</td><td class="exp-cell" onclick="openExpDetail('مارس 25','مصاريف المشغل')" style="cursor:pointer;background:rgba(139,92,246,0.12);color:#1e3a5f;font-weight:600">9,325</td><td class="exp-cell" onclick="openExpDetail('أبريل 25','مصاريف المشغل')" style="cursor:pointer;background:rgba(139,92,246,0.12);color:#1e3a5f;font-weight:600">1,140</td><td class="exp-cell" onclick="openExpDetail('مايو 25','مصاريف المشغل')" style="cursor:pointer;background:rgba(139,92,246,0.12);color:#1e3a5f;font-weight:600">500</td><td class="exp-cell" onclick="openExpDetail('يونيو 25','مصاريف المشغل')" style="cursor:pointer;background:rgba(139,92,246,0.12);color:#1e3a5f;font-weight:600">200</td><td class="exp-cell" onclick="openExpDetail('يوليو 25','مصاريف المشغل')" style="cursor:pointer;background:rgba(139,92,246,0.12);color:#1e3a5f;font-weight:600">1,614</td><td class="exp-cell" onclick="openExpDetail('أغسطس 25','مصاريف المشغل')" style="cursor:pointer;background:rgba(139,92,246,0.12);color:#1e3a5f;font-weight:600">4,000</td><td class="exp-cell" onclick="openExpDetail('سبتمبر 25','مصاريف المشغل')" style="cursor:pointer;background:rgba(139,92,246,0.12);color:#1e3a5f;font-weight:600">3,200</td><td class="exp-cell" onclick="openExpDetail('أكتوبر 25','مصاريف المشغل')" style="cursor:pointer;background:rgba(139,92,246,0.12);color:#1e3a5f;font-weight:600">9,700</td><td class="exp-cell" onclick="openExpDetail('نوفمبر 25','مصاريف المشغل')" style="cursor:pointer;background:rgba(139,92,246,0.12);color:#1e3a5f;font-weight:600">520</td><td class="exp-cell" onclick="openExpDetail('ديسمبر 25','مصاريف المشغل')" style="cursor:pointer;background:rgba(139,92,246,0.12);color:#1e3a5f;font-weight:600">2,328</td><td class="exp-cell" onclick="openExpDetail('يناير 26','مصاريف المشغل')" style="cursor:pointer;background:rgba(139,92,246,0.12);color:#1e3a5f;font-weight:600">200</td><td class="exp-cell" onclick="openExpDetail('فبراير 26','مصاريف المشغل')" style="cursor:pointer;background:rgba(139,92,246,0.12);color:#1e3a5f;font-weight:600">10,500</td><td class="exp-cell" onclick="openExpDetail('مارس 26','مصاريف المشغل')" style="cursor:pointer;background:rgba(139,92,246,0.12);color:#1e3a5f;font-weight:600">2,000</td><td style="color:#ccc">—</td><td style="font-weight:700;background:#f0f4ff">45,226</td></tr><tr><td style="font-weight:700;color:#EF4444;white-space:nowrap">إيجار</td><td class="exp-cell" onclick="openExpDetail('يناير 25','إيجار')" style="cursor:pointer;background:rgba(239,68,68,0.12);color:#1e3a5f;font-weight:600">47,420</td><td style="color:#ccc">—</td><td class="exp-cell" onclick="openExpDetail('مارس 25','إيجار')" style="cursor:pointer;background:rgba(239,68,68,0.12);color:#1e3a5f;font-weight:600">2,000</td><td style="color:#ccc">—</td><td class="exp-cell" onclick="openExpDetail('مايو 25','إيجار')" style="cursor:pointer;background:rgba(239,68,68,0.12);color:#1e3a5f;font-weight:600">2,000</td><td style="color:#ccc">—</td><td class="exp-cell" onclick="openExpDetail('يوليو 25','إيجار')" style="cursor:pointer;background:rgba(239,68,68,0.12);color:#1e3a5f;font-weight:600">38,888</td><td style="color:#ccc">—</td><td style="color:#ccc">—</td><td style="color:#ccc">—</td><td style="color:#ccc">—</td><td class="exp-cell" onclick="openExpDetail('ديسمبر 25','إيجار')" style="cursor:pointer;background:rgba(239,68,68,0.12);color:#1e3a5f;font-weight:600">3,400</td><td class="exp-cell" onclick="openExpDetail('يناير 26','إيجار')" style="cursor:pointer;background:rgba(239,68,68,0.12);color:#1e3a5f;font-weight:600">77,135</td><td style="color:#ccc">—</td><td style="color:#ccc">—</td><td style="color:#ccc">—</td><td style="font-weight:700;background:#f0f4ff">170,843</td></tr><tr><td style="font-weight:700;color:#F59E0B;white-space:nowrap">رسوم بنكية</td><td class="exp-cell" onclick="openExpDetail('يناير 25','رسوم بنكية')" style="cursor:pointer;background:rgba(245,158,11,0.12);color:#1e3a5f;font-weight:600">347</td><td style="color:#ccc">—</td><td class="exp-cell" onclick="openExpDetail('مارس 25','رسوم بنكية')" style="cursor:pointer;background:rgba(245,158,11,0.12);color:#1e3a5f;font-weight:600">762</td><td class="exp-cell" onclick="openExpDetail('أبريل 25','رسوم بنكية')" style="cursor:pointer;background:rgba(245,158,11,0.12);color:#1e3a5f;font-weight:600">309</td><td class="exp-cell" onclick="openExpDetail('مايو 25','رسوم بنكية')" style="cursor:pointer;background:rgba(245,158,11,0.12);color:#1e3a5f;font-weight:600">654</td><td class="exp-cell" onclick="openExpDetail('يونيو 25','رسوم بنكية')" style="cursor:pointer;background:rgba(245,158,11,0.12);color:#1e3a5f;font-weight:600">205</td><td class="exp-cell" onclick="openExpDetail('يوليو 25','رسوم بنكية')" style="cursor:pointer;background:rgba(245,158,11,0.12);color:#1e3a5f;font-weight:600">170</td><td class="exp-cell" onclick="openExpDetail('أغسطس 25','رسوم بنكية')" style="cursor:pointer;background:rgba(245,158,11,0.12);color:#1e3a5f;font-weight:600">255</td><td class="exp-cell" onclick="openExpDetail('سبتمبر 25','رسوم بنكية')" style="cursor:pointer;background:rgba(245,158,11,0.12);color:#1e3a5f;font-weight:600">513</td><td class="exp-cell" onclick="openExpDetail('أكتوبر 25','رسوم بنكية')" style="cursor:pointer;background:rgba(245,158,11,0.12);color:#1e3a5f;font-weight:600">515</td><td class="exp-cell" onclick="openExpDetail('نوفمبر 25','رسوم بنكية')" style="cursor:pointer;background:rgba(245,158,11,0.12);color:#1e3a5f;font-weight:600">576</td><td class="exp-cell" onclick="openExpDetail('ديسمبر 25','رسوم بنكية')" style="cursor:pointer;background:rgba(245,158,11,0.12);color:#1e3a5f;font-weight:600">390</td><td class="exp-cell" onclick="openExpDetail('يناير 26','رسوم بنكية')" style="cursor:pointer;background:rgba(245,158,11,0.12);color:#1e3a5f;font-weight:600">350</td><td class="exp-cell" onclick="openExpDetail('فبراير 26','رسوم بنكية')" style="cursor:pointer;background:rgba(245,158,11,0.12);color:#1e3a5f;font-weight:600">636</td><td class="exp-cell" onclick="openExpDetail('مارس 26','رسوم بنكية')" style="cursor:pointer;background:rgba(245,158,11,0.12);color:#1e3a5f;font-weight:600">183</td><td class="exp-cell" onclick="openExpDetail('أبريل 26','رسوم بنكية')" style="cursor:pointer;background:rgba(59,130,246,0.12);color:#1e3a5f;font-weight:600">309</td><td style="font-weight:700;background:#f0f4ff">6,174</td></tr><tr><td style="font-weight:700;color:#F97316;white-space:nowrap">عمولات مشتركة</td><td class="exp-cell" onclick="openExpDetail('يناير 25','عمولات مشتركة')" style="cursor:pointer;background:rgba(249,115,22,0.12);color:#1e3a5f;font-weight:600">2,248</td><td class="exp-cell" onclick="openExpDetail('فبراير 25','عمولات مشتركة')" style="cursor:pointer;background:rgba(249,115,22,0.12);color:#1e3a5f;font-weight:600">4,383</td><td class="exp-cell" onclick="openExpDetail('مارس 25','عمولات مشتركة')" style="cursor:pointer;background:rgba(249,115,22,0.12);color:#1e3a5f;font-weight:600">4,418</td><td class="exp-cell" onclick="openExpDetail('أبريل 25','عمولات مشتركة')" style="cursor:pointer;background:rgba(249,115,22,0.12);color:#1e3a5f;font-weight:600">2,609</td><td class="exp-cell" onclick="openExpDetail('مايو 25','عمولات مشتركة')" style="cursor:pointer;background:rgba(249,115,22,0.12);color:#1e3a5f;font-weight:600">4,142</td><td class="exp-cell" onclick="openExpDetail('يونيو 25','عمولات مشتركة')" style="cursor:pointer;background:rgba(249,115,22,0.12);color:#1e3a5f;font-weight:600">2,184</td><td class="exp-cell" onclick="openExpDetail('يوليو 25','عمولات مشتركة')" style="cursor:pointer;background:rgba(249,115,22,0.12);color:#1e3a5f;font-weight:600">2,066</td><td class="exp-cell" onclick="openExpDetail('أغسطس 25','عمولات مشتركة')" style="cursor:pointer;background:rgba(249,115,22,0.12);color:#1e3a5f;font-weight:600">1,645</td><td class="exp-cell" onclick="openExpDetail('سبتمبر 25','عمولات مشتركة')" style="cursor:pointer;background:rgba(249,115,22,0.12);color:#1e3a5f;font-weight:600">473</td><td class="exp-cell" onclick="openExpDetail('أكتوبر 25','عمولات مشتركة')" style="cursor:pointer;background:rgba(249,115,22,0.12);color:#1e3a5f;font-weight:600">691</td><td class="exp-cell" onclick="openExpDetail('نوفمبر 25','عمولات مشتركة')" style="cursor:pointer;background:rgba(249,115,22,0.12);color:#1e3a5f;font-weight:600">902</td><td class="exp-cell" onclick="openExpDetail('ديسمبر 25','عمولات مشتركة')" style="cursor:pointer;background:rgba(249,115,22,0.12);color:#1e3a5f;font-weight:600">786</td><td class="exp-cell" onclick="openExpDetail('يناير 26','عمولات مشتركة')" style="cursor:pointer;background:rgba(249,115,22,0.12);color:#1e3a5f;font-weight:600">1,232</td><td class="exp-cell" onclick="openExpDetail('فبراير 26','عمولات مشتركة')" style="cursor:pointer;background:rgba(249,115,22,0.12);color:#1e3a5f;font-weight:600">4,021</td><td class="exp-cell" onclick="openExpDetail('مارس 26','عمولات مشتركة')" style="cursor:pointer;background:rgba(249,115,22,0.12);color:#1e3a5f;font-weight:600">2,315</td><td class="exp-cell" onclick="openExpDetail('أبريل 26','عمولات مشتركة')" style="cursor:pointer;background:rgba(59,130,246,0.12);color:#1e3a5f;font-weight:600">1,490</td><td style="font-weight:700;background:#f0f4ff">35,605</td></tr><tr><td style="font-weight:700;color:#EC4899;white-space:nowrap">نقل</td><td class="exp-cell" onclick="openExpDetail('يناير 25','نقل')" style="cursor:pointer;background:rgba(236,72,153,0.12);color:#1e3a5f;font-weight:600">1,855</td><td class="exp-cell" onclick="openExpDetail('فبراير 25','نقل')" style="cursor:pointer;background:rgba(236,72,153,0.12);color:#1e3a5f;font-weight:600">1,705</td><td class="exp-cell" onclick="openExpDetail('مارس 25','نقل')" style="cursor:pointer;background:rgba(236,72,153,0.12);color:#1e3a5f;font-weight:600">1,885</td><td class="exp-cell" onclick="openExpDetail('أبريل 25','نقل')" style="cursor:pointer;background:rgba(236,72,153,0.12);color:#1e3a5f;font-weight:600">1,355</td><td class="exp-cell" onclick="openExpDetail('مايو 25','نقل')" style="cursor:pointer;background:rgba(236,72,153,0.12);color:#1e3a5f;font-weight:600">1,125</td><td class="exp-cell" onclick="openExpDetail('يونيو 25','نقل')" style="cursor:pointer;background:rgba(236,72,153,0.12);color:#1e3a5f;font-weight:600">1,945</td><td class="exp-cell" onclick="openExpDetail('يوليو 25','نقل')" style="cursor:pointer;background:rgba(236,72,153,0.12);color:#1e3a5f;font-weight:600">1,180</td><td class="exp-cell" onclick="openExpDetail('أغسطس 25','نقل')" style="cursor:pointer;background:rgba(236,72,153,0.12);color:#1e3a5f;font-weight:600">1,620</td><td class="exp-cell" onclick="openExpDetail('سبتمبر 25','نقل')" style="cursor:pointer;background:rgba(236,72,153,0.12);color:#1e3a5f;font-weight:600">380</td><td class="exp-cell" onclick="openExpDetail('أكتوبر 25','نقل')" style="cursor:pointer;background:rgba(236,72,153,0.12);color:#1e3a5f;font-weight:600">610</td><td class="exp-cell" onclick="openExpDetail('نوفمبر 25','نقل')" style="cursor:pointer;background:rgba(236,72,153,0.12);color:#1e3a5f;font-weight:600">1,445</td><td class="exp-cell" onclick="openExpDetail('ديسمبر 25','نقل')" style="cursor:pointer;background:rgba(236,72,153,0.12);color:#1e3a5f;font-weight:600">1,610</td><td class="exp-cell" onclick="openExpDetail('يناير 26','نقل')" style="cursor:pointer;background:rgba(236,72,153,0.12);color:#1e3a5f;font-weight:600">955</td><td class="exp-cell" onclick="openExpDetail('فبراير 26','نقل')" style="cursor:pointer;background:rgba(236,72,153,0.12);color:#1e3a5f;font-weight:600">995</td><td class="exp-cell" onclick="openExpDetail('مارس 26','نقل')" style="cursor:pointer;background:rgba(236,72,153,0.12);color:#1e3a5f;font-weight:600">725</td><td class="exp-cell" onclick="openExpDetail('أبريل 26','نقل')" style="cursor:pointer;background:rgba(59,130,246,0.12);color:#1e3a5f;font-weight:600">725</td><td style="font-weight:700;background:#f0f4ff">20,115</td></tr><tr><td style="font-weight:700;color:#10B981;white-space:nowrap">مصاريف حكومية</td><td class="exp-cell" onclick="openExpDetail('يناير 25','مصاريف حكومية')" style="cursor:pointer;background:rgba(16,185,129,0.12);color:#1e3a5f;font-weight:600">3,550</td><td class="exp-cell" onclick="openExpDetail('فبراير 25','مصاريف حكومية')" style="cursor:pointer;background:rgba(16,185,129,0.12);color:#1e3a5f;font-weight:600">3,407</td><td class="exp-cell" onclick="openExpDetail('مارس 25','مصاريف حكومية')" style="cursor:pointer;background:rgba(16,185,129,0.12);color:#1e3a5f;font-weight:600">15,237</td><td class="exp-cell" onclick="openExpDetail('أبريل 25','مصاريف حكومية')" style="cursor:pointer;background:rgba(16,185,129,0.12);color:#1e3a5f;font-weight:600">5,524</td><td class="exp-cell" onclick="openExpDetail('مايو 25','مصاريف حكومية')" style="cursor:pointer;background:rgba(16,185,129,0.12);color:#1e3a5f;font-weight:600">3,513</td><td class="exp-cell" onclick="openExpDetail('يونيو 25','مصاريف حكومية')" style="cursor:pointer;background:rgba(16,185,129,0.12);color:#1e3a5f;font-weight:600">10,999</td><td class="exp-cell" onclick="openExpDetail('يوليو 25','مصاريف حكومية')" style="cursor:pointer;background:rgba(16,185,129,0.12);color:#1e3a5f;font-weight:600">2,773</td><td class="exp-cell" onclick="openExpDetail('أغسطس 25','مصاريف حكومية')" style="cursor:pointer;background:rgba(16,185,129,0.12);color:#1e3a5f;font-weight:600">3,443</td><td class="exp-cell" onclick="openExpDetail('سبتمبر 25','مصاريف حكومية')" style="cursor:pointer;background:rgba(16,185,129,0.12);color:#1e3a5f;font-weight:600">9,623</td><td class="exp-cell" onclick="openExpDetail('أكتوبر 25','مصاريف حكومية')" style="cursor:pointer;background:rgba(16,185,129,0.12);color:#1e3a5f;font-weight:600">3,542</td><td class="exp-cell" onclick="openExpDetail('نوفمبر 25','مصاريف حكومية')" style="cursor:pointer;background:rgba(16,185,129,0.12);color:#1e3a5f;font-weight:600">3,487</td><td class="exp-cell" onclick="openExpDetail('ديسمبر 25','مصاريف حكومية')" style="cursor:pointer;background:rgba(16,185,129,0.12);color:#1e3a5f;font-weight:600">1,076</td><td class="exp-cell" onclick="openExpDetail('يناير 26','مصاريف حكومية')" style="cursor:pointer;background:rgba(16,185,129,0.12);color:#1e3a5f;font-weight:600">278</td><td class="exp-cell" onclick="openExpDetail('فبراير 26','مصاريف حكومية')" style="cursor:pointer;background:rgba(16,185,129,0.12);color:#1e3a5f;font-weight:600">1,338</td><td class="exp-cell" onclick="openExpDetail('مارس 26','مصاريف حكومية')" style="cursor:pointer;background:rgba(16,185,129,0.12);color:#1e3a5f;font-weight:600">248</td><td class="exp-cell" onclick="openExpDetail('أبريل 26','مصاريف حكومية')" style="cursor:pointer;background:rgba(59,130,246,0.12);color:#1e3a5f;font-weight:600">248</td><td style="font-weight:700;background:#f0f4ff">68,287</td></tr><tr><td style="font-weight:700;color:#06B6D4;white-space:nowrap">رسوم مرافقين</td><td style="color:#ccc">—</td><td style="color:#ccc">—</td><td class="exp-cell" onclick="openExpDetail('مارس 25','رسوم مرافقين')" style="cursor:pointer;background:rgba(6,182,212,0.12);color:#1e3a5f;font-weight:600">18,925</td><td class="exp-cell" onclick="openExpDetail('أبريل 25','رسوم مرافقين')" style="cursor:pointer;background:rgba(6,182,212,0.12);color:#1e3a5f;font-weight:600">413</td><td class="exp-cell" onclick="openExpDetail('مايو 25','رسوم مرافقين')" style="cursor:pointer;background:rgba(6,182,212,0.12);color:#1e3a5f;font-weight:600">2,000</td><td class="exp-cell" onclick="openExpDetail('يونيو 25','رسوم مرافقين')" style="cursor:pointer;background:rgba(6,182,212,0.12);color:#1e3a5f;font-weight:600">7,550</td><td class="exp-cell" onclick="openExpDetail('يوليو 25','رسوم مرافقين')" style="cursor:pointer;background:rgba(6,182,212,0.12);color:#1e3a5f;font-weight:600">412</td><td class="exp-cell" onclick="openExpDetail('أغسطس 25','رسوم مرافقين')" style="cursor:pointer;background:rgba(6,182,212,0.12);color:#1e3a5f;font-weight:600">6,537</td><td class="exp-cell" onclick="openExpDetail('سبتمبر 25','رسوم مرافقين')" style="cursor:pointer;background:rgba(6,182,212,0.12);color:#1e3a5f;font-weight:600">9,600</td><td style="color:#ccc">—</td><td class="exp-cell" onclick="openExpDetail('نوفمبر 25','رسوم مرافقين')" style="cursor:pointer;background:rgba(6,182,212,0.12);color:#1e3a5f;font-weight:600">1,650</td><td style="color:#ccc">—</td><td style="color:#ccc">—</td><td style="color:#ccc">—</td><td class="exp-cell" onclick="openExpDetail('مارس 26','رسوم مرافقين')" style="cursor:pointer;background:rgba(6,182,212,0.12);color:#1e3a5f;font-weight:600">13,140</td><td class="exp-cell" onclick="openExpDetail('أبريل 26','رسوم مرافقين')" style="cursor:pointer;background:rgba(59,130,246,0.12);color:#1e3a5f;font-weight:600">13,140</td><td style="font-weight:700;background:#f0f4ff">73,367</td></tr><tr><td style="font-weight:700;color:#6B7280;white-space:nowrap">مصاريف عائلة</td><td class="exp-cell" onclick="openExpDetail('يناير 25','مصاريف عائلة')" style="cursor:pointer;background:rgba(107,114,128,0.12);color:#1e3a5f;font-weight:600">1,575</td><td style="color:#ccc">—</td><td style="color:#ccc">—</td><td class="exp-cell" onclick="openExpDetail('أبريل 25','مصاريف عائلة')" style="cursor:pointer;background:rgba(107,114,128,0.12);color:#1e3a5f;font-weight:600">2,786</td><td class="exp-cell" onclick="openExpDetail('مايو 25','مصاريف عائلة')" style="cursor:pointer;background:rgba(107,114,128,0.12);color:#1e3a5f;font-weight:600">498</td><td style="color:#ccc">—</td><td class="exp-cell" onclick="openExpDetail('يوليو 25','مصاريف عائلة')" style="cursor:pointer;background:rgba(107,114,128,0.12);color:#1e3a5f;font-weight:600">7,389</td><td class="exp-cell" onclick="openExpDetail('أغسطس 25','مصاريف عائلة')" style="cursor:pointer;background:rgba(107,114,128,0.12);color:#1e3a5f;font-weight:600">3,392</td><td class="exp-cell" onclick="openExpDetail('سبتمبر 25','مصاريف عائلة')" style="cursor:pointer;background:rgba(107,114,128,0.12);color:#1e3a5f;font-weight:600">1,684</td><td style="color:#ccc">—</td><td class="exp-cell" onclick="openExpDetail('نوفمبر 25','مصاريف عائلة')" style="cursor:pointer;background:rgba(107,114,128,0.12);color:#1e3a5f;font-weight:600">4,110</td><td class="exp-cell" onclick="openExpDetail('ديسمبر 25','مصاريف عائلة')" style="cursor:pointer;background:rgba(107,114,128,0.12);color:#1e3a5f;font-weight:600">4,044</td><td style="color:#ccc">—</td><td style="color:#ccc">—</td><td style="color:#ccc">—</td><td style="color:#ccc">—</td><td style="font-weight:700;background:#f0f4ff">25,478</td></tr><tr><td style="font-weight:700;color:#7C3AED;white-space:nowrap">الزكاة والدخل</td><td class="exp-cell" onclick="openExpDetail('يناير 25','الزكاة والدخل')" style="cursor:pointer;background:rgba(124,58,237,0.12);color:#1e3a5f;font-weight:600">1,519</td><td style="color:#ccc">—</td><td style="color:#ccc">—</td><td class="exp-cell" onclick="openExpDetail('أبريل 25','الزكاة والدخل')" style="cursor:pointer;background:rgba(124,58,237,0.12);color:#1e3a5f;font-weight:600">378</td><td style="color:#ccc">—</td><td style="color:#ccc">—</td><td class="exp-cell" onclick="openExpDetail('يوليو 25','الزكاة والدخل')" style="cursor:pointer;background:rgba(124,58,237,0.12);color:#1e3a5f;font-weight:600">2,208</td><td style="color:#ccc">—</td><td style="color:#ccc">—</td><td class="exp-cell" onclick="openExpDetail('أكتوبر 25','الزكاة والدخل')" style="cursor:pointer;background:rgba(124,58,237,0.12);color:#1e3a5f;font-weight:600">304</td><td style="color:#ccc">—</td><td class="exp-cell" onclick="openExpDetail('ديسمبر 25','الزكاة والدخل')" style="cursor:pointer;background:rgba(124,58,237,0.12);color:#1e3a5f;font-weight:600">550</td><td style="color:#ccc">—</td><td class="exp-cell" onclick="openExpDetail('فبراير 26','الزكاة والدخل')" style="cursor:pointer;background:rgba(124,58,237,0.12);color:#1e3a5f;font-weight:600">665</td><td style="color:#ccc">—</td><td style="color:#ccc">—</td><td style="font-weight:700;background:#f0f4ff">5,624</td></tr><tr><td style="font-weight:700;color:#14B8A6;white-space:nowrap">تأمينات</td><td style="color:#ccc">—</td><td style="color:#ccc">—</td><td style="color:#ccc">—</td><td class="exp-cell" onclick="openExpDetail('أبريل 25','تأمينات')" style="cursor:pointer;background:rgba(20,184,166,0.12);color:#1e3a5f;font-weight:600">2,551</td><td style="color:#ccc">—</td><td class="exp-cell" onclick="openExpDetail('يونيو 25','تأمينات')" style="cursor:pointer;background:rgba(20,184,166,0.12);color:#1e3a5f;font-weight:600">6,961</td><td class="exp-cell" onclick="openExpDetail('يوليو 25','تأمينات')" style="cursor:pointer;background:rgba(20,184,166,0.12);color:#1e3a5f;font-weight:600">4,358</td><td style="color:#ccc">—</td><td style="color:#ccc">—</td><td style="color:#ccc">—</td><td style="color:#ccc">—</td><td style="color:#ccc">—</td><td style="color:#ccc">—</td><td style="color:#ccc">—</td><td style="color:#ccc">—</td><td style="color:#ccc">—</td><td style="font-weight:700;background:#f0f4ff">13,871</td></tr><tr><td style="font-weight:700;color:#84CC16;white-space:nowrap">كهرباء الفروع</td><td style="color:#ccc">—</td><td style="color:#ccc">—</td><td style="color:#ccc">—</td><td class="exp-cell" onclick="openExpDetail('أبريل 25','كهرباء الفروع')" style="cursor:pointer;background:rgba(132,204,22,0.12);color:#1e3a5f;font-weight:600">2,013</td><td class="exp-cell" onclick="openExpDetail('مايو 25','كهرباء الفروع')" style="cursor:pointer;background:rgba(132,204,22,0.12);color:#1e3a5f;font-weight:600">2,106</td><td style="color:#ccc">—</td><td style="color:#ccc">—</td><td style="color:#ccc">—</td><td class="exp-cell" onclick="openExpDetail('سبتمبر 25','كهرباء الفروع')" style="cursor:pointer;background:rgba(132,204,22,0.12);color:#1e3a5f;font-weight:600">2,814</td><td class="exp-cell" onclick="openExpDetail('أكتوبر 25','كهرباء الفروع')" style="cursor:pointer;background:rgba(132,204,22,0.12);color:#1e3a5f;font-weight:600">3,060</td><td style="color:#ccc">—</td><td style="color:#ccc">—</td><td style="color:#ccc">—</td><td class="exp-cell" onclick="openExpDetail('فبراير 26','كهرباء الفروع')" style="cursor:pointer;background:rgba(132,204,22,0.12);color:#1e3a5f;font-weight:600">1,740</td><td class="exp-cell" onclick="openExpDetail('مارس 26','كهرباء الفروع')" style="cursor:pointer;background:rgba(132,204,22,0.12);color:#1e3a5f;font-weight:600">1,939</td><td class="exp-cell" onclick="openExpDetail('أبريل 26','كهرباء الفروع')" style="cursor:pointer;background:rgba(59,130,246,0.12);color:#1e3a5f;font-weight:600">1,939</td><td style="font-weight:700;background:#f0f4ff">15,610</td></tr><tr><td style="font-weight:700;color:#F43F5E;white-space:nowrap">اتصالات</td><td class="exp-cell" onclick="openExpDetail('يناير 25','اتصالات')" style="cursor:pointer;background:rgba(244,63,94,0.12);color:#1e3a5f;font-weight:600">289</td><td class="exp-cell" onclick="openExpDetail('فبراير 25','اتصالات')" style="cursor:pointer;background:rgba(244,63,94,0.12);color:#1e3a5f;font-weight:600">805</td><td class="exp-cell" onclick="openExpDetail('مارس 25','اتصالات')" style="cursor:pointer;background:rgba(244,63,94,0.12);color:#1e3a5f;font-weight:600">1,934</td><td class="exp-cell" onclick="openExpDetail('أبريل 25','اتصالات')" style="cursor:pointer;background:rgba(244,63,94,0.12);color:#1e3a5f;font-weight:600">295</td><td class="exp-cell" onclick="openExpDetail('مايو 25','اتصالات')" style="cursor:pointer;background:rgba(244,63,94,0.12);color:#1e3a5f;font-weight:600">905</td><td class="exp-cell" onclick="openExpDetail('يونيو 25','اتصالات')" style="cursor:pointer;background:rgba(244,63,94,0.12);color:#1e3a5f;font-weight:600">518</td><td class="exp-cell" onclick="openExpDetail('يوليو 25','اتصالات')" style="cursor:pointer;background:rgba(244,63,94,0.12);color:#1e3a5f;font-weight:600">1,112</td><td class="exp-cell" onclick="openExpDetail('أغسطس 25','اتصالات')" style="cursor:pointer;background:rgba(244,63,94,0.12);color:#1e3a5f;font-weight:600">867</td><td class="exp-cell" onclick="openExpDetail('سبتمبر 25','اتصالات')" style="cursor:pointer;background:rgba(244,63,94,0.12);color:#1e3a5f;font-weight:600">627</td><td class="exp-cell" onclick="openExpDetail('أكتوبر 25','اتصالات')" style="cursor:pointer;background:rgba(244,63,94,0.12);color:#1e3a5f;font-weight:600">808</td><td class="exp-cell" onclick="openExpDetail('نوفمبر 25','اتصالات')" style="cursor:pointer;background:rgba(244,63,94,0.12);color:#1e3a5f;font-weight:600">534</td><td class="exp-cell" onclick="openExpDetail('ديسمبر 25','اتصالات')" style="cursor:pointer;background:rgba(244,63,94,0.12);color:#1e3a5f;font-weight:600">1,172</td><td class="exp-cell" onclick="openExpDetail('يناير 26','اتصالات')" style="cursor:pointer;background:rgba(244,63,94,0.12);color:#1e3a5f;font-weight:600">518</td><td class="exp-cell" onclick="openExpDetail('فبراير 26','اتصالات')" style="cursor:pointer;background:rgba(244,63,94,0.12);color:#1e3a5f;font-weight:600">500</td><td class="exp-cell" onclick="openExpDetail('مارس 26','اتصالات')" style="cursor:pointer;background:rgba(244,63,94,0.12);color:#1e3a5f;font-weight:600">1,219</td><td class="exp-cell" onclick="openExpDetail('أبريل 26','اتصالات')" style="cursor:pointer;background:rgba(59,130,246,0.12);color:#1e3a5f;font-weight:600">1,219</td><td style="font-weight:700;background:#f0f4ff">13,323</td></tr><tr><td style="font-weight:700;color:#DC2626;white-space:nowrap">مستحقات سابقة رجالي</td><td class="exp-cell" onclick="openExpDetail('يناير 25','مستحقات سابقة رجالي')" style="cursor:pointer;background:rgba(220,38,38,0.12);color:#1e3a5f;font-weight:600">6,631</td><td class="exp-cell" onclick="openExpDetail('فبراير 25','مستحقات سابقة رجالي')" style="cursor:pointer;background:rgba(220,38,38,0.12);color:#1e3a5f;font-weight:600">10,305</td><td class="exp-cell" onclick="openExpDetail('مارس 25','مستحقات سابقة رجالي')" style="cursor:pointer;background:rgba(220,38,38,0.12);color:#1e3a5f;font-weight:600">11,866</td><td style="color:#ccc">—</td><td class="exp-cell" onclick="openExpDetail('مايو 25','مستحقات سابقة رجالي')" style="cursor:pointer;background:rgba(220,38,38,0.12);color:#1e3a5f;font-weight:600">4,990</td><td class="exp-cell" onclick="openExpDetail('يونيو 25','مستحقات سابقة رجالي')" style="cursor:pointer;background:rgba(220,38,38,0.12);color:#1e3a5f;font-weight:600">12,300</td><td class="exp-cell" onclick="openExpDetail('يوليو 25','مستحقات سابقة رجالي')" style="cursor:pointer;background:rgba(220,38,38,0.12);color:#1e3a5f;font-weight:600">3,245</td><td class="exp-cell" onclick="openExpDetail('أغسطس 25','مستحقات سابقة رجالي')" style="cursor:pointer;background:rgba(220,38,38,0.12);color:#1e3a5f;font-weight:600">1,040</td><td class="exp-cell" onclick="openExpDetail('سبتمبر 25','مستحقات سابقة رجالي')" style="cursor:pointer;background:rgba(220,38,38,0.12);color:#1e3a5f;font-weight:600">1,100</td><td class="exp-cell" onclick="openExpDetail('أكتوبر 25','مستحقات سابقة رجالي')" style="cursor:pointer;background:rgba(220,38,38,0.12);color:#1e3a5f;font-weight:600">967</td><td class="exp-cell" onclick="openExpDetail('نوفمبر 25','مستحقات سابقة رجالي')" style="cursor:pointer;background:rgba(220,38,38,0.12);color:#1e3a5f;font-weight:600">1,800</td><td class="exp-cell" onclick="openExpDetail('ديسمبر 25','مستحقات سابقة رجالي')" style="cursor:pointer;background:rgba(220,38,38,0.12);color:#1e3a5f;font-weight:600">1,710</td><td class="exp-cell" onclick="openExpDetail('يناير 26','مستحقات سابقة رجالي')" style="cursor:pointer;background:rgba(220,38,38,0.12);color:#1e3a5f;font-weight:600">30</td><td class="exp-cell" onclick="openExpDetail('فبراير 26','مستحقات سابقة رجالي')" style="cursor:pointer;background:rgba(220,38,38,0.12);color:#1e3a5f;font-weight:600">1,000</td><td class="exp-cell" onclick="openExpDetail('مارس 26','مستحقات سابقة رجالي')" style="cursor:pointer;background:rgba(220,38,38,0.12);color:#1e3a5f;font-weight:600">1,090</td><td class="exp-cell" onclick="openExpDetail('أبريل 26','مستحقات سابقة رجالي')" style="cursor:pointer;background:rgba(59,130,246,0.12);color:#1e3a5f;font-weight:600">1,090</td><td style="font-weight:700;background:#f0f4ff">59,164</td></tr><tr><td style="font-weight:700;color:#9CA3AF;white-space:nowrap">أخرى</td><td class="exp-cell" onclick="openExpDetail('يناير 25','أخرى')" style="cursor:pointer;background:rgba(156,163,175,0.12);color:#1e3a5f;font-weight:600">822</td><td class="exp-cell" onclick="openExpDetail('فبراير 25','أخرى')" style="cursor:pointer;background:rgba(156,163,175,0.12);color:#1e3a5f;font-weight:600">2,141</td><td class="exp-cell" onclick="openExpDetail('مارس 25','أخرى')" style="cursor:pointer;background:rgba(156,163,175,0.12);color:#1e3a5f;font-weight:600">1,745</td><td class="exp-cell" onclick="openExpDetail('أبريل 25','أخرى')" style="cursor:pointer;background:rgba(156,163,175,0.12);color:#1e3a5f;font-weight:600">1,490</td><td class="exp-cell" onclick="openExpDetail('مايو 25','أخرى')" style="cursor:pointer;background:rgba(156,163,175,0.12);color:#1e3a5f;font-weight:600">1,396</td><td class="exp-cell" onclick="openExpDetail('يونيو 25','أخرى')" style="cursor:pointer;background:rgba(156,163,175,0.12);color:#1e3a5f;font-weight:600">1,307</td><td class="exp-cell" onclick="openExpDetail('يوليو 25','أخرى')" style="cursor:pointer;background:rgba(156,163,175,0.12);color:#1e3a5f;font-weight:600">988</td><td class="exp-cell" onclick="openExpDetail('أغسطس 25','أخرى')" style="cursor:pointer;background:rgba(156,163,175,0.12);color:#1e3a5f;font-weight:600">1,659</td><td class="exp-cell" onclick="openExpDetail('سبتمبر 25','أخرى')" style="cursor:pointer;background:rgba(156,163,175,0.12);color:#1e3a5f;font-weight:600">726</td><td class="exp-cell" onclick="openExpDetail('أكتوبر 25','أخرى')" style="cursor:pointer;background:rgba(156,163,175,0.12);color:#1e3a5f;font-weight:600">687</td><td class="exp-cell" onclick="openExpDetail('نوفمبر 25','أخرى')" style="cursor:pointer;background:rgba(156,163,175,0.12);color:#1e3a5f;font-weight:600">843</td><td class="exp-cell" onclick="openExpDetail('ديسمبر 25','أخرى')" style="cursor:pointer;background:rgba(156,163,175,0.12);color:#1e3a5f;font-weight:600">1,069</td><td class="exp-cell" onclick="openExpDetail('يناير 26','أخرى')" style="cursor:pointer;background:rgba(156,163,175,0.12);color:#1e3a5f;font-weight:600">2,434</td><td class="exp-cell" onclick="openExpDetail('فبراير 26','أخرى')" style="cursor:pointer;background:rgba(156,163,175,0.12);color:#1e3a5f;font-weight:600">732</td><td class="exp-cell" onclick="openExpDetail('مارس 26','أخرى')" style="cursor:pointer;background:rgba(156,163,175,0.12);color:#1e3a5f;font-weight:600">1,224</td><td class="exp-cell" onclick="openExpDetail('أبريل 26','أخرى')" style="cursor:pointer;background:rgba(59,130,246,0.12);color:#1e3a5f;font-weight:600">1,224</td><td style="font-weight:700;background:#f0f4ff">20,487</td></tr><tr style="background:#1e3a5f;color:#fff;font-weight:700"><td style="white-space:nowrap">الإجمالي</td><td style="color:#fff;font-weight:700">86,363</td><td style="color:#fff;font-weight:700">54,111</td><td style="color:#fff;font-weight:700">109,879</td><td style="color:#fff;font-weight:700">39,310</td><td style="color:#fff;font-weight:700">47,338</td><td style="color:#fff;font-weight:700">66,294</td><td style="color:#fff;font-weight:700">82,190</td><td style="color:#fff;font-weight:700">45,309</td><td style="color:#fff;font-weight:700">49,269</td><td style="color:#fff;font-weight:700">39,960</td><td style="color:#fff;font-weight:700">42,145</td><td style="color:#fff;font-weight:700">42,629</td><td style="color:#fff;font-weight:700">102,898</td><td style="color:#fff;font-weight:700">60,146</td><td style="color:#fff;font-weight:700">52,130</td><td style="color:#fff;font-weight:700">56,831</td><td style="color:#FFD700;font-weight:700">976,803</td></tr></tbody>
+      </table>
     </div>
   </div>
 </div>
+
+<!-- ===== TAB 3: الموردين ===== -->
+<div id="tab-suppliers" class="tab-content">
+  <div class="info-banner">📋 بيانات خطة السداد حتى نهاية 2025. الأرقام الشهرية (مدفوع/مشتريات) مستخرجة من التقارير الشهرية.</div>
+  
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px">
+    <div class="kpi-card" style="border-color:#1e3a5f">
+      <div class="kpi-value" style="color:#1e3a5f;font-size:1.4rem">517,481</div>
+      <div class="kpi-label">الرصيد الافتتاحي<br>ريال</div>
+    </div>
+    <div class="kpi-card" style="border-color:#3B82F6">
+      <div class="kpi-value" style="color:#3B82F6;font-size:1.4rem">218,655</div>
+      <div class="kpi-label">إجمالي المدفوع<br>ريال</div>
+    </div>
+    <div class="kpi-card" style="border-color:#dc2626">
+      <div class="kpi-value" style="color:#dc2626;font-size:1.4rem">260,360</div>
+      <div class="kpi-label">المتبقي للسداد<br>ريال</div>
+    </div>
+    <div class="kpi-card" style="border-color:#10B981">
+      <div class="kpi-value" style="color:#10B981;font-size:1.4rem">38,465</div>
+      <div class="kpi-label">الخصومات المكتسبة<br>ريال</div>
+    </div>
+  </div>
+  
+  <div class="supplier-search">
+    <input type="text" id="supplier-search-input" placeholder="🔍 ابحث عن مورد..." oninput="filterSuppliers()">
+  </div>
+  
+  <div class="supplier-filters">
+    <button class="filter-btn active" onclick="filterByStatus('الكل', this)">الكل</button>
+    <button class="filter-btn" onclick="filterByStatus('لديه رصيد', this)">لديه رصيد</button>
+    <button class="filter-btn" onclick="filterByStatus('قُصِّي', this)">تمت التصفية</button>
+  </div>
+  
+  <div class="suppliers-grid" id="suppliers-grid"><div class="supplier-card" data-name="ثوب السفير - سند امر" data-remaining="0.0" data-status="قُصِّي">
+<div class="supplier-name">ثوب السفير - سند امر</div>
+<div class="supplier-row"><span>الرصيد الافتتاحي</span><span>28,448</span></div>
+<div class="supplier-row"><span>المدفوع</span><span style="color:#3B82F6;font-weight:700">24,000</span></div>
+<div class="supplier-row"><span>الخصم</span><span>4,448</span></div>
+<div class="supplier-row"><span>المتبقي</span><span style="color:#16a34a;font-weight:700">0</span></div>
+<div class="supplier-progress"><div style="width:84%;background:#16a34a;height:6px;border-radius:3px"></div></div>
+<div class="supplier-status" style="color:#16a34a">تمت التصفية</div>
+</div><div class="supplier-card" data-name="مؤسسة غريفين" data-remaining="0.0" data-status="قُصِّي">
+<div class="supplier-name">مؤسسة غريفين</div>
+<div class="supplier-row"><span>الرصيد الافتتاحي</span><span>4,190</span></div>
+<div class="supplier-row"><span>المدفوع</span><span style="color:#3B82F6;font-weight:700">1,700</span></div>
+<div class="supplier-row"><span>الخصم</span><span>2,490</span></div>
+<div class="supplier-row"><span>المتبقي</span><span style="color:#16a34a;font-weight:700">0</span></div>
+<div class="supplier-progress"><div style="width:41%;background:#16a34a;height:6px;border-radius:3px"></div></div>
+<div class="supplier-status" style="color:#16a34a">تمت التصفية</div>
+</div><div class="supplier-card" data-name="أبو شام السوري" data-remaining="0.0" data-status="قُصِّي">
+<div class="supplier-name">أبو شام السوري</div>
+<div class="supplier-row"><span>الرصيد الافتتاحي</span><span>6,560</span></div>
+<div class="supplier-row"><span>المدفوع</span><span style="color:#3B82F6;font-weight:700">4,500</span></div>
+<div class="supplier-row"><span>الخصم</span><span>2,060</span></div>
+<div class="supplier-row"><span>المتبقي</span><span style="color:#16a34a;font-weight:700">0</span></div>
+<div class="supplier-progress"><div style="width:69%;background:#16a34a;height:6px;border-radius:3px"></div></div>
+<div class="supplier-status" style="color:#16a34a">تمت التصفية</div>
+</div><div class="supplier-card" data-name="شركة كروزا للتجارة" data-remaining="0.0" data-status="قُصِّي">
+<div class="supplier-name">شركة كروزا للتجارة</div>
+<div class="supplier-row"><span>الرصيد الافتتاحي</span><span>567</span></div>
+<div class="supplier-row"><span>المدفوع</span><span style="color:#3B82F6;font-weight:700">500</span></div>
+<div class="supplier-row"><span>الخصم</span><span>67</span></div>
+<div class="supplier-row"><span>المتبقي</span><span style="color:#16a34a;font-weight:700">0</span></div>
+<div class="supplier-progress"><div style="width:88%;background:#16a34a;height:6px;border-radius:3px"></div></div>
+<div class="supplier-status" style="color:#16a34a">تمت التصفية</div>
+</div><div class="supplier-card" data-name="مؤسسة أصالة الأنيق للمحلابس - فتحي" data-remaining="0.0" data-status="قُصِّي">
+<div class="supplier-name">مؤسسة أصالة الأنيق للمحلابس - فتحي</div>
+<div class="supplier-row"><span>الرصيد الافتتاحي</span><span>1,000</span></div>
+<div class="supplier-row"><span>المدفوع</span><span style="color:#3B82F6;font-weight:700">500</span></div>
+<div class="supplier-row"><span>الخصم</span><span>500</span></div>
+<div class="supplier-row"><span>المتبقي</span><span style="color:#16a34a;font-weight:700">0</span></div>
+<div class="supplier-progress"><div style="width:50%;background:#16a34a;height:6px;border-radius:3px"></div></div>
+<div class="supplier-status" style="color:#16a34a">تمت التصفية</div>
+</div><div class="supplier-card" data-name="مؤسسة قلوب الاخوين" data-remaining="0.0" data-status="قُصِّي">
+<div class="supplier-name">مؤسسة قلوب الاخوين</div>
+<div class="supplier-row"><span>الرصيد الافتتاحي</span><span>700</span></div>
+<div class="supplier-row"><span>المدفوع</span><span style="color:#3B82F6;font-weight:700">500</span></div>
+<div class="supplier-row"><span>الخصم</span><span>200</span></div>
+<div class="supplier-row"><span>المتبقي</span><span style="color:#16a34a;font-weight:700">0</span></div>
+<div class="supplier-progress"><div style="width:71%;background:#16a34a;height:6px;border-radius:3px"></div></div>
+<div class="supplier-status" style="color:#16a34a">تمت التصفية</div>
+</div><div class="supplier-card" data-name="شركة خيوط الفخامة التجارية" data-remaining="0.0" data-status="قُصِّي">
+<div class="supplier-name">شركة خيوط الفخامة التجارية</div>
+<div class="supplier-row"><span>الرصيد الافتتاحي</span><span>5,475</span></div>
+<div class="supplier-row"><span>المدفوع</span><span style="color:#3B82F6;font-weight:700">3,900</span></div>
+<div class="supplier-row"><span>الخصم</span><span>1,575</span></div>
+<div class="supplier-row"><span>المتبقي</span><span style="color:#16a34a;font-weight:700">0</span></div>
+<div class="supplier-progress"><div style="width:71%;background:#16a34a;height:6px;border-radius:3px"></div></div>
+<div class="supplier-status" style="color:#16a34a">تمت التصفية</div>
+</div><div class="supplier-card" data-name="شركة إسدام العربية" data-remaining="0.0" data-status="قُصِّي">
+<div class="supplier-name">شركة إسدام العربية</div>
+<div class="supplier-row"><span>الرصيد الافتتاحي</span><span>1,293</span></div>
+<div class="supplier-row"><span>المدفوع</span><span style="color:#3B82F6;font-weight:700">1,290</span></div>
+<div class="supplier-row"><span>الخصم</span><span>3</span></div>
+<div class="supplier-row"><span>المتبقي</span><span style="color:#16a34a;font-weight:700">0</span></div>
+<div class="supplier-progress"><div style="width:100%;background:#16a34a;height:6px;border-radius:3px"></div></div>
+<div class="supplier-status" style="color:#16a34a">تمت التصفية</div>
+</div><div class="supplier-card" data-name="مؤسسة نجاح الشمري - زكريا" data-remaining="0.0" data-status="قُصِّي">
+<div class="supplier-name">مؤسسة نجاح الشمري - زكريا</div>
+<div class="supplier-row"><span>الرصيد الافتتاحي</span><span>15,795</span></div>
+<div class="supplier-row"><span>المدفوع</span><span style="color:#3B82F6;font-weight:700">10,500</span></div>
+<div class="supplier-row"><span>الخصم</span><span>5,295</span></div>
+<div class="supplier-row"><span>المتبقي</span><span style="color:#16a34a;font-weight:700">0</span></div>
+<div class="supplier-progress"><div style="width:66%;background:#16a34a;height:6px;border-radius:3px"></div></div>
+<div class="supplier-status" style="color:#16a34a">تمت التصفية</div>
+</div><div class="supplier-card" data-name="عبدالعزيز عتين" data-remaining="0.0" data-status="قُصِّي">
+<div class="supplier-name">عبدالعزيز عتين</div>
+<div class="supplier-row"><span>الرصيد الافتتاحي</span><span>2,240</span></div>
+<div class="supplier-row"><span>المدفوع</span><span style="color:#3B82F6;font-weight:700">1,900</span></div>
+<div class="supplier-row"><span>الخصم</span><span>340</span></div>
+<div class="supplier-row"><span>المتبقي</span><span style="color:#16a34a;font-weight:700">0</span></div>
+<div class="supplier-progress"><div style="width:85%;background:#16a34a;height:6px;border-radius:3px"></div></div>
+<div class="supplier-status" style="color:#16a34a">تمت التصفية</div>
+</div><div class="supplier-card" data-name="مؤسسة خالد زعيل للتجارة" data-remaining="0.0" data-status="قُصِّي">
+<div class="supplier-name">مؤسسة خالد زعيل للتجارة</div>
+<div class="supplier-row"><span>الرصيد الافتتاحي</span><span>2,141</span></div>
+<div class="supplier-row"><span>المدفوع</span><span style="color:#3B82F6;font-weight:700">2,000</span></div>
+<div class="supplier-row"><span>الخصم</span><span>141</span></div>
+<div class="supplier-row"><span>المتبقي</span><span style="color:#16a34a;font-weight:700">0</span></div>
+<div class="supplier-progress"><div style="width:93%;background:#16a34a;height:6px;border-radius:3px"></div></div>
+<div class="supplier-status" style="color:#16a34a">تمت التصفية</div>
+</div><div class="supplier-card" data-name="ايكاف" data-remaining="0.0" data-status="قُصِّي">
+<div class="supplier-name">ايكاف</div>
+<div class="supplier-row"><span>الرصيد الافتتاحي</span><span>1,094</span></div>
+<div class="supplier-row"><span>المدفوع</span><span style="color:#3B82F6;font-weight:700">1,000</span></div>
+<div class="supplier-row"><span>الخصم</span><span>94</span></div>
+<div class="supplier-row"><span>المتبقي</span><span style="color:#16a34a;font-weight:700">0</span></div>
+<div class="supplier-progress"><div style="width:91%;background:#16a34a;height:6px;border-radius:3px"></div></div>
+<div class="supplier-status" style="color:#16a34a">تمت التصفية</div>
+</div><div class="supplier-card" data-name="شركة أبناء محمد السعد العجلان - البسام" data-remaining="0.0" data-status="قُصِّي">
+<div class="supplier-name">شركة أبناء محمد السعد العجلان - البسام</div>
+<div class="supplier-row"><span>الرصيد الافتتاحي</span><span>3,766</span></div>
+<div class="supplier-row"><span>المدفوع</span><span style="color:#3B82F6;font-weight:700">3,766</span></div>
+<div class="supplier-row"><span>الخصم</span><span>0</span></div>
+<div class="supplier-row"><span>المتبقي</span><span style="color:#16a34a;font-weight:700">0</span></div>
+<div class="supplier-progress"><div style="width:100%;background:#16a34a;height:6px;border-radius:3px"></div></div>
+<div class="supplier-status" style="color:#16a34a">تمت التصفية</div>
+</div><div class="supplier-card" data-name="العجلان - سند الامر" data-remaining="95736.56" data-status="لديه رصيد">
+<div class="supplier-name">العجلان - سند الامر</div>
+<div class="supplier-row"><span>الرصيد الافتتاحي</span><span>100,737</span></div>
+<div class="supplier-row"><span>المدفوع</span><span style="color:#3B82F6;font-weight:700">5,000</span></div>
+<div class="supplier-row"><span>الخصم</span><span>0</span></div>
+<div class="supplier-row"><span>المتبقي</span><span style="color:#dc2626;font-weight:700">95,737</span></div>
+<div class="supplier-progress"><div style="width:5%;background:#dc2626;height:6px;border-radius:3px"></div></div>
+<div class="supplier-status" style="color:#dc2626">لديه رصيد</div>
+</div><div class="supplier-card" data-name="ثوب الأصيل - سند الامر" data-remaining="19468.0" data-status="لديه رصيد">
+<div class="supplier-name">ثوب الأصيل - سند الامر</div>
+<div class="supplier-row"><span>الرصيد الافتتاحي</span><span>40,468</span></div>
+<div class="supplier-row"><span>المدفوع</span><span style="color:#3B82F6;font-weight:700">21,000</span></div>
+<div class="supplier-row"><span>الخصم</span><span>0</span></div>
+<div class="supplier-row"><span>المتبقي</span><span style="color:#dc2626;font-weight:700">19,468</span></div>
+<div class="supplier-progress"><div style="width:52%;background:#dc2626;height:6px;border-radius:3px"></div></div>
+<div class="supplier-status" style="color:#dc2626">لديه رصيد</div>
+</div><div class="supplier-card" data-name="مؤسسة دنيا الجوارب" data-remaining="2091.9" data-status="لديه رصيد">
+<div class="supplier-name">مؤسسة دنيا الجوارب</div>
+<div class="supplier-row"><span>الرصيد الافتتاحي</span><span>3,217</span></div>
+<div class="supplier-row"><span>المدفوع</span><span style="color:#3B82F6;font-weight:700">1,125</span></div>
+<div class="supplier-row"><span>الخصم</span><span>0</span></div>
+<div class="supplier-row"><span>المتبقي</span><span style="color:#dc2626;font-weight:700">2,092</span></div>
+<div class="supplier-progress"><div style="width:35%;background:#dc2626;height:6px;border-radius:3px"></div></div>
+<div class="supplier-status" style="color:#dc2626">لديه رصيد</div>
+</div><div class="supplier-card" data-name="شركة الإمتياز المحدودة - سند الامر" data-remaining="12032.0" data-status="لديه رصيد">
+<div class="supplier-name">شركة الإمتياز المحدودة - سند الامر</div>
+<div class="supplier-row"><span>الرصيد الافتتاحي</span><span>16,152</span></div>
+<div class="supplier-row"><span>المدفوع</span><span style="color:#3B82F6;font-weight:700">4,120</span></div>
+<div class="supplier-row"><span>الخصم</span><span>0</span></div>
+<div class="supplier-row"><span>المتبقي</span><span style="color:#dc2626;font-weight:700">12,032</span></div>
+<div class="supplier-progress"><div style="width:26%;background:#dc2626;height:6px;border-radius:3px"></div></div>
+<div class="supplier-status" style="color:#dc2626">لديه رصيد</div>
+</div><div class="supplier-card" data-name="شركة زهرة بيرحا للتجارة" data-remaining="0.0" data-status="قُصِّي">
+<div class="supplier-name">شركة زهرة بيرحا للتجارة</div>
+<div class="supplier-row"><span>الرصيد الافتتاحي</span><span>23,300</span></div>
+<div class="supplier-row"><span>المدفوع</span><span style="color:#3B82F6;font-weight:700">15,000</span></div>
+<div class="supplier-row"><span>الخصم</span><span>8,300</span></div>
+<div class="supplier-row"><span>المتبقي</span><span style="color:#16a34a;font-weight:700">0</span></div>
+<div class="supplier-progress"><div style="width:64%;background:#16a34a;height:6px;border-radius:3px"></div></div>
+<div class="supplier-status" style="color:#16a34a">تمت التصفية</div>
+</div><div class="supplier-card" data-name="مؤسسة بصمة إمتياز" data-remaining="8964.5" data-status="لديه رصيد">
+<div class="supplier-name">مؤسسة بصمة إمتياز</div>
+<div class="supplier-row"><span>الرصيد الافتتاحي</span><span>8,964</span></div>
+<div class="supplier-row"><span>المدفوع</span><span style="color:#3B82F6;font-weight:700">0</span></div>
+<div class="supplier-row"><span>الخصم</span><span>0</span></div>
+<div class="supplier-row"><span>المتبقي</span><span style="color:#dc2626;font-weight:700">8,964</span></div>
+<div class="supplier-progress"><div style="width:0%;background:#dc2626;height:6px;border-radius:3px"></div></div>
+<div class="supplier-status" style="color:#dc2626">لديه رصيد</div>
+</div><div class="supplier-card" data-name="شركة الخياطة العربية" data-remaining="0.0" data-status="قُصِّي">
+<div class="supplier-name">شركة الخياطة العربية</div>
+<div class="supplier-row"><span>الرصيد الافتتاحي</span><span>1,300</span></div>
+<div class="supplier-row"><span>المدفوع</span><span style="color:#3B82F6;font-weight:700">1,300</span></div>
+<div class="supplier-row"><span>الخصم</span><span>0</span></div>
+<div class="supplier-row"><span>المتبقي</span><span style="color:#16a34a;font-weight:700">0</span></div>
+<div class="supplier-progress"><div style="width:100%;background:#16a34a;height:6px;border-radius:3px"></div></div>
+<div class="supplier-status" style="color:#16a34a">تمت التصفية</div>
+</div><div class="supplier-card" data-name="شركة قطونيل" data-remaining="-1.1368683772161603e-12" data-status="قُصِّي">
+<div class="supplier-name">شركة قطونيل</div>
+<div class="supplier-row"><span>الرصيد الافتتاحي</span><span>1,575</span></div>
+<div class="supplier-row"><span>المدفوع</span><span style="color:#3B82F6;font-weight:700">1,575</span></div>
+<div class="supplier-row"><span>الخصم</span><span>0</span></div>
+<div class="supplier-row"><span>المتبقي</span><span style="color:#16a34a;font-weight:700">-0</span></div>
+<div class="supplier-progress"><div style="width:100%;background:#16a34a;height:6px;border-radius:3px"></div></div>
+<div class="supplier-status" style="color:#16a34a">تمت التصفية</div>
+</div><div class="supplier-card" data-name="شركة ملبوسات الإبداع" data-remaining="900.0" data-status="لديه رصيد">
+<div class="supplier-name">شركة ملبوسات الإبداع</div>
+<div class="supplier-row"><span>الرصيد الافتتاحي</span><span>900</span></div>
+<div class="supplier-row"><span>المدفوع</span><span style="color:#3B82F6;font-weight:700">0</span></div>
+<div class="supplier-row"><span>الخصم</span><span>0</span></div>
+<div class="supplier-row"><span>المتبقي</span><span style="color:#dc2626;font-weight:700">900</span></div>
+<div class="supplier-progress"><div style="width:0%;background:#dc2626;height:6px;border-radius:3px"></div></div>
+<div class="supplier-status" style="color:#dc2626">لديه رصيد</div>
+</div><div class="supplier-card" data-name="مؤسسة عالم التذكار" data-remaining="0.0" data-status="قُصِّي">
+<div class="supplier-name">مؤسسة عالم التذكار</div>
+<div class="supplier-row"><span>الرصيد الافتتاحي</span><span>1,050</span></div>
+<div class="supplier-row"><span>المدفوع</span><span style="color:#3B82F6;font-weight:700">1,000</span></div>
+<div class="supplier-row"><span>الخصم</span><span>50</span></div>
+<div class="supplier-row"><span>المتبقي</span><span style="color:#16a34a;font-weight:700">0</span></div>
+<div class="supplier-progress"><div style="width:95%;background:#16a34a;height:6px;border-radius:3px"></div></div>
+<div class="supplier-status" style="color:#16a34a">تمت التصفية</div>
+</div><div class="supplier-card" data-name="مؤسسة الرجل الأنيق - سند الامر" data-remaining="15500.0" data-status="لديه رصيد">
+<div class="supplier-name">مؤسسة الرجل الأنيق - سند الامر</div>
+<div class="supplier-row"><span>الرصيد الافتتاحي</span><span>20,000</span></div>
+<div class="supplier-row"><span>المدفوع</span><span style="color:#3B82F6;font-weight:700">4,500</span></div>
+<div class="supplier-row"><span>الخصم</span><span>0</span></div>
+<div class="supplier-row"><span>المتبقي</span><span style="color:#dc2626;font-weight:700">15,500</span></div>
+<div class="supplier-progress"><div style="width:22%;background:#dc2626;height:6px;border-radius:3px"></div></div>
+<div class="supplier-status" style="color:#dc2626">لديه رصيد</div>
+</div><div class="supplier-card" data-name="شركة ردائي الدولية" data-remaining="0.0" data-status="قُصِّي">
+<div class="supplier-name">شركة ردائي الدولية</div>
+<div class="supplier-row"><span>الرصيد الافتتاحي</span><span>4,090</span></div>
+<div class="supplier-row"><span>المدفوع</span><span style="color:#3B82F6;font-weight:700">4,040</span></div>
+<div class="supplier-row"><span>الخصم</span><span>50</span></div>
+<div class="supplier-row"><span>المتبقي</span><span style="color:#16a34a;font-weight:700">0</span></div>
+<div class="supplier-progress"><div style="width:99%;background:#16a34a;height:6px;border-radius:3px"></div></div>
+<div class="supplier-status" style="color:#16a34a">تمت التصفية</div>
+</div><div class="supplier-card" data-name="شركة نخبة العود التجارية - العسلي" data-remaining="1159.5" data-status="لديه رصيد">
+<div class="supplier-name">شركة نخبة العود التجارية - العسلي</div>
+<div class="supplier-row"><span>الرصيد الافتتاحي</span><span>1,160</span></div>
+<div class="supplier-row"><span>المدفوع</span><span style="color:#3B82F6;font-weight:700">0</span></div>
+<div class="supplier-row"><span>الخصم</span><span>0</span></div>
+<div class="supplier-row"><span>المتبقي</span><span style="color:#dc2626;font-weight:700">1,160</span></div>
+<div class="supplier-progress"><div style="width:0%;background:#dc2626;height:6px;border-radius:3px"></div></div>
+<div class="supplier-status" style="color:#dc2626">لديه رصيد</div>
+</div><div class="supplier-card" data-name="مؤسسة منى اليامي - الخياط فيصل" data-remaining="1680.0" data-status="لديه رصيد">
+<div class="supplier-name">مؤسسة منى اليامي - الخياط فيصل</div>
+<div class="supplier-row"><span>الرصيد الافتتاحي</span><span>5,200</span></div>
+<div class="supplier-row"><span>المدفوع</span><span style="color:#3B82F6;font-weight:700">3,520</span></div>
+<div class="supplier-row"><span>الخصم</span><span>0</span></div>
+<div class="supplier-row"><span>المتبقي</span><span style="color:#dc2626;font-weight:700">1,680</span></div>
+<div class="supplier-progress"><div style="width:68%;background:#dc2626;height:6px;border-radius:3px"></div></div>
+<div class="supplier-status" style="color:#dc2626">لديه رصيد</div>
+</div><div class="supplier-card" data-name="شركة دنيا الأصواف للتجارة المحدودة -الشياكة - سند امر" data-remaining="36117.58" data-status="لديه رصيد">
+<div class="supplier-name">شركة دنيا الأصواف للتجارة المحدودة -الشياكة - سند امر</div>
+<div class="supplier-row"><span>الرصيد الافتتاحي</span><span>66,718</span></div>
+<div class="supplier-row"><span>المدفوع</span><span style="color:#3B82F6;font-weight:700">30,600</span></div>
+<div class="supplier-row"><span>الخصم</span><span>0</span></div>
+<div class="supplier-row"><span>المتبقي</span><span style="color:#dc2626;font-weight:700">36,118</span></div>
+<div class="supplier-progress"><div style="width:46%;background:#dc2626;height:6px;border-radius:3px"></div></div>
+<div class="supplier-status" style="color:#dc2626">لديه رصيد</div>
+</div><div class="supplier-card" data-name="مؤسسة تميز المنتجات الحديثة للتجارة - سند امر" data-remaining="10500.0" data-status="لديه رصيد">
+<div class="supplier-name">مؤسسة تميز المنتجات الحديثة للتجارة - سند امر</div>
+<div class="supplier-row"><span>الرصيد الافتتاحي</span><span>26,936</span></div>
+<div class="supplier-row"><span>المدفوع</span><span style="color:#3B82F6;font-weight:700">9,050</span></div>
+<div class="supplier-row"><span>الخصم</span><span>7,386</span></div>
+<div class="supplier-row"><span>المتبقي</span><span style="color:#dc2626;font-weight:700">10,500</span></div>
+<div class="supplier-progress"><div style="width:34%;background:#dc2626;height:6px;border-radius:3px"></div></div>
+<div class="supplier-status" style="color:#dc2626">لديه رصيد</div>
+</div><div class="supplier-card" data-name="شركة محمد سراج عطار واخويه - سند امر" data-remaining="8407.0" data-status="لديه رصيد">
+<div class="supplier-name">شركة محمد سراج عطار واخويه - سند امر</div>
+<div class="supplier-row"><span>الرصيد الافتتاحي</span><span>9,407</span></div>
+<div class="supplier-row"><span>المدفوع</span><span style="color:#3B82F6;font-weight:700">1,000</span></div>
+<div class="supplier-row"><span>الخصم</span><span>0</span></div>
+<div class="supplier-row"><span>المتبقي</span><span style="color:#dc2626;font-weight:700">8,407</span></div>
+<div class="supplier-progress"><div style="width:11%;background:#dc2626;height:6px;border-radius:3px"></div></div>
+<div class="supplier-status" style="color:#dc2626">لديه رصيد</div>
+</div><div class="supplier-card" data-name="شركة الدفة - سند امر" data-remaining="0.0" data-status="قُصِّي">
+<div class="supplier-name">شركة الدفة - سند امر</div>
+<div class="supplier-row"><span>الرصيد الافتتاحي</span><span>51,369</span></div>
+<div class="supplier-row"><span>المدفوع</span><span style="color:#3B82F6;font-weight:700">46,164</span></div>
+<div class="supplier-row"><span>الخصم</span><span>5,205</span></div>
+<div class="supplier-row"><span>المتبقي</span><span style="color:#16a34a;font-weight:700">0</span></div>
+<div class="supplier-progress"><div style="width:90%;background:#16a34a;height:6px;border-radius:3px"></div></div>
+<div class="supplier-status" style="color:#16a34a">تمت التصفية</div>
+</div><div class="supplier-card" data-name="شركة نماء العربية للألبسة المحدودة - سند امر - مرفوع" data-remaining="39457.65" data-status="لديه رصيد">
+<div class="supplier-name">شركة نماء العربية للألبسة المحدودة - سند امر - مرفوع</div>
+<div class="supplier-row"><span>الرصيد الافتتاحي</span><span>39,458</span></div>
+<div class="supplier-row"><span>المدفوع</span><span style="color:#3B82F6;font-weight:700">0</span></div>
+<div class="supplier-row"><span>الخصم</span><span>0</span></div>
+<div class="supplier-row"><span>المتبقي</span><span style="color:#dc2626;font-weight:700">39,458</span></div>
+<div class="supplier-progress"><div style="width:0%;background:#dc2626;height:6px;border-radius:3px"></div></div>
+<div class="supplier-status" style="color:#dc2626">لديه رصيد</div>
+</div><div class="supplier-card" data-name="نجاح الشمري _ محمد" data-remaining="0.0" data-status="قُصِّي">
+<div class="supplier-name">نجاح الشمري _ محمد</div>
+<div class="supplier-row"><span>الرصيد الافتتاحي</span><span>1,100</span></div>
+<div class="supplier-row"><span>المدفوع</span><span style="color:#3B82F6;font-weight:700">1,000</span></div>
+<div class="supplier-row"><span>الخصم</span><span>100</span></div>
+<div class="supplier-row"><span>المتبقي</span><span style="color:#16a34a;font-weight:700">0</span></div>
+<div class="supplier-progress"><div style="width:91%;background:#16a34a;height:6px;border-radius:3px"></div></div>
+<div class="supplier-status" style="color:#16a34a">تمت التصفية</div>
+</div><div class="supplier-card" data-name="مؤسسة لباس الأصلية للتجارة" data-remaining="2380.0" data-status="لديه رصيد">
+<div class="supplier-name">مؤسسة لباس الأصلية للتجارة</div>
+<div class="supplier-row"><span>الرصيد الافتتاحي</span><span>2,880</span></div>
+<div class="supplier-row"><span>المدفوع</span><span style="color:#3B82F6;font-weight:700">500</span></div>
+<div class="supplier-row"><span>الخصم</span><span>0</span></div>
+<div class="supplier-row"><span>المتبقي</span><span style="color:#dc2626;font-weight:700">2,380</span></div>
+<div class="supplier-progress"><div style="width:17%;background:#dc2626;height:6px;border-radius:3px"></div></div>
+<div class="supplier-status" style="color:#dc2626">لديه رصيد</div>
+</div><div class="supplier-card" data-name="شركة مجمع الشنط الراقية المحدودة" data-remaining="1906.6799999999998" data-status="لديه رصيد">
+<div class="supplier-name">شركة مجمع الشنط الراقية المحدودة</div>
+<div class="supplier-row"><span>الرصيد الافتتاحي</span><span>3,832</span></div>
+<div class="supplier-row"><span>المدفوع</span><span style="color:#3B82F6;font-weight:700">1,925</span></div>
+<div class="supplier-row"><span>الخصم</span><span>0</span></div>
+<div class="supplier-row"><span>المتبقي</span><span style="color:#dc2626;font-weight:700">1,907</span></div>
+<div class="supplier-progress"><div style="width:50%;background:#dc2626;height:6px;border-radius:3px"></div></div>
+<div class="supplier-status" style="color:#dc2626">لديه رصيد</div>
+</div><div class="supplier-card" data-name="مؤسسة سيف التجارية" data-remaining="4059.0" data-status="لديه رصيد">
+<div class="supplier-name">مؤسسة سيف التجارية</div>
+<div class="supplier-row"><span>الرصيد الافتتاحي</span><span>11,639</span></div>
+<div class="supplier-row"><span>المدفوع</span><span style="color:#3B82F6;font-weight:700">7,580</span></div>
+<div class="supplier-row"><span>الخصم</span><span>0</span></div>
+<div class="supplier-row"><span>المتبقي</span><span style="color:#dc2626;font-weight:700">4,059</span></div>
+<div class="supplier-progress"><div style="width:65%;background:#dc2626;height:6px;border-radius:3px"></div></div>
+<div class="supplier-status" style="color:#dc2626">لديه رصيد</div>
+</div><div class="supplier-card" data-name="مؤسسة الجمال الحقيقي" data-remaining="0.0" data-status="قُصِّي">
+<div class="supplier-name">مؤسسة الجمال الحقيقي</div>
+<div class="supplier-row"><span>الرصيد الافتتاحي</span><span>770</span></div>
+<div class="supplier-row"><span>المدفوع</span><span style="color:#3B82F6;font-weight:700">700</span></div>
+<div class="supplier-row"><span>الخصم</span><span>70</span></div>
+<div class="supplier-row"><span>المتبقي</span><span style="color:#16a34a;font-weight:700">0</span></div>
+<div class="supplier-progress"><div style="width:91%;background:#16a34a;height:6px;border-radius:3px"></div></div>
+<div class="supplier-status" style="color:#16a34a">تمت التصفية</div>
+</div><div class="supplier-card" data-name="مؤسسة هدف الثقة" data-remaining="0.0" data-status="قُصِّي">
+<div class="supplier-name">مؤسسة هدف الثقة</div>
+<div class="supplier-row"><span>الرصيد الافتتاحي</span><span>1,242</span></div>
+<div class="supplier-row"><span>المدفوع</span><span style="color:#3B82F6;font-weight:700">1,150</span></div>
+<div class="supplier-row"><span>الخصم</span><span>92</span></div>
+<div class="supplier-row"><span>المتبقي</span><span style="color:#16a34a;font-weight:700">0</span></div>
+<div class="supplier-progress"><div style="width:93%;background:#16a34a;height:6px;border-radius:3px"></div></div>
+<div class="supplier-status" style="color:#16a34a">تمت التصفية</div>
+</div><div class="supplier-card" data-name="أرجنتوا" data-remaining="0" data-status="قُصِّي">
+<div class="supplier-name">أرجنتوا</div>
+<div class="supplier-row"><span>الرصيد الافتتاحي</span><span>750</span></div>
+<div class="supplier-row"><span>المدفوع</span><span style="color:#3B82F6;font-weight:700">750</span></div>
+<div class="supplier-row"><span>الخصم</span><span>0</span></div>
+<div class="supplier-row"><span>المتبقي</span><span style="color:#16a34a;font-weight:700">0</span></div>
+<div class="supplier-progress"><div style="width:100%;background:#16a34a;height:6px;border-radius:3px"></div></div>
+<div class="supplier-status" style="color:#16a34a">تمت التصفية</div>
+</div></div>
 </div>
 
-<!-- ===== TAB 4: DIAGNOSIS ===== -->
-<div id="tab-diagnosis" class="tab-content">
-<div class="container">
+<!-- ===== TAB 4: العملاء ===== -->
+<div id="tab-customers" class="tab-content">
+  <div class="info-banner">📅 الأرصدة حتى 31-12-2025. عند تحصيل أي مبلغ إضافي في شهر التحصيل، يمكن تحديث هذه البيانات بإرسال ملف جديد.</div>
+  
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px">
+    <div class="kpi-card" style="border-color:#dc2626">
+      <div class="kpi-value" style="color:#dc2626;font-size:1.4rem">54,594</div>
+      <div class="kpi-label">إجمالي الذمم المدينة<br>ريال — 20 عميل</div>
+    </div>
+    <div class="kpi-card" style="border-color:#3B82F6">
+      <div class="kpi-value" style="color:#3B82F6;font-size:1.4rem">22,934</div>
+      <div class="kpi-label">فرع محمد<br>ريال</div>
+    </div>
+    <div class="kpi-card" style="border-color:#8B5CF6">
+      <div class="kpi-value" style="color:#8B5CF6;font-size:1.4rem">31,660</div>
+      <div class="kpi-label">فرع هاني<br>ريال</div>
+    </div>
+  </div>
+  
+  <div class="customer-search">
+    <input type="text" id="customer-search-input" placeholder="🔍 ابحث عن عميل..." oninput="filterCustomers()">
+  </div>
+  
+  <div class="table-card">
+    <h3>قائمة العملاء</h3>
+    <table id="customers-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th onclick="sortTable('customers-table',1)">اسم العميل ↕</th>
+          <th onclick="sortTable('customers-table',2)">فرع محمد ↕</th>
+          <th onclick="sortTable('customers-table',3)">فرع هاني ↕</th>
+          <th onclick="sortTable('customers-table',4)">إجمالي الرصيد ↕</th>
+          <th>نسبة من الإجمالي</th>
+        </tr>
+      </thead>
+      <tbody id="customers-tbody"><tr>
+<td style="color:#94a3b8;font-size:0.85rem"></td>
+<td style="font-weight:600">متعب العتيبي</td>
+<td>—</td>
+<td>5,550</td>
+<td style="color:#dc2626;font-weight:700">5,550</td>
+<td><div style="background:#e5e7eb;border-radius:4px;height:8px;width:100%"><div style="background:#3B82F6;width:10.0%;height:8px;border-radius:4px"></div></div></td>
+</tr><tr>
+<td style="color:#94a3b8;font-size:0.85rem"></td>
+<td style="font-weight:600">أبو عمار</td>
+<td>—</td>
+<td>8,650</td>
+<td style="color:#dc2626;font-weight:700">8,650</td>
+<td><div style="background:#e5e7eb;border-radius:4px;height:8px;width:100%"><div style="background:#3B82F6;width:16.0%;height:8px;border-radius:4px"></div></div></td>
+</tr><tr>
+<td style="color:#94a3b8;font-size:0.85rem"></td>
+<td style="font-weight:600">يوسف</td>
+<td>—</td>
+<td>2,000</td>
+<td style="color:#dc2626;font-weight:700">2,000</td>
+<td><div style="background:#e5e7eb;border-radius:4px;height:8px;width:100%"><div style="background:#3B82F6;width:4.0%;height:8px;border-radius:4px"></div></div></td>
+</tr><tr>
+<td style="color:#94a3b8;font-size:0.85rem"></td>
+<td style="font-weight:600">شويل</td>
+<td>—</td>
+<td>2,100</td>
+<td style="color:#dc2626;font-weight:700">2,100</td>
+<td><div style="background:#e5e7eb;border-radius:4px;height:8px;width:100%"><div style="background:#3B82F6;width:4.0%;height:8px;border-radius:4px"></div></div></td>
+</tr><tr>
+<td style="color:#94a3b8;font-size:0.85rem"></td>
+<td style="font-weight:600">شالوم</td>
+<td>—</td>
+<td>1,200</td>
+<td style="color:#dc2626;font-weight:700">1,200</td>
+<td><div style="background:#e5e7eb;border-radius:4px;height:8px;width:100%"><div style="background:#3B82F6;width:2.0%;height:8px;border-radius:4px"></div></div></td>
+</tr><tr>
+<td style="color:#94a3b8;font-size:0.85rem"></td>
+<td style="font-weight:600">رتول</td>
+<td>—</td>
+<td>500</td>
+<td style="color:#dc2626;font-weight:700">500</td>
+<td><div style="background:#e5e7eb;border-radius:4px;height:8px;width:100%"><div style="background:#3B82F6;width:1.0%;height:8px;border-radius:4px"></div></div></td>
+</tr><tr>
+<td style="color:#94a3b8;font-size:0.85rem"></td>
+<td style="font-weight:600">علي</td>
+<td>—</td>
+<td>270</td>
+<td style="color:#dc2626;font-weight:700">270</td>
+<td><div style="background:#e5e7eb;border-radius:4px;height:8px;width:100%"><div style="background:#3B82F6;width:0.0%;height:8px;border-radius:4px"></div></div></td>
+</tr><tr>
+<td style="color:#94a3b8;font-size:0.85rem"></td>
+<td style="font-weight:600">خالد موفق</td>
+<td>—</td>
+<td>3,280</td>
+<td style="color:#dc2626;font-weight:700">3,280</td>
+<td><div style="background:#e5e7eb;border-radius:4px;height:8px;width:100%"><div style="background:#3B82F6;width:6.0%;height:8px;border-radius:4px"></div></div></td>
+</tr><tr>
+<td style="color:#94a3b8;font-size:0.85rem"></td>
+<td style="font-weight:600">بلال</td>
+<td>—</td>
+<td>3,050</td>
+<td style="color:#dc2626;font-weight:700">3,050</td>
+<td><div style="background:#e5e7eb;border-radius:4px;height:8px;width:100%"><div style="background:#3B82F6;width:6.0%;height:8px;border-radius:4px"></div></div></td>
+</tr><tr>
+<td style="color:#94a3b8;font-size:0.85rem"></td>
+<td style="font-weight:600">رفيق</td>
+<td>—</td>
+<td>1,900</td>
+<td style="color:#dc2626;font-weight:700">1,900</td>
+<td><div style="background:#e5e7eb;border-radius:4px;height:8px;width:100%"><div style="background:#3B82F6;width:3.0%;height:8px;border-radius:4px"></div></div></td>
+</tr><tr>
+<td style="color:#94a3b8;font-size:0.85rem"></td>
+<td style="font-weight:600">زوايا بلس</td>
+<td>—</td>
+<td>1,800</td>
+<td style="color:#dc2626;font-weight:700">1,800</td>
+<td><div style="background:#e5e7eb;border-radius:4px;height:8px;width:100%"><div style="background:#3B82F6;width:3.0%;height:8px;border-radius:4px"></div></div></td>
+</tr><tr>
+<td style="color:#94a3b8;font-size:0.85rem"></td>
+<td style="font-weight:600">صلاح أخو حمود</td>
+<td>—</td>
+<td>760</td>
+<td style="color:#dc2626;font-weight:700">760</td>
+<td><div style="background:#e5e7eb;border-radius:4px;height:8px;width:100%"><div style="background:#3B82F6;width:1.0%;height:8px;border-radius:4px"></div></div></td>
+</tr><tr>
+<td style="color:#94a3b8;font-size:0.85rem"></td>
+<td style="font-weight:600">المندوب ياسر</td>
+<td>—</td>
+<td>600</td>
+<td style="color:#dc2626;font-weight:700">600</td>
+<td><div style="background:#e5e7eb;border-radius:4px;height:8px;width:100%"><div style="background:#3B82F6;width:1.0%;height:8px;border-radius:4px"></div></div></td>
+</tr><tr>
+<td style="color:#94a3b8;font-size:0.85rem"></td>
+<td style="font-weight:600">محل الفاخرة للقمصان</td>
+<td>4,055</td>
+<td>—</td>
+<td style="color:#dc2626;font-weight:700">4,055</td>
+<td><div style="background:#e5e7eb;border-radius:4px;height:8px;width:100%"><div style="background:#3B82F6;width:7.0%;height:8px;border-radius:4px"></div></div></td>
+</tr><tr>
+<td style="color:#94a3b8;font-size:0.85rem"></td>
+<td style="font-weight:600">أبو الكلام السوداني</td>
+<td>1,100</td>
+<td>—</td>
+<td style="color:#dc2626;font-weight:700">1,100</td>
+<td><div style="background:#e5e7eb;border-radius:4px;height:8px;width:100%"><div style="background:#3B82F6;width:2.0%;height:8px;border-radius:4px"></div></div></td>
+</tr><tr>
+<td style="color:#94a3b8;font-size:0.85rem"></td>
+<td style="font-weight:600">أحمد السوداني</td>
+<td>300</td>
+<td>—</td>
+<td style="color:#dc2626;font-weight:700">300</td>
+<td><div style="background:#e5e7eb;border-radius:4px;height:8px;width:100%"><div style="background:#3B82F6;width:1.0%;height:8px;border-radius:4px"></div></div></td>
+</tr><tr>
+<td style="color:#94a3b8;font-size:0.85rem"></td>
+<td style="font-weight:600">أم محمد المصرية</td>
+<td>860</td>
+<td>—</td>
+<td style="color:#dc2626;font-weight:700">860</td>
+<td><div style="background:#e5e7eb;border-radius:4px;height:8px;width:100%"><div style="background:#3B82F6;width:2.0%;height:8px;border-radius:4px"></div></div></td>
+</tr><tr>
+<td style="color:#94a3b8;font-size:0.85rem"></td>
+<td style="font-weight:600">مؤسسة تحطيم السعر</td>
+<td>3,140</td>
+<td>—</td>
+<td style="color:#dc2626;font-weight:700">3,140</td>
+<td><div style="background:#e5e7eb;border-radius:4px;height:8px;width:100%"><div style="background:#3B82F6;width:6.0%;height:8px;border-radius:4px"></div></div></td>
+</tr><tr>
+<td style="color:#94a3b8;font-size:0.85rem"></td>
+<td style="font-weight:600">حمود الرشيدي</td>
+<td>1,410</td>
+<td>—</td>
+<td style="color:#dc2626;font-weight:700">1,410</td>
+<td><div style="background:#e5e7eb;border-radius:4px;height:8px;width:100%"><div style="background:#3B82F6;width:3.0%;height:8px;border-radius:4px"></div></div></td>
+</tr><tr>
+<td style="color:#94a3b8;font-size:0.85rem"></td>
+<td style="font-weight:600">الهاشمي</td>
+<td>12,069</td>
+<td>—</td>
+<td style="color:#dc2626;font-weight:700">12,069</td>
+<td><div style="background:#e5e7eb;border-radius:4px;height:8px;width:100%"><div style="background:#3B82F6;width:22.0%;height:8px;border-radius:4px"></div></div></td>
+</tr></tbody>
+    </table>
+  </div>
+</div>
 
-  <div class="problem-grid" style="margin-bottom:24px">
-    <div class="problem-card critical">
-      <h4>🔴 ضغط الكاش — حرج</h4>
-      <div class="score">عالي</div>
-      <p>المدفوع للموردين يتجاوز الإيرادات في 3 أشهر. الفائض النقدي لا يكفي لشراء مخزون المواسم القادمة.</p>
-    </div>
-    <div class="problem-card warning">
-      <h4>🟡 توقيت الإيجار — تحذير</h4>
-      <div class="score">ربعي</div>
-      <p>دفع الإيجار دفعة واحدة (47-77K) يصنع أشهر خسارة ضخمة مصطنعة ويربك قراءة الأداء الحقيقي.</p>
-    </div>
-    <div class="problem-card critical">
-      <h4>🔴 ضعف الموسم المنخفض — حرج</h4>
-      <div class="score">سبتمبر/أكتوبر</div>
-      <p>إيرادات ~181K في شهرين متتاليين. الأدنى في السنة. الهامش لا يغطي الرواتب الثابتة فقط.</p>
-    </div>
-    <div class="problem-card warning">
-      <h4>🟡 دين الخياطين — مزمن</h4>
-      <div class="score">~62K</div>
-      <p>دين متراكم للخياطين لم يتصفّر طوال السنة. يشير لعدم التوازن بين أجرة العمل والمدفوع.</p>
+<!-- Modal -->
+<div id="modal-overlay" onclick="closeModal(event)">
+  <div class="modal" id="modal-box">
+    <button class="modal-close" onclick="closeModalBtn()">×</button>
+    <div class="modal-title" id="modal-title"></div>
+    <div class="modal-total" id="modal-total"></div>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+
+
+<!-- ===== TAB 5: التقرير التحليلي الشامل ===== -->
+<div id="tab-report" class="tab-content">
+
+  <!-- ملخص تنفيذي -->
+  <div style="background:linear-gradient(135deg,#1e3a5f,#2c5282);color:white;border-radius:12px;padding:24px;margin-bottom:20px">
+    <div style="font-size:1.2rem;font-weight:800;margin-bottom:12px">📊 التقرير التحليلي الشامل — محلات العائلة</div>
+    <div style="font-size:0.85rem;opacity:0.85;margin-bottom:16px">الفترة: يناير 2025 – أبريل 2026 (16 شهراً)</div>
+    <div style="background:rgba(255,255,255,0.15);border-radius:8px;padding:14px;font-size:0.9rem;line-height:1.7">
+      <strong>الخلاصة التنفيذية:</strong> المحلات <strong>مربحة بشكل حقيقي</strong> بهامش صافٍ 18.3% بعد احتساب تكلفة البضاعة المباعة. الشعور بضيق السيولة خلال 2025 كان نتيجة سداد ديون موردين قديمة بقيمة 1.44 مليون ريال — وليس بسبب خسائر. مع انتهاء هذه الديون، يُتوقع تحسن ملحوظ في السيولة خلال 2026. التحدي الرئيسي الآن هو تراجع المبيعات في 2026 — Q1 بنسبة 25% وأبريل بنسبة 18% مقارنة بالعام الماضي، مع بوادر تحسن في المخزون.
     </div>
   </div>
 
-  <div class="card">
-    <h3>خريطة المشاكل — كل شهر ووضعه</h3>
-    <div style="overflow-x:auto"><table class="tbl" id="diagTable"></table></div>
+  <!-- بطاقات المؤشرات الرئيسية -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:20px">
+    <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:14px;text-align:center">
+      <div style="font-size:0.75rem;color:#166534;margin-bottom:4px">إجمالي الإيرادات (16 شهر)</div>
+      <div style="font-size:1.4rem;font-weight:800;color:#15803d">5.35M ر</div>
+    </div>
+    <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:14px;text-align:center">
+      <div style="font-size:0.75rem;color:#166534;margin-bottom:4px">صافي الربح 2025 (COGS)</div>
+      <div style="font-size:1.4rem;font-weight:800;color:#15803d">795,190 ر</div>
+      <div style="font-size:0.8rem;color:#16a34a">هامش 18.3%</div>
+    </div>
+    <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:14px;text-align:center">
+      <div style="font-size:0.75rem;color:#1e40af;margin-bottom:4px">مجمل الربح الحقيقي 2025</div>
+      <div style="font-size:1.4rem;font-weight:800;color:#1d4ed8">1.6M ر</div>
+      <div style="font-size:0.8rem;color:#2563eb">هامش 37.1%</div>
+    </div>
+    <div style="background:#fef3c7;border:1px solid #fde68a;border-radius:10px;padding:14px;text-align:center">
+      <div style="font-size:0.75rem;color:#854d0e;margin-bottom:4px">ديون موردين مسددة</div>
+      <div style="font-size:1.4rem;font-weight:800;color:#92400e">1.44M ر</div>
+      <div style="font-size:0.8rem;color:#a16207">سبب ضيق السيولة</div>
+    </div>
+    <div style="background:#fff1f2;border:1px solid #fecdd3;border-radius:10px;padding:14px;text-align:center">
+      <div style="font-size:0.75rem;color:#9f1239;margin-bottom:4px">تراجع مبيعات Q1 2026</div>
+      <div style="font-size:1.4rem;font-weight:800;color:#be123c">▼ 25.4%</div>
+      <div style="font-size:0.8rem;color:#e11d48">يحتاج مراجعة</div>
+    </div>
   </div>
 
-  <div class="card-grid">
-    <div class="card">
-      <h3>نسبة كل بند من الإيراد الشهري</h3>
-      <div style="height:280px"><canvas id="ratioChart"></canvas></div>
-    </div>
-    <div class="card">
-      <h3>فجوة الموردين (مدفوع − مشتريات) — تراكم الدين</h3>
-      <div style="height:280px"><canvas id="gapChart"></canvas></div>
+  <!-- القسم 1: الربحية الحقيقية -->
+  <div class="table-card">
+    <h3>1️⃣ الربحية الحقيقية بعد احتساب تكلفة البضاعة المباعة (COGS)</h3>
+    <p style="font-size:0.88rem;color:#4a5568;margin-bottom:14px">
+      الهامش الشهري التقديري (15%) لا يعكس الربحية الحقيقية لأنه لا يأخذ في الاعتبار تغير المخزون. الحساب الصحيح يعتمد على COGS:
+    </p>
+    <table>
+      <thead><tr><th>البيان</th><th>المبلغ (ريال)</th><th>النسبة من الإيرادات</th><th>الملاحظة</th></tr></thead>
+      <tbody>
+        <tr><td>إجمالي إيرادات 2025</td><td style="font-weight:700">4,337,380</td><td>100%</td><td>متوسط 361 ألف/شهر</td></tr>
+        <tr style="background:#fef9c3"><td>تكلفة البضاعة المباعة (COGS)</td><td style="font-weight:700;color:#92400e">2,729,843</td><td>62.9%</td><td>مخزون بداية + مشتريات − مخزون نهاية</td></tr>
+        <tr style="background:#f0fdf4"><td><strong>مجمل الربح الحقيقي</strong></td><td style="font-weight:800;color:#15803d">1,607,537</td><td style="color:#15803d;font-weight:700">37.1% ✅</td><td>هامش ممتاز لقطاع التجزئة</td></tr>
+        <tr><td>المصاريف التشغيلية</td><td style="color:#dc2626">812,347</td><td>18.7%</td><td>بعد استبعاد الجمعية اليومية</td></tr>
+        <tr style="background:#eff6ff"><td><strong>صافي الربح الحقيقي</strong></td><td style="font-weight:800;color:#1d4ed8">795,190</td><td style="color:#1d4ed8;font-weight:700">18.3% ✅</td><td>ربح حقيقي قوي</td></tr>
+      </tbody>
+    </table>
+    <div style="background:#fef3c7;border-right:4px solid #f59e0b;padding:10px 14px;border-radius:6px;font-size:0.83rem;color:#78350f;margin-top:10px">
+      <strong>لماذا الهامش الحقيقي (37%) أعلى بكثير من التقديري (15%)؟</strong> لأن المحلات باعت من المخزون القديم بشكل كبير — المخزون انخفض من 669,672 إلى 134,031 ريال. هذا الفرق (535,641 ريال) هو بضاعة بيعت تكلفتها كانت محسوبة في سنوات سابقة.
     </div>
   </div>
 
-  <div class="card">
-    <h3>🛠️ التوصيات المبنية على البيانات</h3>
-    <div class="insight-grid">
-      <div class="insight danger">
-        <strong>1. إيجار موزّع شهرياً:</strong>
-        التفاوض مع المؤجر على دفعات شهرية بدل ربعية — أو بناء احتياطي شهري (~20K) في أشهر الربح لتغطية أشهر الإيجار.
+  <!-- القسم 2: لغز السيولة -->
+  <div class="table-card">
+    <h3>2️⃣ لماذا "ما في فلوس" رغم الأرباح؟ — تحليل التدفق النقدي</h3>
+    <p style="font-size:0.88rem;color:#4a5568;margin-bottom:14px">
+      هذا هو السؤال الأهم. الجواب في الأرقام التالية:
+    </p>
+    <table>
+      <thead><tr><th>البيان</th><th>المبلغ (ريال)</th></tr></thead>
+      <tbody>
+        <tr><td>إجمالي المشتريات (16 شهر)</td><td>2,934,716</td></tr>
+        <tr style="background:#fff1f2"><td><strong>إجمالي المدفوع للموردين (16 شهر)</strong></td><td style="font-weight:800;color:#be123c">4,462,815</td></tr>
+        <tr style="background:#fef3c7"><td><strong>الفرق = ديون قديمة تم سدادها</strong></td><td style="font-weight:800;color:#92400e">1,436,540 ريال</td></tr>
+      </tbody>
+    </table>
+    <div style="background:#fff1f2;border-right:4px solid #e53e3e;padding:12px 14px;border-radius:6px;font-size:0.88rem;color:#7f1d1d;margin-top:12px;line-height:1.7">
+      <strong>التفسير:</strong> خلال 16 شهراً، دفعت المحلات للموردين 1.53 مليون ريال <em>أكثر</em> من قيمة المشتريات الجديدة. هذا المبلغ هو سداد لديون قديمة متراكمة. كل ريال ربح كان يذهب لسداد هذه الديون بدلاً من التراكم في الحساب البنكي.<br><br>
+      <strong style="color:#15803d">البشرى:</strong> مع انتهاء سداد هذه الديون، يجب أن يشهد 2026 تحسناً ملحوظاً في السيولة النقدية الحرة.
+    </div>
+  </div>
+
+  <!-- القسم 3: الموسمية -->
+  <div class="table-card">
+    <h3>3️⃣ تحليل الموسمية — متى تبيع المحلات؟</h3>
+    <table>
+      <thead><tr><th>الربع</th><th>متوسط الإيراد الشهري</th><th>التقييم</th><th>الأشهر المميزة</th></tr></thead>
+      <tbody>
+        <tr style="background:#f0fdf4"><td><strong>Q1 (يناير–مارس)</strong></td><td style="font-weight:700;color:#15803d">455,253 ر</td><td>🔥 الأقوى</td><td>فبراير (548K) ومارس (532K)</td></tr>
+        <tr><td>Q2 (أبريل–يونيو)</td><td style="font-weight:700">385,464 ر</td><td>✅ جيد</td><td>مايو (450K)</td></tr>
+        <tr style="background:#fff1f2"><td><strong>Q3 (يوليو–سبتمبر)</strong></td><td style="font-weight:700;color:#be123c">255,557 ر</td><td>⚠️ الأضعف</td><td>سبتمبر (182K) وأكتوبر (181K)</td></tr>
+        <tr><td>Q4 (أكتوبر–ديسمبر)</td><td style="font-weight:700">349,519 ر</td><td>✅ تعافي</td><td>نوفمبر (468K)</td></tr>
+      </tbody>
+    </table>
+    <div style="background:#eff6ff;border-right:4px solid #3b82f6;padding:10px 14px;border-radius:6px;font-size:0.83rem;color:#1e3a5f;margin-top:10px">
+      <strong>توصية:</strong> Q3 هو الأضعف بفارق كبير (44% أقل من Q1). يجب التخطيط المسبق لهذه الفترة بتخفيض المشتريات وعمل عروض ترويجية لتسريع دوران المخزون، مع الحفاظ على السيولة لمواجهة المصاريف الثابتة.
+    </div>
+  </div>
+
+  <!-- القسم 4: المصاريف -->
+  <div class="table-card">
+    <h3>4️⃣ هيكل المصاريف — أين تذهب الأموال؟</h3>
+    <table>
+      <thead><tr><th>الفئة</th><th>المبلغ 2025 (ريال)</th><th>النسبة</th><th>النوع</th></tr></thead>
+      <tbody>
+        <tr><td>الإيجار</td><td>192,000</td><td>23.6%</td><td style="color:#dc2626">ثابت</td></tr>
+        <tr><td>الرواتب</td><td>183,600</td><td>22.6%</td><td style="color:#dc2626">ثابت</td></tr>
+        <tr style="background:#fef9c3"><td>مصاريف عائلة (مسحوبات)</td><td>107,625</td><td>13.2%</td><td style="color:#92400e">توزيع أرباح</td></tr>
+        <tr><td>موردين خدمات</td><td>87,600</td><td>10.8%</td><td style="color:#dc2626">شبه ثابت</td></tr>
+        <tr><td>خياطة</td><td>72,000</td><td>8.9%</td><td style="color:#16a34a">متغير</td></tr>
+        <tr><td>بنك وعمولات</td><td>42,000</td><td>5.2%</td><td style="color:#16a34a">متغير</td></tr>
+        <tr><td>تسويق وإعلان</td><td>36,000</td><td>4.4%</td><td style="color:#16a34a">متغير</td></tr>
+        <tr><td>باقي الفئات</td><td>91,722</td><td>11.3%</td><td style="color:#16a34a">متغير</td></tr>
+        <tr style="background:#eff6ff;font-weight:700"><td>الإجمالي</td><td>812,547</td><td>100%</td><td>—</td></tr>
+      </tbody>
+    </table>
+    <div style="background:#fef3c7;border-right:4px solid #f59e0b;padding:10px 14px;border-radius:6px;font-size:0.83rem;color:#78350f;margin-top:10px">
+      <strong>ملاحظة على مصاريف العائلة:</strong> 107,625 ريال مسحوبات شخصية — هذه في الحقيقة <em>توزيع أرباح</em> وليست تكلفة تشغيلية. إذا أُزيلت من المصاريف، يرتفع صافي الربح التشغيلي إلى 902,815 ريال (هامش 20.8%).
+    </div>
+  </div>
+
+  <!-- القسم 5: إنذار مبكر -->
+  <div class="table-card">
+    <h3>5️⃣ ⚠️ إنذار مبكر — تراجع مبيعات الربع الأول 2026</h3>
+    <table>
+      <thead><tr><th>المقارنة</th><th>Q1 2025</th><th>Q1 2026</th><th>التغيير</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>إجمالي الإيرادات</td>
+          <td>1,365,760 ر</td>
+          <td>1,018,246 ر</td>
+          <td style="color:#dc2626;font-weight:700">▼ 347,514 ر (−25.4%)</td>
+        </tr>
+        <tr>
+          <td>إجمالي المصاريف</td>
+          <td>283,353 ر</td>
+          <td>261,724 ر</td>
+          <td style="color:#16a34a">▼ 21,629 ر (−7.6%)</td>
+        </tr>
+        <tr>
+          <td>متوسط الإيراد الشهري</td>
+          <td>455,253 ر</td>
+          <td>339,415 ر</td>
+          <td style="color:#dc2626;font-weight:700">▼ 25.4%</td>
+        </tr>
+      </tbody>
+    </table>
+    <div style="background:#fff1f2;border-right:4px solid #e53e3e;padding:12px 14px;border-radius:6px;font-size:0.88rem;color:#7f1d1d;margin-top:12px;line-height:1.7">
+      <strong>الأسباب المحتملة:</strong><br>
+      • <strong>نقص البضاعة:</strong> المخزون وصل لمستوى منخفض جداً (134 ألف ريال) مما قد يعني نقص في تنوع المعروض وفقدان عملاء.<br>
+      • <strong>توقيت رمضان:</strong> قد يكون وقع في توقيت مختلف أثّر على نمط الشراء.<br>
+      • <strong>منافسة:</strong> تحتاج مراجعة ميدانية للسوق المحيط.<br><br>
+      <strong>الإجراء المطلوب:</strong> مراجعة عاجلة لمستوى المخزون وتحديد الأصناف الأكثر طلباً لإعادة تخزينها فوراً.
+    </div>
+  </div>
+
+  <!-- القسم 6: التوصيات -->
+  <div class="table-card">
+    <h3>6️⃣ التوصيات العملية</h3>
+    <table>
+      <thead><tr><th>الأولوية</th><th>التوصية</th><th>الأثر المتوقع</th></tr></thead>
+      <tbody>
+        <tr style="background:#fff1f2">
+          <td style="color:#dc2626;font-weight:700">🔴 فورية</td>
+          <td>مراجعة مستوى المخزون وإعادة تخزين الأصناف الأكثر طلباً قبل موسم الصيف</td>
+          <td>استعادة مستوى المبيعات</td>
+        </tr>
+        <tr style="background:#fff1f2">
+          <td style="color:#dc2626;font-weight:700">🔴 فورية</td>
+          <td>تحليل أسباب تراجع Q1 2026 بمقارنة الأصناف المباعة مقابل العام الماضي</td>
+          <td>تحديد المشكلة الجذرية</td>
+        </tr>
+        <tr style="background:#fef9c3">
+          <td style="color:#92400e;font-weight:700">🟡 قصير المدى</td>
+          <td>بناء احتياطي نقدي من التحسن المتوقع في السيولة بعد انتهاء ديون الموردين</td>
+          <td>حماية من الأشهر الضعيفة</td>
+        </tr>
+        <tr style="background:#fef9c3">
+          <td style="color:#92400e;font-weight:700">🟡 قصير المدى</td>
+          <td>التخطيط المسبق لـ Q3 بتخفيض المشتريات وعمل تخفيضات لتسريع دوران المخزون</td>
+          <td>تجنب ضيق السيولة الصيفي</td>
+        </tr>
+        <tr style="background:#f0fdf4">
+          <td style="color:#15803d;font-weight:700">🟢 استراتيجية</td>
+          <td>الاستفادة من هامش الربح الحقيقي (37%) لعمل عروض ترويجية مدروسة في الأشهر الضعيفة</td>
+          <td>زيادة المبيعات بدون خسائر</td>
+        </tr>
+        <tr style="background:#f0fdf4">
+          <td style="color:#15803d;font-weight:700">🟢 استراتيجية</td>
+          <td>فصل حسابات العائلة (المسحوبات) عن حسابات المحل للحصول على قراءة أوضح للأداء</td>
+          <td>شفافية مالية أفضل</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- القسم 7: تحليل شهر أبريل 2026 -->
+  <div class="table-card" style="border-right: 4px solid #7c3aed">
+    <h3>7️⃣ 📅 تحليل شهر أبريل 2026</h3>
+
+    <!-- بطاقات KPI -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:18px">
+      <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:14px;text-align:center">
+        <div style="font-size:0.75rem;color:#166534;margin-bottom:4px">إجمالي الإيرادات</div>
+        <div style="font-size:1.4rem;font-weight:800;color:#15803d">236,283 ر</div>
       </div>
-      <div class="insight danger">
-        <strong>2. احتياطي موسم المنخفض:</strong>
-        سبتمبر وأكتوبر يحتاجان ~35K إضافية لتغطية مصاريفهما. يجب بناء هذا من أرباح نوفمبر وديسمبر.
+      <div style="background:#fff1f2;border:1px solid #fecdd3;border-radius:10px;padding:14px;text-align:center">
+        <div style="font-size:0.75rem;color:#9f1239;margin-bottom:4px">الربح التقديري</div>
+        <div style="font-size:1.4rem;font-weight:800;color:#dc2626">−21,389 ر</div>
+        <div style="font-size:0.7rem;color:#9f1239">−9.1% من الإيراد</div>
       </div>
-      <div class="insight warn">
-        <strong>3. جدولة سداد الموردين:</strong>
-        في أشهر المواسم (نوفمبر، ديسمبر) دُفع للموردين 408K و357K — وهذا استنزف الكاش المتاح لشراء بضاعة جديدة. جدولة السداد تحسن السيولة.
+      <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:14px;text-align:center">
+        <div style="font-size:0.75rem;color:#92400e;margin-bottom:4px">المصاريف</div>
+        <div style="font-size:1.4rem;font-weight:800;color:#b45309">56,831 ر</div>
+        <div style="font-size:0.7rem;color:#92400e">24.1% من الإيراد</div>
       </div>
-      <div class="insight warn">
-        <strong>4. تصفية دين الخياطين تدريجياً:</strong>
-        في أشهر الربح (فبراير، مايو، نوفمبر) يمكن تسريع السداد للخياطين وتقليص الدين المتراكم (~62K).
+      <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:14px;text-align:center">
+        <div style="font-size:0.75rem;color:#1e40af;margin-bottom:4px">المدفوع للموردين</div>
+        <div style="font-size:1.4rem;font-weight:800;color:#1d4ed8">180,385 ر</div>
       </div>
-      <div class="insight info">
-        <strong>5. مراجعة رسوم بنكية مارس 25:</strong>
-        23K ريال رسوم في شهر واحد يحتاج تفسيراً. مقارنةً بـ 1-4K في بقية الأشهر.
+      <div style="background:#faf5ff;border:1px solid #e9d5ff;border-radius:10px;padding:14px;text-align:center">
+        <div style="font-size:0.75rem;color:#6b21a8;margin-bottom:4px">المشتريات</div>
+        <div style="font-size:1.4rem;font-weight:800;color:#7c3aed">181,356 ر</div>
       </div>
-      <div class="insight info">
-        <strong>6. تتبع الرواتب المتأخرة:</strong>
-        بعض الرواتب تُدفع بتأخير 2-3 أشهر. تسجيلها في شهر الاستحقاق (لا الدفع) يعطي صورة أدق لتكاليف كل شهر.
+    </div>
+
+    <!-- 1. الربحية -->
+    <h4 style="color:#1e3a5f;border-bottom:2px solid #e2e8f0;padding-bottom:6px;margin-bottom:10px">💰 الربحية</h4>
+    <div style="background:#fff7ed;border-right:4px solid #f97316;padding:12px 14px;border-radius:6px;font-size:0.88rem;color:#7c2d12;margin-bottom:14px;line-height:1.8">
+      الربح التقديري لأبريل <strong>سالب (−21,389 ر)</strong> بسبب عاملين رئيسيين:<br>
+      • <strong>رواتب موظفين مؤقتين:</strong> دُفعت رواتب إسماعيل وياسين ويعقوب عن عملهم في مارس (9,300 ر) + راتب المحاسب فضل عن شهرين (2,500 ر) — وهذا طبيعي لهذا النوع من العمالة.<br>
+      • <strong>مصاريف الإقامة والمرافقين:</strong> 12,750 ر في شهر واحد (تجديد إقامتين + رسوم مرافقين) — هذه مصاريف دورية لكنها تضغط على الأشهر التي تقع فيها.<br>
+      • <strong>الفائض التشغيلي الفعلي</strong> (إيراد − مصاريف) = <strong>+179,452 ر</strong> — المحل يولّد نقداً جيداً، لكن الهامش المحسوب (15%) لا يغطي المصاريف المرتفعة هذا الشهر.
+    </div>
+
+    <!-- 2. السيولة -->
+    <h4 style="color:#1e3a5f;border-bottom:2px solid #e2e8f0;padding-bottom:6px;margin-bottom:10px">💧 السيولة النقدية</h4>
+    <table style="margin-bottom:14px">
+      <thead><tr><th>البند</th><th>القيمة</th><th>الملاحظة</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>الفائض التشغيلي</td>
+          <td style="color:#15803d;font-weight:700">+179,452 ر</td>
+          <td>إيرادات − مصاريف</td>
+        </tr>
+        <tr>
+          <td>المدفوع للموردين</td>
+          <td style="color:#dc2626">−180,385 ر</td>
+          <td>أكثر من المشتريات بـ 971 ر (مشتريات أكثر من المدفوع)</td>
+        </tr>
+        <tr style="background:#fff1f2">
+          <td><strong>الفائض النقدي الصافي</strong></td>
+          <td style="color:#dc2626;font-weight:700">−933 ر</td>
+          <td>شبه تعادل — السيولة ضيقة جداً</td>
+        </tr>
+        <tr>
+          <td>فجوة الموردين</td>
+          <td style="color:#dc2626">−971 ر</td>
+          <td>دُفع للموردين أكثر من المشتريات (سداد ديون سابقة)</td>
+        </tr>
+      </tbody>
+    </table>
+    <div style="background:#f0f9ff;border-right:4px solid #0ea5e9;padding:10px 14px;border-radius:6px;font-size:0.85rem;color:#0c4a6e;margin-bottom:14px">
+      <strong>📌 ملاحظة السيولة:</strong> الفائض النقدي شبه صفر (−933 ر) رغم إيرادات 236 ألف ريال، والسبب هو دفع 180 ألف للموردين — المشتريات تجاوزت المدفوع بـ 971 ر. هذا النمط يتكرر منذ 2025 وهو المسبب الرئيسي لضيق السيولة.
+    </div>
+
+    <!-- 3. المبيعات والنمو -->
+    <h4 style="color:#1e3a5f;border-bottom:2px solid #e2e8f0;padding-bottom:6px;margin-bottom:10px">📈 المبيعات والمقارنة</h4>
+    <table style="margin-bottom:14px">
+      <thead><tr><th>المقارنة</th><th>القيمة السابقة</th><th>أبريل 26</th><th>التغيير</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>مقابل مارس 2026</td>
+          <td>297,333 ر</td>
+          <td>236,283 ر</td>
+          <td style="color:#dc2626;font-weight:700">▼ 61,050 ر (−20.5%)</td>
+        </tr>
+        <tr>
+          <td>مقابل أبريل 2025</td>
+          <td>288,659 ر</td>
+          <td>236,283 ر</td>
+          <td style="color:#dc2626;font-weight:700">▼ 52,376 ر (−18.1%)</td>
+        </tr>
+        <tr>
+          <td>مصاريف مقابل مارس 26</td>
+          <td>65,880 ر</td>
+          <td>56,831 ر</td>
+          <td style="color:#15803d">▼ 9,049 ر (−13.7%) ✅</td>
+        </tr>
+        <tr>
+          <td>مصاريف مقابل أبريل 2025</td>
+          <td>48,810 ر</td>
+          <td>56,831 ر</td>
+          <td style="color:#dc2626">▲ 8,021 ر (+16.4%)</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- 4. تحليل المصاريف -->
+    <h4 style="color:#1e3a5f;border-bottom:2px solid #e2e8f0;padding-bottom:6px;margin-bottom:10px">📊 تحليل المصاريف (56,831 ر)</h4>
+    <table style="margin-bottom:14px">
+      <thead><tr><th>الفئة</th><th>المبلغ</th><th>النسبة</th><th>الملاحظة</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>رواتب (شاملة موظفين مؤقتين)</td>
+          <td>24,160 ر</td>
+          <td>42.5%</td>
+          <td style="color:#b45309">مرتفعة — تشمل رواتب موظفين مؤقتين + إقامات</td>
+        </tr>
+        <tr>
+          <td>رسوم مرافقين وإقامة</td>
+          <td>12,750 ر</td>
+          <td>22.4%</td>
+          <td>دورية — تقع كل تجديد إقامة</td>
+        </tr>
+        <tr>
+          <td>مصاريف عائلة (سحوبات)</td>
+          <td>9,974 ر</td>
+          <td>17.6%</td>
+          <td>ماء البيت + كهرباء + الجمعية</td>
+        </tr>
+        <tr>
+          <td>ربح تمويل</td>
+          <td>3,800 ر</td>
+          <td>6.7%</td>
+          <td>تكلفة تمويل</td>
+        </tr>
+        <tr>
+          <td>بنك وعمولات</td>
+          <td>1,939 ر</td>
+          <td>3.4%</td>
+          <td>طبيعي</td>
+        </tr>
+        <tr>
+          <td>أخرى (نقل، اتصالات، صيانة، إلخ)</td>
+          <td>4,208 ر</td>
+          <td>7.4%</td>
+          <td>—</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- 5. الخلاصة والتوقعات -->
+    <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:16px;margin-top:4px">
+      <div style="font-size:0.95rem;font-weight:800;color:#15803d;margin-bottom:10px">🎯 خلاصة أبريل وتوقعات مايو</div>
+      <div style="font-size:0.88rem;color:#374151;line-height:1.9">
+        أبريل 2026 شهر <strong>ضعيف في المبيعات</strong> (−18% عن أبريل 2025) لكن <strong>مقبول في المصاريف</strong> (−13.7% عن مارس). الخسارة التقديرية مرتفعة بسبب تجمّع رواتب الموظفين المؤقتين ومصاريف الإقامات في شهر واحد.<br><br>
+        <strong>ما يستحق الانتباه:</strong><br>
+        • المبيعات لا تزال دون مستوى 2025 في نفس الشهر — هذا الاتجاه يحتاج مراقبة.<br>
+        • المشتريات (181,356 ر) جيدة — هذا يعني تجديد المخزون بعد الانخفاض الكبير.<br>
+        • إذا استمر سداد الديون بهذا المعدل (971 ر فوق المدفوع)، ستتحسن السيولة تدريجياً.<br><br>
+        <strong>توقع مايو:</strong> مايو تاريخياً أقوى من أبريل (450 ألف في 2025). إذا تحسنت المبيعات مع تجديد المخزون، يُتوقع عودة الربح التقديري للإيجابية.
       </div>
+    </div>
+  </div>
+
+  <!-- القسم 7: تحليل شهر أبريل 2026 -->
+  <div class="table-card" style="border-right: 4px solid #7c3aed">
+    <h3>7️⃣ 📅 تحليل شهر أبريل 2026</h3>
+
+    <!-- بطاقات KPI -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:18px">
+      <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:14px;text-align:center">
+        <div style="font-size:0.75rem;color:#166534;margin-bottom:4px">إجمالي الإيرادات</div>
+        <div style="font-size:1.4rem;font-weight:800;color:#15803d">236,283 ر</div>
+      </div>
+      <div style="background:#fff1f2;border:1px solid #fecdd3;border-radius:10px;padding:14px;text-align:center">
+        <div style="font-size:0.75rem;color:#9f1239;margin-bottom:4px">الربح التقديري</div>
+        <div style="font-size:1.4rem;font-weight:800;color:#dc2626">−21,389 ر</div>
+        <div style="font-size:0.7rem;color:#9f1239">−9.1% من الإيراد</div>
+      </div>
+      <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:14px;text-align:center">
+        <div style="font-size:0.75rem;color:#92400e;margin-bottom:4px">المصاريف</div>
+        <div style="font-size:1.4rem;font-weight:800;color:#b45309">56,831 ر</div>
+        <div style="font-size:0.7rem;color:#92400e">24.1% من الإيراد</div>
+      </div>
+      <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:14px;text-align:center">
+        <div style="font-size:0.75rem;color:#1e40af;margin-bottom:4px">المدفوع للموردين</div>
+        <div style="font-size:1.4rem;font-weight:800;color:#1d4ed8">180,385 ر</div>
+      </div>
+      <div style="background:#faf5ff;border:1px solid #e9d5ff;border-radius:10px;padding:14px;text-align:center">
+        <div style="font-size:0.75rem;color:#6b21a8;margin-bottom:4px">المشتريات</div>
+        <div style="font-size:1.4rem;font-weight:800;color:#7c3aed">181,356 ر</div>
+      </div>
+    </div>
+
+    <!-- 1. الربحية -->
+    <h4 style="color:#1e3a5f;border-bottom:2px solid #e2e8f0;padding-bottom:6px;margin-bottom:10px">💰 الربحية</h4>
+    <div style="background:#fff7ed;border-right:4px solid #f97316;padding:12px 14px;border-radius:6px;font-size:0.88rem;color:#7c2d12;margin-bottom:14px;line-height:1.8">
+      الربح التقديري لأبريل <strong>سالب (−21,389 ر)</strong> بسبب عاملين رئيسيين:<br>
+      • <strong>رواتب موظفين مؤقتين:</strong> دُفعت رواتب إسماعيل وياسين ويعقوب عن عملهم في مارس (9,300 ر) + راتب المحاسب فضل عن شهرين (2,500 ر) — وهذا طبيعي لهذا النوع من العمالة.<br>
+      • <strong>مصاريف الإقامة والمرافقين:</strong> 12,750 ر في شهر واحد (تجديد إقامتين + رسوم مرافقين) — هذه مصاريف دورية لكنها تضغط على الأشهر التي تقع فيها.<br>
+      • <strong>الفائض التشغيلي الفعلي</strong> (إيراد − مصاريف) = <strong>+179,452 ر</strong> — المحل يولّد نقداً جيداً، لكن الهامش المحسوب (15%) لا يغطي المصاريف المرتفعة هذا الشهر.
+    </div>
+
+    <!-- 2. السيولة -->
+    <h4 style="color:#1e3a5f;border-bottom:2px solid #e2e8f0;padding-bottom:6px;margin-bottom:10px">💧 السيولة النقدية</h4>
+    <table style="margin-bottom:14px">
+      <thead><tr><th>البند</th><th>القيمة</th><th>الملاحظة</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>الفائض التشغيلي</td>
+          <td style="color:#15803d;font-weight:700">+179,452 ر</td>
+          <td>إيرادات − مصاريف</td>
+        </tr>
+        <tr>
+          <td>المدفوع للموردين</td>
+          <td style="color:#dc2626">−180,385 ر</td>
+          <td>أكثر من المشتريات بـ 971 ر (مشتريات أكثر من المدفوع)</td>
+        </tr>
+        <tr style="background:#fff1f2">
+          <td><strong>الفائض النقدي الصافي</strong></td>
+          <td style="color:#dc2626;font-weight:700">−933 ر</td>
+          <td>شبه تعادل — السيولة ضيقة جداً</td>
+        </tr>
+        <tr>
+          <td>فجوة الموردين</td>
+          <td style="color:#dc2626">−971 ر</td>
+          <td>دُفع للموردين أكثر من المشتريات (سداد ديون سابقة)</td>
+        </tr>
+      </tbody>
+    </table>
+    <div style="background:#f0f9ff;border-right:4px solid #0ea5e9;padding:10px 14px;border-radius:6px;font-size:0.85rem;color:#0c4a6e;margin-bottom:14px">
+      <strong>📌 ملاحظة السيولة:</strong> الفائض النقدي شبه صفر (−933 ر) رغم إيرادات 236 ألف ريال، والسبب هو دفع 180 ألف للموردين — المشتريات تجاوزت المدفوع بـ 971 ر. هذا النمط يتكرر منذ 2025 وهو المسبب الرئيسي لضيق السيولة.
+    </div>
+
+    <!-- 3. المبيعات والنمو -->
+    <h4 style="color:#1e3a5f;border-bottom:2px solid #e2e8f0;padding-bottom:6px;margin-bottom:10px">📈 المبيعات والمقارنة</h4>
+    <table style="margin-bottom:14px">
+      <thead><tr><th>المقارنة</th><th>القيمة السابقة</th><th>أبريل 26</th><th>التغيير</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>مقابل مارس 2026</td>
+          <td>297,333 ر</td>
+          <td>236,283 ر</td>
+          <td style="color:#dc2626;font-weight:700">▼ 61,050 ر (−20.5%)</td>
+        </tr>
+        <tr>
+          <td>مقابل أبريل 2025</td>
+          <td>288,659 ر</td>
+          <td>236,283 ر</td>
+          <td style="color:#dc2626;font-weight:700">▼ 52,376 ر (−18.1%)</td>
+        </tr>
+        <tr>
+          <td>مصاريف مقابل مارس 26</td>
+          <td>65,880 ر</td>
+          <td>56,831 ر</td>
+          <td style="color:#15803d">▼ 9,049 ر (−13.7%) ✅</td>
+        </tr>
+        <tr>
+          <td>مصاريف مقابل أبريل 2025</td>
+          <td>48,810 ر</td>
+          <td>56,831 ر</td>
+          <td style="color:#dc2626">▲ 8,021 ر (+16.4%)</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- 4. تحليل المصاريف -->
+    <h4 style="color:#1e3a5f;border-bottom:2px solid #e2e8f0;padding-bottom:6px;margin-bottom:10px">📊 تحليل المصاريف (56,831 ر)</h4>
+    <table style="margin-bottom:14px">
+      <thead><tr><th>الفئة</th><th>المبلغ</th><th>النسبة</th><th>الملاحظة</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>رواتب (شاملة موظفين مؤقتين)</td>
+          <td>24,160 ر</td>
+          <td>42.5%</td>
+          <td style="color:#b45309">مرتفعة — تشمل رواتب موظفين مؤقتين + إقامات</td>
+        </tr>
+        <tr>
+          <td>رسوم مرافقين وإقامة</td>
+          <td>12,750 ر</td>
+          <td>22.4%</td>
+          <td>دورية — تقع كل تجديد إقامة</td>
+        </tr>
+        <tr>
+          <td>مصاريف عائلة (سحوبات)</td>
+          <td>9,974 ر</td>
+          <td>17.6%</td>
+          <td>ماء البيت + كهرباء + الجمعية</td>
+        </tr>
+        <tr>
+          <td>ربح تمويل</td>
+          <td>3,800 ر</td>
+          <td>6.7%</td>
+          <td>تكلفة تمويل</td>
+        </tr>
+        <tr>
+          <td>بنك وعمولات</td>
+          <td>1,939 ر</td>
+          <td>3.4%</td>
+          <td>طبيعي</td>
+        </tr>
+        <tr>
+          <td>أخرى (نقل، اتصالات، صيانة، إلخ)</td>
+          <td>4,208 ر</td>
+          <td>7.4%</td>
+          <td>—</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- 5. الخلاصة والتوقعات -->
+    <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:16px;margin-top:4px">
+      <div style="font-size:0.95rem;font-weight:800;color:#15803d;margin-bottom:10px">🎯 خلاصة أبريل وتوقعات مايو</div>
+      <div style="font-size:0.88rem;color:#374151;line-height:1.9">
+        أبريل 2026 شهر <strong>ضعيف في المبيعات</strong> (−18% عن أبريل 2025) لكن <strong>مقبول في المصاريف</strong> (−13.7% عن مارس). الخسارة التقديرية مرتفعة بسبب تجمّع رواتب الموظفين المؤقتين ومصاريف الإقامات في شهر واحد.<br><br>
+        <strong>ما يستحق الانتباه:</strong><br>
+        • المبيعات لا تزال دون مستوى 2025 في نفس الشهر — هذا الاتجاه يحتاج مراقبة.<br>
+        • المشتريات (181,356 ر) جيدة — هذا يعني تجديد المخزون بعد الانخفاض الكبير.<br>
+        • إذا استمر سداد الديون بهذا المعدل (971 ر فوق المدفوع)، ستتحسن السيولة تدريجياً.<br><br>
+        <strong>توقع مايو:</strong> مايو تاريخياً أقوى من أبريل (450 ألف في 2025). إذا تحسنت المبيعات مع تجديد المخزون، يُتوقع عودة الربح التقديري للإيجابية.
+      </div>
+    </div>
+  </div>
+
+  <!-- خلاصة ختامية -->
+  <div style="background:linear-gradient(135deg,#f0fdf4,#eff6ff);border:1px solid #bbf7d0;border-radius:12px;padding:20px;margin-top:4px">
+    <div style="font-size:1rem;font-weight:800;color:#1e3a5f;margin-bottom:10px">🎯 الخلاصة النهائية</div>
+    <div style="font-size:0.9rem;color:#374151;line-height:1.8">
+      المحلات في وضع مالي <strong>جيد بشكل عام</strong> — هامش ربح حقيقي 18.3% بعد كل شيء هو نتيجة ممتازة لقطاع التجزئة. عام 2025 شهد سداداً ضخماً للديون القديمة (1.44 مليون ريال) مما أثّر على السيولة النقدية الظاهرة. التحدي الرئيسي الآن هو <strong>استعادة مستوى مبيعات 2025</strong> وبناء مخزون كافٍ لدعم النمو في 2026. معدل دوران المخزون الممتاز (6.8x) يدل على كفاءة تشغيلية عالية يجب الحفاظ عليها.
     </div>
   </div>
 
 </div>
-</div>
 
-<footer>تقرير الربحية وضغط الكاش فلو · يناير 2025 — فبراير 2026 · 14 شهراً من البيانات</footer>
 
-<script>
-const months = ['يناير 25','فبراير 25','مارس 25','أبريل 25','مايو 25','يونيو 25','يوليو 25','أغسطس 25','سبتمبر 25','أكتوبر 25','نوفمبر 25','ديسمبر 25','يناير 26','فبراير 26'];
-const revenue     = [285038,548674,532048,288658,450582,417150,316654,267659,182358,181199,468087,399272,253649,467264];
-const faida       = revenue.map(v=>Math.round(v*0.15));
-const salaries    = [20108,28722,39782,18297,23509,21125,15787,20851,18528,19076,26278,24495,19766,36019];
-const rent_actual = [47420,0,11160,840,2000,0,38888,0,3000,9500,0,3400,77135,10500];
-const rent_spread = [15807,15807,26967,840,2000,0,20446,20446,23446,9500,0,3400,25712,36212];
-const utilities   = [757,1203,2358,3313,4189,1058,3889,3519,5700,4258,5039,7093,1028,2530];
-const banking     = [2595,4383,23368,2918,4681,8326,2351,7900,9761,1206,1478,1176,1467,4542];
-const transport   = [1855,1705,1885,1355,1125,1945,1180,1620,380,610,1445,1610,955,995];
-const licensing   = [3550,3407,2737,3212,3438,1861,660,785,3023,3542,3815,248,248,3298];
-const family      = [0,0,0,0,0,0,7389,3392,1684,0,4310,2841,0,0];
-const other       = [10078,14681,28589,9375,10396,32079,12046,6442,7193,1768,1781,3962,1939,6262];
-const suppliers_paid=[190459,478948,419377,232995,391082,341935,209885,216985,134496,139915,408390,356595,142172,385266];
-const purchases   = [173491,119085,413550,0,303697,206858,188271,243113,151015,96265,112969,185888,209915,266151];
-
-// Compute opex
-const opex_actual = months.map((_,i)=>salaries[i]+rent_actual[i]+utilities[i]+banking[i]+transport[i]+licensing[i]+other[i]);
-const opex_spread = months.map((_,i)=>salaries[i]+rent_spread[i]+utilities[i]+banking[i]+transport[i]+licensing[i]+other[i]);
-const profit_actual = months.map((_,i)=>faida[i]-opex_actual[i]);
-const profit_spread = months.map((_,i)=>faida[i]-opex_spread[i]);
-const profit_pct = months.map((_,i)=>+(profit_actual[i]/revenue[i]*100).toFixed(1));
-const profit_spread_pct = months.map((_,i)=>+(profit_spread[i]/revenue[i]*100).toFixed(1));
-const cash_surplus = months.map((_,i)=>revenue[i]-suppliers_paid[i]-opex_actual[i]-family[i]);
-const supplier_gap = months.map((_,i)=>suppliers_paid[i]-purchases[i]);
-
-// === حساب KPI الربح والخسارة بشكل ديناميكي ===
-(function(){
-  let totalProfit = 0, totalLoss = 0, profitMonths = 0;
-  profit_actual.forEach(p => {
-    if(p >= 0){ totalProfit += p; profitMonths++; }
-    else { totalLoss += p; }
-  });
-  const net = totalProfit + totalLoss;
-  const avgMargin = profit_actual.reduce((s,p,i)=>s+(p/revenue[i]*100),0)/months.length;
-  const fmt = v => {
-    const abs = Math.abs(v), sign = v >= 0 ? '+' : '−';
-    if(abs >= 1000000) return sign+(abs/1000000).toFixed(2)+'M';
-    if(abs >= 1000) return sign+Math.round(abs/1000)+'K';
-    return sign+abs.toLocaleString();
-  };
-  document.getElementById('kpiTotalProfit').textContent  = '+'+Math.round(totalProfit/1000)+'K';
-  document.getElementById('kpiTotalLoss').textContent    = '−'+Math.round(Math.abs(totalLoss)/1000)+'K';
-  document.getElementById('kpiNet').textContent          = fmt(net);
-  document.getElementById('kpiProfitMonths').textContent = profitMonths+' / '+months.length;
-  document.getElementById('kpiAvgMargin').textContent    = (avgMargin>=0?'+':'')+avgMargin.toFixed(1)+'%';
-})();
-
-const C = { blue:'rgba(15,52,96,.85)', bluelt:'rgba(15,52,96,.12)', green:'rgba(16,185,129,.85)', greenlt:'rgba(16,185,129,.12)', orange:'rgba(245,158,11,.85)', orangelt:'rgba(245,158,11,.12)', red:'rgba(239,68,68,.85)', redlt:'rgba(239,68,68,.1)', purple:'rgba(139,92,246,.85)' };
-const font = { family:'Segoe UI,Tahoma,Arial,sans-serif', size:10 };
-
-function profitColors(arr){ return arr.map(v=>v>=0?C.green:C.red); }
-
-// ===== P&L TABLE =====
-const plTbl = document.getElementById('plTable');
-const plHead = `<thead><tr>
-  <th>الشهر</th><th>الإيرادات</th><th>الهامش 15%</th>
-  <th>رواتب</th><th>إيجار</th><th>مرافق</th><th>بنكية</th><th>أخرى</th>
-  <th>مصاريف عائلة</th><th>إجمالي تشغيلي</th>
-  <th>ربح/خسارة (إيجار فعلي)</th><th>%</th>
-  <th>ربح/خسارة (موزّع)</th><th>%</th>
-</tr></thead>`;
-let plBody = '<tbody>';
-months.forEach((m,i)=>{
-  const isHighRev = revenue[i]>=400000, isLowRev=revenue[i]<=200000;
-  const rowClass = isHighRev?'highlight-green':isLowRev?'highlight-red':'';
-  const pCls = profit_actual[i]>=0?'profit':'loss';
-  const psCls = profit_spread[i]>=0?'profit':'loss';
-  const rentClass = rent_actual[i]>40000?'warn':'';
-  plBody+=`<tr class="${rowClass}">
-    <td class="lbl">${m}</td>
-    <td>${revenue[i].toLocaleString()}</td>
-    <td>${faida[i].toLocaleString()}</td>
-    <td>${salaries[i].toLocaleString()}</td>
-    <td class="${rentClass}">${rent_actual[i].toLocaleString()}</td>
-    <td>${utilities[i].toLocaleString()}</td>
-    <td>${banking[i]>10000?'<span class="loss">'+banking[i].toLocaleString()+'</span>':banking[i].toLocaleString()}</td>
-    <td>${(transport[i]+licensing[i]+other[i]).toLocaleString()}</td>
-    <td class="${family[i]>0?'neutral':''}">${family[i]>0?family[i].toLocaleString():'—'}</td>
-    <td><strong>${opex_actual[i].toLocaleString()}</strong></td>
-    <td class="${pCls}">${profit_actual[i]>=0?'+':''}${profit_actual[i].toLocaleString()}</td>
-    <td class="${pCls}">${profit_pct[i]}%</td>
-    <td class="${psCls}">${profit_spread[i]>=0?'+':''}${profit_spread[i].toLocaleString()}</td>
-    <td class="${psCls}">${profit_spread_pct[i]}%</td>
-  </tr>`;
-});
-plBody+='</tbody>';
-plTbl.innerHTML = plHead+plBody;
-
-// P&L Charts
-new Chart(document.getElementById('profitActualChart'),{type:'bar',data:{labels:months,datasets:[{label:'ربح/خسارة',data:profit_actual,backgroundColor:profitColors(profit_actual),borderRadius:5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.raw.toLocaleString()} ريال`}}},scales:{y:{ticks:{callback:v=>(v/1000)+'K',font},grid:{color:'#f1f5f9'}},x:{ticks:{font:{...font,size:9}}}}}});
-new Chart(document.getElementById('profitSpreadChart'),{type:'bar',data:{labels:months,datasets:[{label:'ربح/خسارة (موزّع)',data:profit_spread,backgroundColor:profitColors(profit_spread),borderRadius:5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.raw.toLocaleString()} ريال`}}},scales:{y:{ticks:{callback:v=>(v/1000)+'K',font},grid:{color:'#f1f5f9'}},x:{ticks:{font:{...font,size:9}}}}}});
-
-// ===== CASH TABLE =====
-const cashTbl = document.getElementById('cashTable');
-const cashHead=`<thead><tr><th>الشهر</th><th>الإيرادات</th><th>المدفوع للموردين</th><th>المصاريف التشغيلية</th><th>مصاريف العائلة</th><th>الفائض النقدي</th><th>% من الإيراد</th><th>المشتريات</th><th>فجوة الموردين</th></tr></thead>`;
-let cashBody='<tbody>';
-months.forEach((m,i)=>{
-  const surp=cash_surplus[i], gap=supplier_gap[i];
-  const surpCls=surp>5000?'profit':surp<0?'loss':'neutral';
-  const gapCls=gap>50000?'loss':gap<-50000?'profit':'neutral';
-  cashBody+=`<tr>
-    <td class="lbl">${m}</td>
-    <td>${revenue[i].toLocaleString()}</td>
-    <td>${suppliers_paid[i].toLocaleString()}</td>
-    <td>${opex_actual[i].toLocaleString()}</td>
-    <td>${family[i]>0?family[i].toLocaleString():'—'}</td>
-    <td class="${surpCls}">${surp>=0?'+':''}${surp.toLocaleString()}</td>
-    <td class="${surpCls}">${(surp/revenue[i]*100).toFixed(1)}%</td>
-    <td>${purchases[i]>0?purchases[i].toLocaleString():'—'}</td>
-    <td class="${gapCls}">${gap>=0?'+':''}${gap.toLocaleString()}</td>
-  </tr>`;
-});
-cashBody+='</tbody>';
-cashTbl.innerHTML=cashHead+cashBody;
-
-// Cash Flow stacked chart
-new Chart(document.getElementById('cashFlowChart'),{type:'bar',data:{labels:months,datasets:[
-  {label:'موردون',data:suppliers_paid,backgroundColor:'rgba(239,68,68,.75)',borderRadius:0},
-  {label:'مصاريف تشغيل',data:opex_actual,backgroundColor:'rgba(245,158,11,.75)',borderRadius:0},
-  {label:'عائلة',data:family,backgroundColor:'rgba(139,92,246,.7)',borderRadius:0},
-  {label:'فائض',data:cash_surplus.map(v=>Math.max(v,0)),backgroundColor:'rgba(16,185,129,.7)',borderRadius:3},
-]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{font}}},scales:{x:{stacked:true,ticks:{font:{...font,size:9}}},y:{stacked:true,ticks:{callback:v=>(v/1000)+'K',font},grid:{color:'#f1f5f9'}}}}});
-
-new Chart(document.getElementById('surplusChart'),{type:'bar',data:{labels:months,datasets:[{label:'فائض نقدي',data:cash_surplus,backgroundColor:profitColors(cash_surplus),borderRadius:5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>(v/1000)+'K',font},grid:{color:'#f1f5f9'}},x:{ticks:{font:{...font,size:9}}}}}});
-
-new Chart(document.getElementById('supVsPurchChart'),{type:'bar',data:{labels:months,datasets:[
-  {label:'مدفوع للموردين',data:suppliers_paid,backgroundColor:C.red,borderRadius:4},
-  {label:'مشتريات فعلية',data:purchases,backgroundColor:C.orange,borderRadius:4}
-]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{font}}},scales:{y:{ticks:{callback:v=>(v/1000)+'K',font},grid:{color:'#f1f5f9'}},x:{ticks:{font:{...font,size:9}}}}}});
-
-// ===== EXPENSE PIE =====
-const expTotals={رواتب:salaries.reduce((a,b)=>a+b),إيجار:rent_actual.reduce((a,b)=>a+b),مرافق:utilities.reduce((a,b)=>a+b),'رسوم بنكية':banking.reduce((a,b)=>a+b),نقل:transport.reduce((a,b)=>a+b),تراخيص:licensing.reduce((a,b)=>a+b),أخرى:other.reduce((a,b)=>a+b)};
-new Chart(document.getElementById('expPieChart'),{type:'doughnut',data:{labels:Object.keys(expTotals),datasets:[{data:Object.values(expTotals),backgroundColor:[C.blue,C.red,C.orange,C.purple,'rgba(34,197,94,.8)','rgba(20,184,166,.8)','rgba(107,114,128,.7)'],borderWidth:2,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{font,padding:12}},tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.raw.toLocaleString()} ريال`}}}}});
-
-new Chart(document.getElementById('expTrendChart'),{type:'line',data:{labels:months,datasets:[
-  {label:'رواتب',data:salaries,borderColor:C.blue,fill:false,tension:.3,pointRadius:3},
-  {label:'إيجار',data:rent_actual,borderColor:C.red,fill:false,tension:.3,pointRadius:4},
-  {label:'رسوم بنكية',data:banking,borderColor:C.purple,fill:false,tension:.3,pointRadius:3},
-]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{font}}},scales:{y:{ticks:{callback:v=>(v/1000)+'K',font},grid:{color:'#f1f5f9'}},x:{ticks:{font:{...font,size:9}}}}}});
-
-new Chart(document.getElementById('expStackChart'),{type:'bar',data:{labels:months,datasets:[
-  {label:'رواتب',data:salaries,backgroundColor:C.blue,borderRadius:0},
-  {label:'إيجار',data:rent_actual,backgroundColor:C.red,borderRadius:0},
-  {label:'مرافق',data:utilities,backgroundColor:C.orange,borderRadius:0},
-  {label:'رسوم بنكية',data:banking,backgroundColor:C.purple,borderRadius:0},
-  {label:'أخرى',data:other.map((v,i)=>v+transport[i]+licensing[i]),backgroundColor:'rgba(107,114,128,.6)',borderRadius:3},
-]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{font,padding:10}}},scales:{x:{stacked:true,ticks:{font:{...font,size:9}}},y:{stacked:true,ticks:{callback:v=>(v/1000)+'K',font},grid:{color:'#f1f5f9'}}}}});
-
-// Top expense table
-const expTopTbl=document.getElementById('expTopTable');
-const topCats=['رواتب','إيجار','مرافق','رسوم بنكية','أخرى'];
-const expHead2=`<thead><tr><th>الشهر</th>${topCats.map(c=>`<th>${c}</th>`).join('')}<th>أكبر بند</th></tr></thead>`;
-const expRows=[salaries,rent_actual,utilities,banking,other.map((v,i)=>v+transport[i]+licensing[i])];
-let expBody='<tbody>';
-months.forEach((m,i)=>{
-  const vals=expRows.map(r=>r[i]);
-  const maxIdx=vals.indexOf(Math.max(...vals));
-  expBody+=`<tr><td class="lbl">${m}</td>`;
-  vals.forEach((v,j)=>{ expBody+=`<td ${j===maxIdx?'class="warn"':''}>${v.toLocaleString()}</td>`; });
-  expBody+=`<td class="warn"><strong>${topCats[maxIdx]}</strong></td></tr>`;
-});
-expBody+='</tbody>';
-expTopTbl.innerHTML=expHead2+expBody;
-
-// ===== DIAGNOSIS =====
-const diagTbl=document.getElementById('diagTable');
-const diagHead=`<thead><tr><th>الشهر</th><th>الإيرادات</th><th>ربح/خسارة</th><th>%</th><th>ضغط الكاش</th><th>الإيجار</th><th>الرواتب/الهامش</th><th>التقييم</th></tr></thead>`;
-let diagBody='<tbody>';
-months.forEach((m,i)=>{
-  const p=profit_actual[i], surp=cash_surplus[i];
-  const rentLoad=(rent_actual[i]/revenue[i]*100).toFixed(0);
-  const salLoad=(salaries[i]/faida[i]*100).toFixed(0);
-  let status='', statusClass='';
-  if(revenue[i]<200000&&p<0){status='⚠️ ضعيف هيكلي';statusClass='loss';}
-  else if(rent_actual[i]>40000){status='🏠 شهر إيجار';statusClass='warn';}
-  else if(p>15000){status='✅ جيد';statusClass='profit';}
-  else if(p>0){status='➕ هامشي';statusClass='neutral';}
-  else{status='🔴 خسارة';statusClass='loss';}
-  diagBody+=`<tr>
-    <td class="lbl">${m}</td>
-    <td>${revenue[i].toLocaleString()}</td>
-    <td class="${p>=0?'profit':'loss'}">${p>=0?'+':''}${p.toLocaleString()}</td>
-    <td class="${p>=0?'profit':'loss'}">${profit_pct[i]}%</td>
-    <td class="${surp>5000?'profit':surp<1000?'loss':'neutral'}">${surp.toLocaleString()}</td>
-    <td class="${rent_actual[i]>40000?'warn':''}">${rentLoad}%</td>
-    <td class="${+salLoad>100?'loss':+salLoad>70?'warn':''}">${salLoad}%</td>
-    <td class="${statusClass}"><strong>${status}</strong></td>
-  </tr>`;
-});
-diagBody+='</tbody>';
-diagTbl.innerHTML=diagHead+diagBody;
-
-// Ratio chart
-new Chart(document.getElementById('ratioChart'),{type:'line',data:{labels:months,datasets:[
-  {label:'موردون/إيراد',data:suppliers_paid.map((v,i)=>+(v/revenue[i]*100).toFixed(1)),borderColor:C.red,fill:false,tension:.3,pointRadius:3},
-  {label:'مصاريف/إيراد',data:opex_actual.map((v,i)=>+(v/revenue[i]*100).toFixed(1)),borderColor:C.orange,fill:false,tension:.3,pointRadius:3},
-  {label:'هامش 15%',data:months.map(()=>15),borderColor:C.green,borderDash:[5,5],fill:false,pointRadius:0},
-]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{font}}},scales:{y:{ticks:{callback:v=>v+'%',font},grid:{color:'#f1f5f9'},min:0},x:{ticks:{font:{...font,size:9}}}}}});
-
-// Gap chart
-new Chart(document.getElementById('gapChart'),{type:'bar',data:{labels:months,datasets:[{label:'فجوة (مدفوع−مشتريات)',data:supplier_gap,backgroundColor:supplier_gap.map(v=>v>0?C.red:C.green),borderRadius:5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.raw>0?'سداد ديون قديمة: ':'استدانة جديدة: '}${Math.abs(ctx.raw).toLocaleString()} ريال`}}},scales:{y:{ticks:{callback:v=>(v/1000)+'K',font},grid:{color:'#f1f5f9'}},x:{ticks:{font:{...font,size:9}}}}}});
-
-// Tab switching
-function showTab(id){
-  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
-  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
-  document.getElementById('tab-'+id).classList.add('active');
-  event.target.classList.add('active');
-}
-</script>
+  </div>
 </body>
 </html>
