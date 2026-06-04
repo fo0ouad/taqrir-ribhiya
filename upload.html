@@ -3,545 +3,731 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>رفع بيانات شهر جديد — داشبورد محلات العائلة</title>
+<title>رفع تقرير شهر جديد — داشبورد محلات العائلة</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <link rel="stylesheet" href="css/style.css">
+<style>
+  .upload-container {
+    max-width: 900px;
+    margin: 30px auto;
+    padding: 0 20px 60px;
+  }
+  .steps-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    margin-bottom: 36px;
+  }
+  .step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  .step-circle {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: #e2e8f0;
+    color: #94a3b8;
+    font-weight: 700;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+  }
+  .step-label {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .step.active .step-circle { background: #3b82f6; color: white; box-shadow: 0 0 0 4px rgba(59,130,246,0.2); }
+  .step.active .step-label  { color: #3b82f6; }
+  .step.done .step-circle   { background: #10b981; color: white; }
+  .step.done .step-label    { color: #10b981; }
+  .step-line {
+    width: 60px; height: 3px;
+    background: #e2e8f0;
+    margin-bottom: 22px;
+    transition: background 0.3s;
+  }
+  .step-line.done { background: #10b981; }
+
+  .upload-card {
+    background: white;
+    border-radius: 16px;
+    padding: 32px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+    margin-bottom: 20px;
+  }
+  .upload-card h2 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0 0 24px;
+    padding-bottom: 14px;
+    border-bottom: 2px solid #f1f5f9;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .drop-zone {
+    border: 2.5px dashed #cbd5e1;
+    border-radius: 14px;
+    padding: 52px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.25s;
+    background: #f8fafc;
+  }
+  .drop-zone:hover, .drop-zone.dragover { border-color: #3b82f6; background: #eff6ff; }
+  .drop-zone .drop-icon { font-size: 3rem; margin-bottom: 12px; }
+  .drop-zone p { color: #64748b; margin: 6px 0; font-size: 0.95rem; }
+  .drop-zone strong { color: #1e293b; }
+  .drop-zone input[type=file] { display: none; }
+  .file-types {
+    display: inline-block;
+    background: #e0f2fe;
+    color: #0369a1;
+    padding: 3px 12px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    margin-top: 10px;
+  }
+
+  .gh-settings { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .field-group { display: flex; flex-direction: column; gap: 6px; }
+  .field-group label { font-size: 0.82rem; font-weight: 600; color: #475569; }
+  .field-group input {
+    padding: 10px 14px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-family: monospace;
+    direction: ltr;
+    transition: border-color 0.2s;
+  }
+  .field-group input:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
+  .field-hint { font-size: 0.75rem; color: #94a3b8; }
+
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+  .summary-item {
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 16px;
+    border: 1.5px solid #e2e8f0;
+  }
+  .summary-item .s-label { font-size: 0.75rem; color: #64748b; font-weight: 600; margin-bottom: 6px; }
+  .summary-item .s-value { font-size: 1.15rem; font-weight: 700; color: #1e293b; }
+  .summary-item .s-value.green { color: #059669; }
+  .summary-item .s-value.red   { color: #dc2626; }
+
+  .exp-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+  }
+  .exp-table th {
+    background: #f1f5f9;
+    padding: 8px 14px;
+    text-align: right;
+    font-weight: 600;
+    color: #475569;
+    border-bottom: 2px solid #e2e8f0;
+    position: sticky;
+    top: 0;
+  }
+  .exp-table td { padding: 7px 14px; border-bottom: 1px solid #f1f5f9; color: #334155; }
+  .exp-table tr:last-child td { border-bottom: none; }
+  .exp-table .num { text-align: left; font-weight: 600; direction: ltr; font-variant-numeric: tabular-nums; }
+  .exp-table .total-row td { background: #f0fdf4; font-weight: 700; color: #065f46; border-top: 2px solid #bbf7d0; }
+
+  .section-title {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #475569;
+    margin: 22px 0 10px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #f1f5f9;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .alert {
+    padding: 14px 18px;
+    border-radius: 10px;
+    font-size: 0.88rem;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .alert-warning { background: #fffbeb; border: 1.5px solid #fcd34d; color: #92400e; }
+  .alert-success { background: #f0fdf4; border: 1.5px solid #86efac; color: #166534; }
+  .alert-error   { background: #fef2f2; border: 1.5px solid #fca5a5; color: #991b1b; }
+  .alert-info    { background: #eff6ff; border: 1.5px solid #93c5fd; color: #1e40af; }
+
+  .btn {
+    padding: 11px 26px;
+    border-radius: 10px;
+    font-size: 0.92rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: inherit;
+  }
+  .btn-primary { background: #3b82f6; color: white; }
+  .btn-primary:hover:not(:disabled) { background: #2563eb; transform: translateY(-1px); }
+  .btn-primary:disabled { background: #93c5fd; cursor: not-allowed; }
+  .btn-success { background: #059669; color: white; }
+  .btn-success:hover:not(:disabled) { background: #047857; transform: translateY(-1px); }
+  .btn-success:disabled { background: #6ee7b7; cursor: not-allowed; }
+  .btn-outline { background: white; color: #475569; border: 1.5px solid #e2e8f0; }
+  .btn-outline:hover { background: #f8fafc; }
+  .btn-row { display: flex; gap: 12px; align-items: center; margin-top: 24px; flex-wrap: wrap; }
+
+  .progress-wrap { background: #f1f5f9; border-radius: 8px; height: 8px; overflow: hidden; margin: 14px 0; }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #3b82f6, #10b981);
+    border-radius: 8px;
+    transition: width 0.4s ease;
+    width: 0%;
+  }
+  .status-msg { font-size: 0.85rem; color: #64748b; margin-top: 4px; }
+
+  .table-scroll { max-height: 320px; overflow-y: auto; border-radius: 10px; border: 1px solid #e2e8f0; }
+
+  .month-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    color: white;
+    padding: 3px 14px;
+    border-radius: 20px;
+    font-size: 0.82rem;
+    font-weight: 700;
+  }
+
+  #step2-section, #step3-section { display: none; }
+
+  @media (max-width: 600px) {
+    .gh-settings { grid-template-columns: 1fr; }
+    .summary-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>
 </head>
 <body>
 
-<!-- Header -->
 <div class="header">
   <div>
-    <h1>📤 رفع بيانات شهر جديد</h1>
-    <div class="header-sub">تحديث الداشبورد بدون الحاجة لمساعدة خارجية</div>
+    <h1>📤 رفع تقرير شهر جديد</h1>
+    <div class="header-sub">قراءة ملف Excel تلقائياً — مراجعة — نشر</div>
   </div>
   <div style="display:flex;gap:12px;align-items:center">
-    <a href="index.html" style="background:rgba(255,255,255,0.15);color:white;padding:6px 14px;border-radius:20px;font-size:0.8rem;text-decoration:none">← العودة للداشبورد</a>
-    <button class="logout-btn" onclick="logout()">خروج</button>
+    <a href="index.html" style="background:rgba(255,255,255,0.15);color:white;padding:6px 16px;border-radius:20px;font-size:0.82rem;text-decoration:none;font-weight:600">← الداشبورد</a>
+    <button onclick="logout()" style="background:rgba(255,255,255,0.15);color:white;padding:6px 16px;border-radius:20px;font-size:0.82rem;border:none;cursor:pointer;font-family:inherit">خروج</button>
   </div>
 </div>
 
-<div class="upload-page">
+<div class="upload-container">
 
-  <!-- معلومات الشهر -->
-  <div class="upload-section">
-    <h3>📅 معلومات الشهر الجديد</h3>
-    <div class="upload-grid">
-      <div class="upload-field">
-        <label>الشهر</label>
-        <select id="month-select">
-          <option value="">اختر الشهر</option>
-          <option>يناير</option><option>فبراير</option><option>مارس</option>
-          <option>أبريل</option><option>مايو</option><option>يونيو</option>
-          <option>يوليو</option><option>أغسطس</option><option>سبتمبر</option>
-          <option>أكتوبر</option><option>نوفمبر</option><option>ديسمبر</option>
-        </select>
+  <!-- Steps Bar -->
+  <div class="steps-bar">
+    <div class="step active" id="step-1">
+      <div class="step-circle">1</div>
+      <div class="step-label">رفع الملف</div>
+    </div>
+    <div class="step-line" id="line-12"></div>
+    <div class="step" id="step-2">
+      <div class="step-circle">2</div>
+      <div class="step-label">مراجعة البيانات</div>
+    </div>
+    <div class="step-line" id="line-23"></div>
+    <div class="step" id="step-3">
+      <div class="step-circle">3</div>
+      <div class="step-label">تأكيد ونشر</div>
+    </div>
+  </div>
+
+  <!-- ===== STEP 1 ===== -->
+  <div id="step1-section">
+
+    <div class="upload-card">
+      <h2>📂 اختر ملف تقرير الشهر</h2>
+      <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
+        <div class="drop-icon">📊</div>
+        <p><strong>اسحب الملف هنا أو انقر للاختيار</strong></p>
+        <p>نفس ملف تقرير الشهر المعتاد</p>
+        <span class="file-types">.xlsx &nbsp;·&nbsp; .xls &nbsp;·&nbsp; .csv</span>
+        <input type="file" id="file-input" accept=".xlsx,.xls,.csv" onchange="handleFile(this.files[0])">
       </div>
-      <div class="upload-field">
-        <label>السنة</label>
-        <select id="year-select">
-          <option value="26">2026</option>
-          <option value="27">2027</option>
-          <option value="28">2028</option>
-        </select>
+      <div id="file-info" style="display:none;margin-top:14px" class="alert alert-success">
+        <span>✅</span>
+        <div>
+          <strong id="file-name"></strong>
+          <div id="file-size" style="font-size:0.8rem;opacity:0.8;margin-top:2px"></div>
+        </div>
       </div>
-      <div class="upload-field">
-        <label>الإيرادات الإجمالية (ريال)</label>
-        <input type="text" id="revenue-input" placeholder="مثال: 350000" dir="ltr">
+    </div>
+
+    <div class="upload-card">
+      <h2>🔑 إعدادات GitHub <span style="font-size:0.72rem;color:#94a3b8;font-weight:400">(تُحفظ تلقائياً في المتصفح)</span></h2>
+      <div class="gh-settings">
+        <div class="field-group" style="grid-column:1/-1">
+          <label>Personal Access Token</label>
+          <input type="password" id="gh-token" placeholder="github_pat_11AATG7XQ..." autocomplete="off">
+          <span class="field-hint">من github.com/settings/tokens — صلاحية repo فقط</span>
+        </div>
+        <div class="field-group">
+          <label>اسم الريبو</label>
+          <input type="text" id="gh-repo" value="fo0ouad/taqrir-ribhiya">
+        </div>
+        <div class="field-group">
+          <label>الـ Branch</label>
+          <input type="text" id="gh-branch" value="gh-pages">
+        </div>
       </div>
-      <div class="upload-field">
-        <label>المدفوع للموردين (ريال)</label>
-        <input type="text" id="suppliers-paid-input" placeholder="مثال: 280000" dir="ltr">
+      <div class="btn-row">
+        <button class="btn btn-primary" id="read-btn" onclick="readAndParse()" disabled>
+          🔍 قراءة الملف ومعاينة البيانات
+        </button>
       </div>
-      <div class="upload-field">
-        <label>المشتريات (ريال)</label>
-        <input type="text" id="purchases-input" placeholder="مثال: 200000" dir="ltr">
+    </div>
+
+  </div>
+
+  <!-- ===== STEP 2 ===== -->
+  <div id="step2-section">
+    <div class="upload-card">
+      <h2>
+        📋 مراجعة البيانات المستخرجة
+        <span class="month-badge" id="preview-badge">—</span>
+      </h2>
+
+      <div id="validation-alert"></div>
+
+      <div class="section-title">📊 الأرقام الرئيسية</div>
+      <div class="summary-grid" id="kpi-grid"></div>
+
+      <div class="section-title">🏪 تفصيل دخل الفروع</div>
+      <div class="summary-grid" id="branches-grid"></div>
+
+      <div class="section-title" id="exp-section-title">💸 تفصيل المصروفات</div>
+      <div class="table-scroll">
+        <table class="exp-table">
+          <thead><tr><th>البند</th><th class="num">المبلغ (ريال)</th></tr></thead>
+          <tbody id="exp-tbody"></tbody>
+        </table>
       </div>
-      <div class="upload-field">
-        <label>رصيد الخياطين (ريال)</label>
-        <input type="text" id="tailors-input" placeholder="مثال: 65000" dir="ltr">
-      </div>
-      <div class="upload-field">
-        <label>عدد أيام الشهر الفعلية</label>
-        <input type="text" id="days-input" placeholder="مثال: 30" dir="ltr" value="30">
-      </div>
-      <div class="upload-field">
-        <label>ملاحظات (اختياري)</label>
-        <input type="text" id="notes-input" placeholder="أي ملاحظات عن الشهر">
+
+      <div class="btn-row">
+        <button class="btn btn-success" onclick="goStep(3)">✅ البيانات صحيحة — المتابعة للنشر</button>
+        <button class="btn btn-outline" onclick="goStep(1)">← تغيير الملف</button>
       </div>
     </div>
   </div>
 
-  <!-- المصاريف التفصيلية -->
-  <div class="upload-section">
-    <h3>💸 المصاريف التفصيلية</h3>
-    <p style="font-size:0.85rem;color:#64748b;margin-bottom:16px">
-      أضف كل بند مصروف مع تصنيفه. يمكن إضافة عدة بنود لنفس الفئة.
-    </p>
-    
-    <div id="expenses-list">
-      <!-- سيتم إضافة بنود هنا -->
-    </div>
-    
-    <button onclick="addExpenseRow()" class="btn-secondary" style="margin-top:12px;padding:8px 20px;font-size:0.85rem">
-      + إضافة بند مصروف
-    </button>
-    
-    <div style="margin-top:16px;padding:12px;background:#f8faff;border-radius:8px;font-size:0.82rem;color:#475569">
-      <strong>الإجمالي المحسوب:</strong> <span id="total-expenses-display" style="font-weight:800;color:#1e3a5f">0 ر</span>
-    </div>
-  </div>
+  <!-- ===== STEP 3 ===== -->
+  <div id="step3-section">
+    <div class="upload-card">
+      <h2>🚀 تأكيد النشر</h2>
 
-  <!-- إعدادات GitHub API -->
-  <div class="upload-section">
-    <h3>🔑 إعدادات GitHub (مرة واحدة فقط)</h3>
-    <p style="font-size:0.85rem;color:#64748b;margin-bottom:16px">
-      هذه البيانات تُحفظ في المتصفح ولا تُرسل لأي خادم خارجي.
-    </p>
-    <div class="upload-grid">
-      <div class="upload-field">
-        <label>GitHub Token</label>
-        <input type="password" id="github-token" placeholder="github_pat_..." dir="ltr">
+      <div class="alert alert-warning">
+        <span>⚠️</span>
+        <div>
+          سيتم إضافة بيانات <strong id="confirm-month-label"></strong> إلى data.js ورفعه على GitHub.
+          الموقع يتحدث خلال <strong>1–2 دقيقة</strong>.
+        </div>
       </div>
-      <div class="upload-field">
-        <label>اسم المستودع</label>
-        <input type="text" id="github-repo" placeholder="fo0ouad/taqrir-ribhiya" dir="ltr" value="fo0ouad/taqrir-ribhiya">
+
+      <div id="progress-wrap" style="display:none">
+        <div class="progress-wrap"><div class="progress-fill" id="progress-fill"></div></div>
+        <div class="status-msg" id="status-msg"></div>
+      </div>
+
+      <div id="publish-result"></div>
+
+      <div class="btn-row" id="publish-btn-row">
+        <button class="btn btn-success" id="publish-btn" onclick="publish()">🚀 نشر التحديث الآن</button>
+        <button class="btn btn-outline" onclick="goStep(2)">← مراجعة البيانات</button>
       </div>
     </div>
-    <div style="margin-top:10px">
-      <button onclick="saveGithubSettings()" class="btn-secondary" style="padding:8px 20px;font-size:0.85rem">💾 حفظ الإعدادات</button>
-      <span id="settings-saved" style="color:#10B981;font-size:0.82rem;margin-right:10px;display:none">✓ تم الحفظ</span>
-    </div>
-  </div>
-
-  <!-- معاينة البيانات -->
-  <div class="upload-section" id="preview-section" style="display:none">
-    <h3>👁️ معاينة البيانات قبل الرفع</h3>
-    <div id="preview-content"></div>
-  </div>
-
-  <!-- أزرار الإجراءات -->
-  <div class="upload-actions">
-    <button onclick="previewData()" class="btn-secondary">👁️ معاينة</button>
-    <button onclick="uploadData()" class="btn-primary" id="upload-btn">🚀 رفع وتحديث الداشبورد</button>
-  </div>
-
-  <!-- شريط التقدم -->
-  <div class="upload-progress" id="upload-progress">
-    <div class="progress-step" id="step-1">
-      <span class="progress-icon">⏳</span>
-      <span>جاري التحقق من البيانات...</span>
-    </div>
-    <div class="progress-step" id="step-2" style="color:#94a3b8">
-      <span class="progress-icon">⏳</span>
-      <span>جاري قراءة data.js الحالي من GitHub...</span>
-    </div>
-    <div class="progress-step" id="step-3" style="color:#94a3b8">
-      <span class="progress-icon">⏳</span>
-      <span>جاري إضافة بيانات الشهر الجديد...</span>
-    </div>
-    <div class="progress-step" id="step-4" style="color:#94a3b8">
-      <span class="progress-icon">⏳</span>
-      <span>جاري رفع data.js المحدّث إلى GitHub...</span>
-    </div>
-    <div class="progress-step" id="step-5" style="color:#94a3b8">
-      <span class="progress-icon">⏳</span>
-      <span>اكتمل! GitHub Pages يحتاج 1-2 دقيقة للتحديث.</span>
-    </div>
-  </div>
-
-  <!-- رابط سجل الرفع -->
-  <div class="upload-history-link">
-    <a href="https://github.com/fo0ouad/taqrir-ribhiya/commits/gh-pages" target="_blank">📋 عرض سجل التحديثات على GitHub</a>
   </div>
 
 </div>
 
 <script src="js/auth.js"></script>
 <script>
-// ===== إعدادات GitHub =====
-function loadGithubSettings() {
-  const token = localStorage.getItem('gh_token') || '';
-  const repo = localStorage.getItem('gh_repo') || 'fo0ouad/taqrir-ribhiya';
-  document.getElementById('github-token').value = token;
-  document.getElementById('github-repo').value = repo;
+
+// ===== State =====
+let selectedFile = null;
+let parsedData   = null;
+
+// ===== Load saved settings =====
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('gh-token').value  = localStorage.getItem('gh_token')  || '';
+  document.getElementById('gh-repo').value   = localStorage.getItem('gh_repo')   || 'fo0ouad/taqrir-ribhiya';
+  document.getElementById('gh-branch').value = localStorage.getItem('gh_branch') || 'gh-pages';
+  ['gh-token','gh-repo','gh-branch'].forEach(id =>
+    document.getElementById(id).addEventListener('change', saveSettings)
+  );
+});
+function saveSettings() {
+  localStorage.setItem('gh_token',  document.getElementById('gh-token').value.trim());
+  localStorage.setItem('gh_repo',   document.getElementById('gh-repo').value.trim());
+  localStorage.setItem('gh_branch', document.getElementById('gh-branch').value.trim());
 }
 
-function saveGithubSettings() {
-  const token = document.getElementById('github-token').value.trim();
-  const repo = document.getElementById('github-repo').value.trim();
-  if (token) localStorage.setItem('gh_token', token);
-  if (repo) localStorage.setItem('gh_repo', repo);
-  document.getElementById('settings-saved').style.display = 'inline';
-  setTimeout(() => document.getElementById('settings-saved').style.display = 'none', 3000);
+// ===== Drag & Drop =====
+const dz = document.getElementById('drop-zone');
+dz.addEventListener('dragover',  e => { e.preventDefault(); dz.classList.add('dragover'); });
+dz.addEventListener('dragleave', () => dz.classList.remove('dragover'));
+dz.addEventListener('drop', e => {
+  e.preventDefault(); dz.classList.remove('dragover');
+  if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+});
+
+function handleFile(file) {
+  if (!file) return;
+  const ext = file.name.split('.').pop().toLowerCase();
+  if (!['xlsx','xls','csv'].includes(ext)) { alert('يرجى اختيار ملف Excel أو CSV'); return; }
+  selectedFile = file;
+  document.getElementById('file-name').textContent = file.name;
+  document.getElementById('file-size').textContent = 'الحجم: ' + (file.size/1024).toFixed(1) + ' KB';
+  document.getElementById('file-info').style.display = 'flex';
+  document.getElementById('read-btn').disabled = false;
 }
 
-// ===== قاموس التصنيفات =====
-const CATS_LIST = ["رواتب", "مصاريف المشغل", "إيجار", "رسوم بنكية", "عمولات مشتركة", "نقل", "مصاريف حكومية", "رسوم مرافقين", "مصاريف عائلة", "الزكاة والدخل", "تأمينات", "كهرباء الفروع", "اتصالات", "مستحقات سابقة رجالي", "أخرى"];
-
-// ===== إضافة بند مصروف =====
-let expenseRowCount = 0;
-function addExpenseRow(name='', cat='أخرى', amount='') {
-  expenseRowCount++;
-  const id = expenseRowCount;
-  const catsOptions = CATS_LIST.map(c => `<option value="${c}" ${c===cat?'selected':''}>${c}</option>`).join('');
-  
-  const row = document.createElement('div');
-  row.id = `exp-row-${id}`;
-  row.style.cssText = 'display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:10px;margin-bottom:10px;align-items:center';
-  row.innerHTML = `
-    <input type="text" placeholder="اسم البند (مثال: راتب سعيد)" value="${name}" 
-           style="padding:8px 12px;border:2px solid #e2e8f0;border-radius:8px;font-family:inherit;font-size:0.85rem;direction:rtl"
-           onchange="updateTotal()">
-    <select style="padding:8px 12px;border:2px solid #e2e8f0;border-radius:8px;font-family:inherit;font-size:0.85rem"
-            onchange="updateTotal()">
-      ${catsOptions}
-    </select>
-    <input type="number" placeholder="المبلغ" value="${amount}" 
-           style="padding:8px 12px;border:2px solid #e2e8f0;border-radius:8px;font-family:inherit;font-size:0.85rem"
-           oninput="updateTotal()">
-    <button onclick="document.getElementById('exp-row-${id}').remove();updateTotal()" 
-            style="padding:6px 10px;background:#fef2f2;border:1px solid #fca5a5;border-radius:6px;cursor:pointer;color:#dc2626;font-size:0.9rem">✕</button>
-  `;
-  document.getElementById('expenses-list').appendChild(row);
-  updateTotal();
-}
-
-function updateTotal() {
-  let total = 0;
-  document.querySelectorAll('#expenses-list input[type="number"]').forEach(inp => {
-    total += parseFloat(inp.value) || 0;
-  });
-  document.getElementById('total-expenses-display').textContent = total.toLocaleString('ar-SA', {maximumFractionDigits:0}) + ' ر';
-}
-
-// ===== جمع بيانات المصاريف =====
-function collectExpenses() {
-  const breakdown = {};
-  const rows = document.querySelectorAll('#expenses-list > div');
-  rows.forEach(row => {
-    const inputs = row.querySelectorAll('input, select');
-    const name = inputs[0]?.value.trim();
-    const cat = inputs[1]?.value;
-    const amount = parseFloat(inputs[2]?.value) || 0;
-    if (name && amount > 0) {
-      if (!breakdown[cat]) breakdown[cat] = [];
-      breakdown[cat].push({name, amount});
-    }
-  });
-  return breakdown;
-}
-
-// ===== حساب إجمالي المصاريف =====
-function calcTotalExpenses(breakdown) {
-  let total = 0;
-  Object.values(breakdown).forEach(items => {
-    items.forEach(i => total += i.amount);
-  });
-  return total;
-}
-
-// ===== معاينة البيانات =====
-function previewData() {
-  const monthName = document.getElementById('month-select').value;
-  const year = document.getElementById('year-select').value;
-  if (!monthName) { alert('الرجاء اختيار الشهر'); return; }
-  
-  const revenue = parseFloat(document.getElementById('revenue-input').value.replace(/,/g,'')) || 0;
-  const suppliersPaid = parseFloat(document.getElementById('suppliers-paid-input').value.replace(/,/g,'')) || 0;
-  const purchases = parseFloat(document.getElementById('purchases-input').value.replace(/,/g,'')) || 0;
-  const tailors = parseFloat(document.getElementById('tailors-input').value.replace(/,/g,'')) || 0;
-  const days = parseInt(document.getElementById('days-input').value) || 30;
-  const breakdown = collectExpenses();
-  const totalExp = calcTotalExpenses(breakdown);
-  const grossMargin = Math.round(revenue * 0.15);
-  const profit = grossMargin - totalExp;
-  const dailyAvg = Math.round(grossMargin / days);
-  
-  const monthKey = `${monthName} ${year}`;
-  
-  let expHtml = '';
-  Object.entries(breakdown).forEach(([cat, items]) => {
-    const catTotal = items.reduce((s,i) => s+i.amount, 0);
-    expHtml += `<tr><td style="font-weight:600;color:#1e3a5f">${cat}</td><td>${catTotal.toLocaleString('ar-SA')} ر</td></tr>`;
-    items.forEach(i => {
-      expHtml += `<tr style="background:#f8faff"><td style="padding-right:20px;color:#64748b;font-size:0.82rem">↳ ${i.name}</td><td style="color:#64748b;font-size:0.82rem">${i.amount.toLocaleString('ar-SA')} ر</td></tr>`;
-    });
-  });
-  
-  document.getElementById('preview-content').innerHTML = `
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px">
-      <div style="background:#eff6ff;border-radius:8px;padding:12px;text-align:center">
-        <div style="font-size:0.75rem;color:#1e40af">الشهر</div>
-        <div style="font-size:1.2rem;font-weight:800;color:#1d4ed8">${monthKey}</div>
-      </div>
-      <div style="background:#f0fdf4;border-radius:8px;padding:12px;text-align:center">
-        <div style="font-size:0.75rem;color:#166534">الإيرادات</div>
-        <div style="font-size:1.2rem;font-weight:800;color:#15803d">${revenue.toLocaleString('ar-SA')} ر</div>
-      </div>
-      <div style="background:${profit>=0?'#f0fdf4':'#fef2f2'};border-radius:8px;padding:12px;text-align:center">
-        <div style="font-size:0.75rem;color:${profit>=0?'#166534':'#9f1239'}">الربح/الخسارة التقديري</div>
-        <div style="font-size:1.2rem;font-weight:800;color:${profit>=0?'#15803d':'#be123c'}">${profit>=0?'+':''}${profit.toLocaleString('ar-SA')} ر</div>
-      </div>
-      <div style="background:#fef3c7;border-radius:8px;padding:12px;text-align:center">
-        <div style="font-size:0.75rem;color:#854d0e">المصاريف الإجمالية</div>
-        <div style="font-size:1.2rem;font-weight:800;color:#92400e">${totalExp.toLocaleString('ar-SA')} ر</div>
-      </div>
-      <div style="background:#fdf4ff;border-radius:8px;padding:12px;text-align:center">
-        <div style="font-size:0.75rem;color:#6b21a8">المدفوع للموردين</div>
-        <div style="font-size:1.2rem;font-weight:800;color:#7e22ce">${suppliersPaid.toLocaleString('ar-SA')} ر</div>
-      </div>
-      <div style="background:#f0fdf4;border-radius:8px;padding:12px;text-align:center">
-        <div style="font-size:0.75rem;color:#166534">متوسط يومي</div>
-        <div style="font-size:1.2rem;font-weight:800;color:#15803d">${dailyAvg.toLocaleString('ar-SA')} ر/يوم</div>
-      </div>
-    </div>
-    ${expHtml ? `<table><thead><tr><th>الفئة / البند</th><th>المبلغ</th></tr></thead><tbody>${expHtml}</tbody></table>` : '<p style="color:#94a3b8;text-align:center">لم تُضف أي مصاريف</p>'}
-  `;
-  
-  document.getElementById('preview-section').style.display = 'block';
-  document.getElementById('preview-section').scrollIntoView({behavior:'smooth'});
-}
-
-// ===== رفع البيانات عبر GitHub API =====
-async function uploadData() {
-  const token = localStorage.getItem('gh_token') || document.getElementById('github-token').value.trim();
-  const repo = localStorage.getItem('gh_repo') || 'fo0ouad/taqrir-ribhiya';
-  
-  if (!token) {
-    alert('الرجاء إدخال GitHub Token أولاً');
-    return;
-  }
-  
-  const monthName = document.getElementById('month-select').value;
-  const year = document.getElementById('year-select').value;
-  if (!monthName) { alert('الرجاء اختيار الشهر'); return; }
-  
-  const revenue = parseFloat(document.getElementById('revenue-input').value.replace(/,/g,'')) || 0;
-  const suppliersPaid = parseFloat(document.getElementById('suppliers-paid-input').value.replace(/,/g,'')) || 0;
-  const purchases = parseFloat(document.getElementById('purchases-input').value.replace(/,/g,'')) || 0;
-  const tailors = parseFloat(document.getElementById('tailors-input').value.replace(/,/g,'')) || 0;
-  const days = parseInt(document.getElementById('days-input').value) || 30;
-  const notes = document.getElementById('notes-input').value.trim();
-  const breakdown = collectExpenses();
-  const totalExp = calcTotalExpenses(breakdown);
-  const grossMargin = Math.round(revenue * 0.15);
-  const profit = grossMargin - totalExp;
-  const dailyAvg = Math.round(grossMargin / days);
-  const monthKey = `${monthName} ${year}`;
-  
-  // إظهار شريط التقدم
-  const progress = document.getElementById('upload-progress');
-  progress.classList.add('show');
-  document.getElementById('upload-btn').disabled = true;
-  
-  function setStep(n, status) {
-    const step = document.getElementById(`step-${n}`);
-    if (!step) return;
-    step.style.color = status === 'done' ? '#16a34a' : status === 'error' ? '#dc2626' : '#1e3a5f';
-    step.querySelector('.progress-icon').textContent = status === 'done' ? '✅' : status === 'error' ? '❌' : '⏳';
-  }
-  
-  try {
-    // الخطوة 1: التحقق
-    setStep(1, 'active');
-    if (!revenue) throw new Error('الإيرادات مطلوبة');
-    await sleep(500);
-    setStep(1, 'done');
-    
-    // الخطوة 2: قراءة data.js من GitHub
-    setStep(2, 'active');
-    const apiUrl = `https://api.github.com/repos/${repo}/contents/data.js`;
-    const headers = {
-      'Authorization': `token ${token}`,
-      'Accept': 'application/vnd.github.v3+json'
-    };
-    
-    const getResp = await fetch(apiUrl, { headers });
-    if (!getResp.ok) throw new Error(`خطأ في قراءة data.js: ${getResp.status}`);
-    const fileData = await getResp.json();
-    const currentContent = atob(fileData.content.replace(/\n/g, ''));
-    const sha = fileData.sha;
-    setStep(2, 'done');
-    
-    // الخطوة 3: إضافة بيانات الشهر الجديد
-    setStep(3, 'active');
-    const newContent = addMonthToDataJs(currentContent, monthKey, {
-      revenue, grossMargin, totalExp, profit, suppliersPaid, purchases, tailors,
-      days, dailyAvg, breakdown, notes
-    });
-    await sleep(500);
-    setStep(3, 'done');
-    
-    // الخطوة 4: رفع data.js المحدّث
-    setStep(4, 'active');
-    const encodedContent = btoa(unescape(encodeURIComponent(newContent)));
-    const putResp = await fetch(apiUrl, {
-      method: 'PUT',
-      headers: { ...headers, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        message: `إضافة بيانات ${monthKey}`,
-        content: encodedContent,
-        sha: sha,
-        branch: 'gh-pages'
-      })
-    });
-    
-    if (!putResp.ok) {
-      const errData = await putResp.json();
-      throw new Error(`خطأ في الرفع: ${errData.message || putResp.status}`);
-    }
-    setStep(4, 'done');
-    
-    // الخطوة 5: اكتمل
-    setStep(5, 'done');
-    
-    setTimeout(() => {
-      if (confirm('✅ تم رفع البيانات بنجاح!\n\nهل تريد العودة للداشبورد الآن؟\n(قد يحتاج 1-2 دقيقة للتحديث)')) {
-        window.location.href = 'index.html';
-      }
-    }, 1000);
-    
-  } catch (err) {
-    console.error(err);
-    alert('❌ خطأ: ' + err.message);
-    document.getElementById('upload-btn').disabled = false;
-  }
-}
-
-// ===== إضافة شهر جديد لـ data.js =====
-function addMonthToDataJs(content, monthKey, data) {
-  const { revenue, grossMargin, totalExp, profit, suppliersPaid, purchases, tailors, days, dailyAvg, breakdown, notes } = data;
-  
-  // بناء كائن MONTHLY_DETAIL للشهر الجديد
-  const monthDetail = {
-    revenue,
-    gross_margin: grossMargin,
-    expenses: totalExp,
-    profit,
-    profit_pct: revenue > 0 ? parseFloat((profit/revenue*100).toFixed(1)) : 0,
-    suppliers_paid: suppliersPaid,
-    purchases,
-    tailors_balance: tailors,
-    rent_actual: 0,
-    rent_spread: 0,
-    exp_breakdown: breakdown,
-    tailors_list: [],
-    issues: profit < 0 ? [`إيرادات منخفضة (${revenue.toLocaleString('ar-SA')} ر) — دون مستوى التعادل`] : [],
-    notes: notes ? [notes] : [],
-    revenue_change: null,
-    expenses_change: null,
-    profit_change: null,
-    liquidity_gap: Math.max(0, suppliersPaid + totalExp - revenue),
-    needs_external_funding: (suppliersPaid + totalExp) > revenue,
-    metric1: profit,
-    metric2: revenue - totalExp,
-    metric3: revenue - totalExp - suppliersPaid
+// ===== Parse =====
+function readAndParse() {
+  if (!selectedFile) return;
+  saveSettings();
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const wb = XLSX.read(new Uint8Array(e.target.result), { type:'array', cellDates:true });
+      // Find ورقة1 or first non-chart sheet
+      const sheetName = wb.SheetNames.find(n => /ورقة1|Sheet1/i.test(n)) || wb.SheetNames[0];
+      const rows = XLSX.utils.sheet_to_json(wb.Sheets[sheetName], { header:1, defval:null, raw:false });
+      parsedData = extract(rows);
+      if (parsedData.error) { alert('خطأ: ' + parsedData.error); return; }
+      renderPreview(parsedData);
+      goStep(2);
+    } catch(err) { alert('فشل في قراءة الملف: ' + err.message); }
   };
-  
-  // تحديث MONTHS array
-  let newContent = content;
-  
-  // إضافة الشهر لـ MONTHS
-  const monthsMatch = newContent.match(/const MONTHS = \[(.*?)\];/s);
-  if (monthsMatch) {
-    const monthsArr = monthsMatch[1];
-    if (!monthsArr.includes(`"${monthKey}"`)) {
-      const newMonths = monthsArr.trimEnd() + `, "${monthKey}"`;
-      newContent = newContent.replace(monthsMatch[0], `const MONTHS = [${newMonths}];`);
-    }
-  }
-  
-  // إضافة الإيرادات
-  newContent = appendToArray(newContent, 'REVENUES', revenue);
-  newContent = appendToArray(newContent, 'GROSS_MARGINS', grossMargin);
-  newContent = appendToArray(newContent, 'EXPENSES', totalExp);
-  newContent = appendToArray(newContent, 'SUPPLIERS_PAID', suppliersPaid);
-  newContent = appendToArray(newContent, 'PURCHASES', purchases);
-  newContent = appendToArray(newContent, 'TAILORS_BALANCE', tailors);
-  newContent = appendToArray(newContent, 'PROFIT_ACTUAL', profit);
-  newContent = appendToArray(newContent, 'PROFIT_SPREAD', profit);
-  newContent = appendToArray(newContent, 'RENT_ACTUAL', 0);
-  
-  // إضافة EXP_TOTALS
-  newContent = addToExpTotals(newContent, breakdown);
-  
-  // إضافة EXP_DETAILS
-  newContent = addToExpDetails(newContent, monthKey, breakdown);
-  
-  // إضافة MONTHLY_DETAIL
-  newContent = addToMonthlyDetail(newContent, monthKey, monthDetail);
-  
-  return newContent;
+  reader.readAsArrayBuffer(selectedFile);
 }
 
-function appendToArray(content, varName, value) {
-  const regex = new RegExp(`(const ${varName} = \\[)(.*?)(\\];)`, 's');
-  return content.replace(regex, (match, start, middle, end) => {
-    return `${start}${middle.trimEnd()}, ${value}${end}`;
+function toNum(v) { return parseFloat(String(v||0).replace(/,/g,'')) || 0; }
+
+function extract(rows) {
+  try {
+    const MONTHS = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+
+    // Find totals row (first row where col A = 'الاجمالي')
+    let totalsRow = null, branchTotalsRow = null, branchHeaderIdx = -1;
+    const expensesList = [];
+
+    for (let i = 0; i < rows.length; i++) {
+      const r = rows[i];
+      if (!r || r[0] == null) continue;
+      const c0 = String(r[0]).trim();
+
+      if (c0 === 'الاجمالي' && totalsRow === null) {
+        totalsRow = r;
+      } else if (c0 === 'تفصيل دخل الفروع') {
+        branchHeaderIdx = i;
+      } else if (c0 === 'الاجمالي' && branchHeaderIdx >= 0 && branchTotalsRow === null) {
+        branchTotalsRow = r;
+      }
+
+      // Expenses: col K (index 10) = name, col L (index 11) = amount
+      const expName = r[10] ? String(r[10]).trim() : null;
+      const expAmt  = r[11] != null ? toNum(r[11]) : null;
+      if (expName && expAmt && expAmt > 0 && expName !== 'الاجمالي' && i > 0) {
+        expensesList.push({ name: expName, amount: expAmt });
+      }
+    }
+
+    if (!totalsRow) return { error: 'لم يُعثر على صف "الاجمالي". تأكد من أن الملف بنفس التنسيق.' };
+
+    // Detect month from first date row (rows 3..34, col A)
+    let monthName = '', yearNum = 0;
+    for (let i = 3; i < Math.min(35, rows.length); i++) {
+      const r = rows[i];
+      if (!r || !r[0]) continue;
+      const v = r[0];
+      let d = null;
+      if (v instanceof Date) d = v;
+      else if (typeof v === 'string' && v.includes('/')) {
+        const p = v.split('/');
+        d = p.length === 3 ? new Date(p[2], p[1]-1, p[0]) : null;
+      }
+      if (d && !isNaN(d)) {
+        monthName = MONTHS[d.getMonth()];
+        yearNum   = d.getFullYear();
+        break;
+      }
+    }
+    if (!monthName) return { error: 'لم يتم التعرف على تاريخ الشهر. تأكد من تنسيق التاريخ.' };
+
+    // Totals columns (0-indexed):
+    // B(1)=دخل نقدي, C(2)=دخل بنك, D(3)=فائدة,
+    // E(4)=مصاريف نقدي, F(5)=مصاريف بنك,
+    // G(6)=موردين نقدي, H(7)=موردين بنك,
+    // I(8)=فائض نقدي, J(9)=فائض بنك
+    const revenue   = toNum(totalsRow[1]) + toNum(totalsRow[2]);
+    const expenses  = toNum(totalsRow[4]) + toNum(totalsRow[5]);
+    const suppliers = toNum(totalsRow[6]) + toNum(totalsRow[7]);
+    const surplusC  = toNum(totalsRow[8]);
+    const surplusB  = toNum(totalsRow[9]);
+
+    // Branches totals (كاش1, بنك1, كاش2, بنك2 = cols B,C,D,E after header)
+    const b1c = branchTotalsRow ? toNum(branchTotalsRow[1]) : 0;
+    const b1b = branchTotalsRow ? toNum(branchTotalsRow[2]) : 0;
+    const b2c = branchTotalsRow ? toNum(branchTotalsRow[3]) : 0;
+    const b2b = branchTotalsRow ? toNum(branchTotalsRow[4]) : 0;
+
+    const yr2 = String(yearNum).slice(-2);
+    return {
+      monthName, yearNum,
+      label: monthName + ' ' + yr2,
+      revenue:   Math.round(revenue),
+      expenses:  Math.round(expenses),
+      suppliers: Math.round(suppliers),
+      surplusC:  Math.round(surplusC),
+      surplusB:  Math.round(surplusB),
+      b1c: Math.round(b1c), b1b: Math.round(b1b),
+      b2c: Math.round(b2c), b2b: Math.round(b2b),
+      expensesList
+    };
+  } catch(err) { return { error: 'خطأ في التحليل: ' + err.message }; }
+}
+
+// ===== Render Preview =====
+function renderPreview(d) {
+  const fmt = n => Number(n).toLocaleString('ar-SA', {maximumFractionDigits:0});
+  const margin = Math.round(d.revenue * 0.15);
+  const profit = margin - d.expenses;
+  const surplus = d.revenue - d.expenses;
+  const cashFlow = surplus - d.suppliers;
+
+  document.getElementById('preview-badge').textContent = d.monthName + ' ' + d.yearNum;
+  document.getElementById('confirm-month-label').textContent = d.monthName + ' ' + d.yearNum;
+
+  // KPI grid
+  document.getElementById('kpi-grid').innerHTML = `
+    <div class="summary-item">
+      <div class="s-label">💰 إجمالي الإيرادات</div>
+      <div class="s-value green">${fmt(d.revenue)} ر</div>
+    </div>
+    <div class="summary-item">
+      <div class="s-label">💸 إجمالي المصاريف</div>
+      <div class="s-value red">${fmt(d.expenses)} ر</div>
+    </div>
+    <div class="summary-item">
+      <div class="s-label">🏪 مدفوع للموردين</div>
+      <div class="s-value">${fmt(d.suppliers)} ر</div>
+    </div>
+    <div class="summary-item">
+      <div class="s-label">📈 هامش 15%</div>
+      <div class="s-value">${fmt(margin)} ر</div>
+    </div>
+    <div class="summary-item">
+      <div class="s-label">📊 ربح/خسارة تقديري</div>
+      <div class="s-value ${profit>=0?'green':'red'}">${profit>=0?'+':''}${fmt(profit)} ر</div>
+    </div>
+    <div class="summary-item">
+      <div class="s-label">💵 فائض تشغيلي</div>
+      <div class="s-value ${surplus>=0?'green':'red'}">${surplus>=0?'+':''}${fmt(surplus)} ر</div>
+    </div>
+    <div class="summary-item">
+      <div class="s-label">🏦 فائض نقدي</div>
+      <div class="s-value">${fmt(cashFlow)} ر</div>
+    </div>
+    <div class="summary-item">
+      <div class="s-label">🏦 فائض بنكي</div>
+      <div class="s-value">${fmt(d.surplusB)} ر</div>
+    </div>
+  `;
+
+  // Branches grid
+  document.getElementById('branches-grid').innerHTML = `
+    <div class="summary-item">
+      <div class="s-label">🏪 فرع 1 — كاش</div>
+      <div class="s-value">${fmt(d.b1c)} ر</div>
+    </div>
+    <div class="summary-item">
+      <div class="s-label">🏪 فرع 1 — بنك</div>
+      <div class="s-value">${fmt(d.b1b)} ر</div>
+    </div>
+    <div class="summary-item">
+      <div class="s-label">🏪 فرع 2 — كاش</div>
+      <div class="s-value">${fmt(d.b2c)} ر</div>
+    </div>
+    <div class="summary-item">
+      <div class="s-label">🏪 فرع 2 — بنك</div>
+      <div class="s-value">${fmt(d.b2b)} ر</div>
+    </div>
+    <div class="summary-item">
+      <div class="s-label">📊 إجمالي فرع 1</div>
+      <div class="s-value green">${fmt(d.b1c+d.b1b)} ر</div>
+    </div>
+    <div class="summary-item">
+      <div class="s-label">📊 إجمالي فرع 2</div>
+      <div class="s-value green">${fmt(d.b2c+d.b2b)} ر</div>
+    </div>
+  `;
+
+  // Expenses table
+  const tbody = document.getElementById('exp-tbody');
+  tbody.innerHTML = '';
+  let expTotal = 0;
+  d.expensesList.forEach(e => {
+    expTotal += e.amount;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${e.name}</td><td class="num">${fmt(e.amount)}</td>`;
+    tbody.appendChild(tr);
   });
-}
+  // Total row
+  const totalTr = document.createElement('tr');
+  totalTr.className = 'total-row';
+  totalTr.innerHTML = `<td>الإجمالي</td><td class="num">${fmt(expTotal)}</td>`;
+  tbody.appendChild(totalTr);
 
-function addToExpTotals(content, breakdown) {
-  // لكل فئة في breakdown، أضف القيمة لمصفوفتها في EXP_TOTALS
-  let newContent = content;
-  const catTotal = {};
-  Object.entries(breakdown).forEach(([cat, items]) => {
-    catTotal[cat] = items.reduce((s,i) => s+i.amount, 0);
-  });
-  
-  // تحديث EXP_TOTALS
-  const expTotalsMatch = newContent.match(/const EXP_TOTALS = (\{.*?\});/s);
-  if (expTotalsMatch) {
-    try {
-      const expTotals = JSON.parse(expTotalsMatch[1]);
-      // إضافة قيمة لكل فئة
-      const allCats = ["رواتب", "مصاريف المشغل", "إيجار", "رسوم بنكية", "عمولات مشتركة", "نقل", "مصاريف حكومية", "رسوم مرافقين", "مصاريف عائلة", "الزكاة والدخل", "تأمينات", "كهرباء الفروع", "اتصالات", "مستحقات سابقة رجالي", "أخرى"];
-      allCats.forEach(cat => {
-        if (!expTotals[cat]) expTotals[cat] = [];
-        expTotals[cat].push(catTotal[cat] || 0);
-      });
-      newContent = newContent.replace(expTotalsMatch[0], `const EXP_TOTALS = ${JSON.stringify(expTotals)};`);
-    } catch(e) {
-      console.warn('Could not update EXP_TOTALS:', e);
-    }
+  document.getElementById('exp-section-title').textContent = `💸 تفصيل المصروفات (${d.expensesList.length} بند)`;
+
+  // Validation
+  const branchTotal = d.b1c + d.b1b + d.b2c + d.b2b;
+  const diff = Math.abs(branchTotal - d.revenue);
+  const alertDiv = document.getElementById('validation-alert');
+  if (diff > 200) {
+    alertDiv.innerHTML = `<div class="alert alert-warning">⚠️ <div>مجموع دخل الفروع <strong>${fmt(branchTotal)} ر</strong> يختلف عن إجمالي الإيرادات <strong>${fmt(d.revenue)} ر</strong> بفارق <strong>${fmt(diff)} ر</strong>. راجع الأرقام قبل النشر.</div></div>`;
+  } else {
+    alertDiv.innerHTML = `<div class="alert alert-success">✅ <div>البيانات متسقة — مجموع الفروع يتطابق مع إجمالي الإيرادات.</div></div>`;
   }
-  return newContent;
 }
 
-function addToExpDetails(content, monthKey, breakdown) {
-  const expDetailsMatch = content.match(/const EXP_DETAILS = (\{.*?\});/s);
-  if (expDetailsMatch) {
-    try {
-      const expDetails = JSON.parse(expDetailsMatch[1]);
-      expDetails[monthKey] = breakdown;
-      return content.replace(expDetailsMatch[0], `const EXP_DETAILS = ${JSON.stringify(expDetails)};`);
-    } catch(e) {
-      console.warn('Could not update EXP_DETAILS:', e);
-    }
+// ===== Step Navigation =====
+function goStep(n) {
+  document.getElementById('step1-section').style.display = n===1 ? 'block' : 'none';
+  document.getElementById('step2-section').style.display = n===2 ? 'block' : 'none';
+  document.getElementById('step3-section').style.display = n===3 ? 'block' : 'none';
+  for (let i=1; i<=3; i++) {
+    const el = document.getElementById('step-'+i);
+    el.classList.remove('active','done');
+    if (i < n) el.classList.add('done');
+    else if (i===n) el.classList.add('active');
   }
-  return content;
+  document.getElementById('line-12').classList.toggle('done', n>1);
+  document.getElementById('line-23').classList.toggle('done', n>2);
+  window.scrollTo({top:0, behavior:'smooth'});
 }
 
-function addToMonthlyDetail(content, monthKey, monthDetail) {
-  const mdMatch = content.match(/const MONTHLY_DETAIL = (\{.*?\});/s);
-  if (mdMatch) {
-    try {
-      const md = JSON.parse(mdMatch[1]);
-      md[monthKey] = monthDetail;
-      return content.replace(mdMatch[0], `const MONTHLY_DETAIL = ${JSON.stringify(md)};`);
-    } catch(e) {
-      console.warn('Could not update MONTHLY_DETAIL:', e);
+// ===== Publish =====
+async function publish() {
+  const token  = document.getElementById('gh-token').value.trim();
+  const repo   = document.getElementById('gh-repo').value.trim();
+  const branch = document.getElementById('gh-branch').value.trim();
+  if (!token) { alert('يرجى إدخال GitHub Token'); return; }
+  if (!parsedData) { alert('لا توجد بيانات'); return; }
+
+  const btn = document.getElementById('publish-btn');
+  btn.disabled = true; btn.textContent = '⏳ جاري الرفع...';
+  document.getElementById('progress-wrap').style.display = 'block';
+
+  const setP = (pct, msg) => {
+    document.getElementById('progress-fill').style.width = pct + '%';
+    document.getElementById('status-msg').textContent = msg;
+  };
+
+  try {
+    setP(20, '📥 جاري قراءة data.js من GitHub...');
+    const apiUrl = `https://api.github.com/repos/${repo}/contents/data.js`;
+    const hdrs = { 'Authorization':'token '+token, 'Accept':'application/vnd.github.v3+json' };
+
+    const getRes = await fetch(apiUrl+'?ref='+branch, {headers:hdrs});
+    if (!getRes.ok) throw new Error('فشل قراءة data.js: ' + getRes.status + ' ' + getRes.statusText);
+    const getJson = await getRes.json();
+    const sha = getJson.sha;
+    const current = decodeURIComponent(escape(atob(getJson.content.replace(/\n/g,''))));
+
+    setP(50, '✏️ جاري إضافة بيانات الشهر الجديد...');
+
+    const d = parsedData;
+    const margin  = Math.round(d.revenue * 0.15);
+    const profit  = margin - d.expenses;
+    const surplus = d.revenue - d.expenses;
+    const cashFlow= surplus - d.suppliers;
+
+    // Build new entry line
+    const newEntry = `  { label:"${d.label}", rev:${d.revenue}, exp:${d.expenses}, sup:${d.suppliers}, mar:${margin}, pro:${profit}, sur:${surplus}, cas:${cashFlow}, b1c:${d.b1c}, b1b:${d.b1b}, b2c:${d.b2c}, b2b:${d.b2b} }`;
+
+    let updated = current;
+    // Try marker first
+    if (current.includes('// END_MONTHLY_DATA')) {
+      updated = current.replace('// END_MONTHLY_DATA', newEntry + ',\n  // END_MONTHLY_DATA');
+    } else {
+      // Find last } before ]; in MONTHLY_DATA
+      const match = current.match(/(const MONTHLY_DATA\s*=\s*\[[\s\S]*?)(\n\];)/);
+      if (match) {
+        updated = current.replace(match[0], match[1] + ',\n' + newEntry + '\n' + match[2]);
+      } else {
+        throw new Error('لم يُعثر على MONTHLY_DATA في data.js');
+      }
     }
+
+    setP(75, '📤 جاري رفع data.js المحدّث...');
+    const encoded = btoa(unescape(encodeURIComponent(updated)));
+    const putRes = await fetch(apiUrl, {
+      method:'PUT', headers:{...hdrs,'Content-Type':'application/json'},
+      body: JSON.stringify({ message:`تحديث بيانات ${d.monthName} ${d.yearNum}`, content:encoded, sha, branch })
+    });
+    if (!putRes.ok) {
+      const e = await putRes.json().catch(()=>({}));
+      throw new Error('فشل الرفع: ' + putRes.status + ' — ' + (e.message||putRes.statusText));
+    }
+
+    setP(100, '✅ تم الرفع بنجاح!');
+    document.getElementById('publish-btn-row').style.display = 'none';
+    document.getElementById('publish-result').innerHTML = `
+      <div class="alert alert-success" style="margin-top:16px">
+        <span style="font-size:1.5rem">🎉</span>
+        <div>
+          <strong>تم نشر بيانات ${d.monthName} ${d.yearNum} بنجاح!</strong><br>
+          <span style="font-size:0.85rem;opacity:0.85">الموقع سيتحدث خلال 1–2 دقيقة.</span><br><br>
+          <a href="index.html" style="color:#166534;font-weight:700;font-size:0.9rem">← العودة للداشبورد</a>
+          &nbsp;&nbsp;
+          <a href="https://github.com/${repo}/commits/${branch}" target="_blank" style="color:#166534;font-size:0.85rem">📋 سجل التحديثات</a>
+        </div>
+      </div>`;
+
+  } catch(err) {
+    document.getElementById('progress-wrap').style.display = 'none';
+    document.getElementById('publish-result').innerHTML = `
+      <div class="alert alert-error" style="margin-top:16px">
+        <span>❌</span>
+        <div><strong>فشل الرفع:</strong> ${err.message}</div>
+      </div>`;
+    btn.disabled = false; btn.textContent = '🚀 إعادة المحاولة';
   }
-  return content;
 }
-
-function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
-
-// ===== تهيئة الصفحة =====
-loadGithubSettings();
-// إضافة بند مصروف أول تلقائياً
-addExpenseRow();
 </script>
 </body>
 </html>
