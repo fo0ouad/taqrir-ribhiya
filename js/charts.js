@@ -97,26 +97,4 @@ if (ctx5) {
   });
 }
 
-// Chart 6: Stacked Expenses by Category
-const ctx6 = document.getElementById('ch-exp-stack');
-if (ctx6) {
-  const expStackDatasets = CATS.map(cat => ({
-    label: cat,
-    data: EXP_TOTALS[cat] || new Array(MONTHS.length).fill(0),
-    backgroundColor: CAT_COLORS[cat],
-    borderRadius: 2
-  }));
-  new Chart(ctx6, {
-    type: 'bar',
-    data: { labels: MONTHS, datasets: expStackDatasets },
-    options: {
-      ...chartDefaults,
-      scales: {
-        x: { stacked: true, ticks: { font: { family: 'Segoe UI, Tahoma, Arial', size: 11 } } },
-        y: { stacked: true, ticks: { font: { family: 'Segoe UI, Tahoma, Arial' }, callback: v => (v/1000).toFixed(0)+'K' } }
-      }
-    }
-  });
-}
-
 }); // end DOMContentLoaded

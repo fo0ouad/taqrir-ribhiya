@@ -4,12 +4,12 @@
 // تنسيق الأرقام
 function fmt(n) {
   if (n === null || n === undefined || n === 0) return '—';
-  return Math.round(n).toLocaleString('ar-SA');
+  return Math.round(n).toLocaleString('en-US');
 }
 
 function fmtSigned(n) {
   if (n === null || n === undefined) return '—';
-  const abs = Math.abs(Math.round(n)).toLocaleString('ar-SA');
+  const abs = Math.abs(Math.round(n)).toLocaleString('en-US');
   return n >= 0 ? `+${abs}` : `-${abs}`;
 }
 
@@ -59,13 +59,14 @@ function sortTable(tableId, colIndex) {
 function filterByYear(year) {
   const rows = document.querySelectorAll('#summary-tbody tr');
   rows.forEach(row => {
+    const rowYear = row.dataset.year;
     const month = row.cells[0]?.textContent.trim();
     if (year === 'all') {
       row.style.display = '';
     } else if (year === '2025') {
-      row.style.display = month?.includes('25') ? '' : 'none';
+      row.style.display = rowYear === '2025' || month?.includes('25') ? '' : 'none';
     } else if (year === '2026') {
-      row.style.display = month?.includes('26') ? '' : 'none';
+      row.style.display = rowYear === '2026' || month?.includes('26') ? '' : 'none';
     }
   });
   
@@ -82,6 +83,7 @@ function closeModal() {
 
 // Chart.js defaults
 const chartDefaults = {
+  locale: 'en-US',
   responsive: true,
   plugins: { legend: { labels: { font: { family: 'Segoe UI, Tahoma, Arial' } } } },
   scales: {
