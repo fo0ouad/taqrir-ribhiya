@@ -100,6 +100,7 @@ function renderPurchasesPage() {
               </thead>
               <tbody id="purchase-items-body"></tbody>
             </table>
+            <div class="table-note compact-note">ملاحظة: الأصناف هنا خاصة بمشتريات فرع 1 لشهري أبريل ومايو 2026، وسيتم تحديثها لفرع 2 عند توفر البيانات التفصيلية.</div>
           </div>
           <div class="chart-card"><div class="chart-title">أعلى الأصناف المشتراة</div><canvas id="purchase-items-chart" height="220"></canvas></div>
         </div>

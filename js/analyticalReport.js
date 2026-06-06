@@ -192,14 +192,57 @@ function comparisonCell(value, inverse = false) {
   return `<td style="color:${good ? "#15803d" : "#dc2626"};font-weight:900">${reportSignedPct(value)}</td>`;
 }
 
-function renderAnalyticalReport() {
-  const tab = document.getElementById("tab-report");
-  if (!tab || typeof MONTHS === "undefined") return;
-  const m = getReportMetrics();
+function latestAnalysisMarkup(m, sectionId = "report-dyn-latest") {
   const latestRevenueChange = pctChange(m.latest.revenue, m.latestPrev?.revenue);
   const latestYoYRevenueChange = pctChange(m.latest.revenue, m.latestYoY?.revenue);
   const last3RevenueChange = pctChange(m.last3Summary.revenue, m.prev3Summary.revenue);
   const last3YoYRevenueChange = pctChange(m.last3Summary.revenue, m.last3PrevYearSummary.revenue);
+  return `
+    <div class="report-dyn-section latest-analysis-section" id="${sectionId}">
+      <h3>تحليل آخر شهر وآخر 3 أشهر</h3>
+      <div class="report-dyn-grid">
+        <div class="report-dyn-panel">
+          <h4>آخر شهر: ${m.latest.month}</h4>
+          <table>
+            <thead><tr><th>المؤشر</th><th>${m.latest.month}</th><th>الشهر السابق</th><th>نفس الشهر من السنة الماضية</th></tr></thead>
+            <tbody>
+              ${renderLatestRow("الإيرادات", "revenue", m.latest, m.latestPrev, m.latestYoY)}
+              ${renderLatestRow("المصاريف", "expenses", m.latest, m.latestPrev, m.latestYoY, true)}
+              ${renderLatestRow("المشتريات", "purchases", m.latest, m.latestPrev, m.latestYoY)}
+              ${renderLatestRow("الربح", "profit", m.latest, m.latestPrev, m.latestYoY)}
+              ${renderLatestRow("الفائض النقدي", "cash", m.latest, m.latestPrev, m.latestYoY)}
+            </tbody>
+          </table>
+          <div class="report-note">${latestInsight(m, latestRevenueChange, latestYoYRevenueChange)}</div>
+        </div>
+        <div class="report-dyn-panel">
+          <h4>آخر 3 أشهر</h4>
+          <table>
+            <thead><tr><th>المقارنة</th><th>الإيرادات</th><th>المصاريف</th><th>الربح</th><th>المشتريات</th></tr></thead>
+            <tbody>
+              <tr><td>آخر 3 أشهر</td><td>${reportFmt(m.last3Summary.revenue)}</td><td>${reportFmt(m.last3Summary.expenses)}</td><td>${reportFmt(m.last3Summary.profit)}</td><td>${reportFmt(m.last3Summary.purchases)}</td></tr>
+              <tr><td>آخر 3 أشهر سابقة</td><td>${reportFmt(m.prev3Summary.revenue)}</td><td>${reportFmt(m.prev3Summary.expenses)}</td><td>${reportFmt(m.prev3Summary.profit)}</td><td>${reportFmt(m.prev3Summary.purchases)}</td></tr>
+              <tr><td>نفس آخر 3 أشهر من العام السابق</td><td>${reportFmt(m.last3PrevYearSummary.revenue)}</td><td>${reportFmt(m.last3PrevYearSummary.expenses)}</td><td>${reportFmt(m.last3PrevYearSummary.profit)}</td><td>${reportFmt(m.last3PrevYearSummary.purchases)}</td></tr>
+              <tr><td>تغير عن آخر 3 أشهر سابقة</td>${comparisonCell(last3RevenueChange)}${comparisonCell(pctChange(m.last3Summary.expenses, m.prev3Summary.expenses), true)}${comparisonCell(pctChange(m.last3Summary.profit, m.prev3Summary.profit))}${comparisonCell(pctChange(m.last3Summary.purchases, m.prev3Summary.purchases))}</tr>
+              <tr><td>تغير عن نفس الفترة من العام السابق</td>${comparisonCell(last3YoYRevenueChange)}${comparisonCell(pctChange(m.last3Summary.expenses, m.last3PrevYearSummary.expenses), true)}${comparisonCell(pctChange(m.last3Summary.profit, m.last3PrevYearSummary.profit))}${comparisonCell(pctChange(m.last3Summary.purchases, m.last3PrevYearSummary.purchases))}</tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderLatestAnalysisInto(elementId) {
+  const target = document.getElementById(elementId);
+  if (!target || typeof MONTHS === "undefined") return;
+  target.innerHTML = latestAnalysisMarkup(getReportMetrics(), elementId);
+}
+
+function renderAnalyticalReport() {
+  const tab = document.getElementById("tab-report");
+  if (!tab || typeof MONTHS === "undefined") return;
+  const m = getReportMetrics();
 
   tab.innerHTML = `
     <section class="report-dyn-page">
@@ -227,38 +270,7 @@ function renderAnalyticalReport() {
         ${reportYearCards(2026, m)}
       </div>
 
-      <div class="report-dyn-section" id="report-dyn-latest">
-        <h3>تحليل آخر شهر وآخر 3 أشهر</h3>
-        <div class="report-dyn-grid">
-          <div class="report-dyn-panel">
-            <h4>آخر شهر: ${m.latest.month}</h4>
-            <table>
-              <thead><tr><th>المؤشر</th><th>${m.latest.month}</th><th>الشهر السابق</th><th>نفس الشهر من السنة الماضية</th></tr></thead>
-              <tbody>
-                ${renderLatestRow("الإيرادات", "revenue", m.latest, m.latestPrev, m.latestYoY)}
-                ${renderLatestRow("المصاريف", "expenses", m.latest, m.latestPrev, m.latestYoY, true)}
-                ${renderLatestRow("المشتريات", "purchases", m.latest, m.latestPrev, m.latestYoY)}
-                ${renderLatestRow("الربح", "profit", m.latest, m.latestPrev, m.latestYoY)}
-                ${renderLatestRow("الفائض النقدي", "cash", m.latest, m.latestPrev, m.latestYoY)}
-              </tbody>
-            </table>
-            <div class="report-note">${latestInsight(m, latestRevenueChange, latestYoYRevenueChange)}</div>
-          </div>
-          <div class="report-dyn-panel">
-            <h4>آخر 3 أشهر</h4>
-            <table>
-              <thead><tr><th>المقارنة</th><th>الإيرادات</th><th>المصاريف</th><th>الربح</th><th>المشتريات</th></tr></thead>
-              <tbody>
-                <tr><td>آخر 3 أشهر</td><td>${reportFmt(m.last3Summary.revenue)}</td><td>${reportFmt(m.last3Summary.expenses)}</td><td>${reportFmt(m.last3Summary.profit)}</td><td>${reportFmt(m.last3Summary.purchases)}</td></tr>
-                <tr><td>آخر 3 أشهر سابقة</td><td>${reportFmt(m.prev3Summary.revenue)}</td><td>${reportFmt(m.prev3Summary.expenses)}</td><td>${reportFmt(m.prev3Summary.profit)}</td><td>${reportFmt(m.prev3Summary.purchases)}</td></tr>
-                <tr><td>نفس آخر 3 أشهر من العام السابق</td><td>${reportFmt(m.last3PrevYearSummary.revenue)}</td><td>${reportFmt(m.last3PrevYearSummary.expenses)}</td><td>${reportFmt(m.last3PrevYearSummary.profit)}</td><td>${reportFmt(m.last3PrevYearSummary.purchases)}</td></tr>
-                <tr><td>تغير عن آخر 3 أشهر سابقة</td>${comparisonCell(last3RevenueChange)}${comparisonCell(pctChange(m.last3Summary.expenses, m.prev3Summary.expenses), true)}${comparisonCell(pctChange(m.last3Summary.profit, m.prev3Summary.profit))}${comparisonCell(pctChange(m.last3Summary.purchases, m.prev3Summary.purchases))}</tr>
-                <tr><td>تغير عن نفس الفترة من العام السابق</td>${comparisonCell(last3YoYRevenueChange)}${comparisonCell(pctChange(m.last3Summary.expenses, m.last3PrevYearSummary.expenses), true)}${comparisonCell(pctChange(m.last3Summary.profit, m.last3PrevYearSummary.profit))}${comparisonCell(pctChange(m.last3Summary.purchases, m.last3PrevYearSummary.purchases))}</tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
+      ${latestAnalysisMarkup(m)}
 
       <div class="report-dyn-section" id="report-dyn-cogs">
         <h3>المخزون و COGS</h3>

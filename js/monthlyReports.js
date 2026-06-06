@@ -2,6 +2,7 @@
 // صفحة التقارير الشهرية المستقلة
 
 let monthlyReportExpenseChart = null;
+let monthlyReportOpenExpenseCategory = null;
 
 function mrFmt(value) {
   return Math.round(Number(value) || 0).toLocaleString("en-US");
@@ -80,19 +81,20 @@ function renderMonthlyReportDetail(month) {
   if (!content) return;
   if (badge) badge.textContent = month;
   const purchaseChange = previous ? ((current.purchases - previous.purchases) / Math.abs(previous.purchases || 1)) * 100 : null;
+  const purchaseTone = purchaseChange === null ? "purple" : purchaseChange >= 0 ? "green" : "danger";
+  const cashTone = current.cash >= 0 ? "green" : "danger";
   const expRows = Object.entries(current.breakdown)
     .map(([cat, items]) => ({ cat, total: items.reduce((sum, item) => sum + (Number(item.amount) || 0), 0), items }))
     .filter(row => row.total > 0)
     .sort((a, b) => b.total - a.total);
-
   content.innerHTML = `
     <div class="women-kpi-grid">
-      <div class="women-kpi blue"><span>الإيرادات</span><strong>${mrFmt(current.revenue)} ر</strong><small>${month}</small></div>
-      <div class="women-kpi green"><span>هامش 15%</span><strong>${mrFmt(current.grossMargin)} ر</strong><small>حسب عمود الفائدة</small></div>
+      <div class="women-kpi blue"><span>الإيرادات</span><strong>${mrFmt(current.revenue)} ر</strong><small>${previous ? monthlyChangeText(current.revenue, previous.revenue) : month}</small></div>
+      <div class="women-kpi green"><span>هامش 15%</span><strong>${mrFmt(current.grossMargin)} ر</strong><small>${previous ? monthlyChangeText(current.grossMargin, previous.grossMargin) : "حسب عمود الفائدة"}</small></div>
       <div class="women-kpi danger"><span>المصاريف</span><strong>${mrFmt(current.expenses)} ر</strong><small>${previous ? monthlyChangeText(current.expenses, previous.expenses, true) : "—"}</small></div>
-      <div class="women-kpi ${current.profit >= 0 ? "green" : "danger"}"><span>الربح</span><strong>${mrFmt(current.profit)} ر</strong><small>هامش 15% - المصاريف</small></div>
-      <div class="women-kpi purple"><span>المشتريات</span><strong>${mrFmt(current.purchases)} ر</strong><small>${purchaseChange === null ? "—" : `${purchaseChange >= 0 ? "+" : ""}${purchaseChange.toFixed(1)}% عن السابق`}</small></div>
-      <div class="women-kpi amber"><span>الفائض النقدي</span><strong>${mrFmt(current.cash)} ر</strong><small>الإيراد - المصاريف - المدفوع للموردين</small></div>
+      <div class="women-kpi ${current.profit >= 0 ? "green" : "danger"}"><span>الربح</span><strong>${mrFmt(current.profit)} ر</strong><small>${previous ? monthlyChangeText(current.profit, previous.profit) : "هامش 15% - المصاريف"}</small></div>
+      <div class="women-kpi ${purchaseTone}"><span>المشتريات</span><strong>${mrFmt(current.purchases)} ر</strong><small>${previous ? monthlyChangeText(current.purchases, previous.purchases) : "—"}</small></div>
+      <div class="women-kpi ${cashTone}"><span>الفائض النقدي</span><strong>${mrFmt(current.cash)} ر</strong><small>${previous ? monthlyChangeText(current.cash, previous.cash) : "الإيراد - المصاريف - المدفوع للموردين"}</small></div>
     </div>
 
     <div class="purchase-compare-box">
@@ -104,12 +106,11 @@ function renderMonthlyReportDetail(month) {
     <div class="report-dyn-grid">
       <div class="table-card">
         <h3>تفصيل المصاريف حسب البند</h3>
+        <div class="table-note compact-note">اضغط على أي بند لعرض العمليات التي تكوّن الرقم، بنفس تصنيف المصاريف المستخدم في النافذة المنبثقة.</div>
         <table>
-          <thead><tr><th>البند</th><th>الإجمالي</th><th>عدد العمليات</th></tr></thead>
-          <tbody>
-            ${expRows.map(row => `<tr><td><strong>${row.cat}</strong></td><td>${mrFmt(row.total)} ر</td><td>${row.items.length}</td></tr>`).join("")}
-          </tbody>
-          <tfoot><tr><td>الإجمالي</td><td>${mrFmt(expRows.reduce((sum, row) => sum + row.total, 0))} ر</td><td>—</td></tr></tfoot>
+          <thead><tr><th>البند</th><th>الإجمالي</th><th>عدد العمليات</th><th>عن الشهر السابق</th></tr></thead>
+          <tbody id="monthly-report-expense-body">${monthlyExpenseRows(expRows, previous)}</tbody>
+          <tfoot><tr><td>الإجمالي</td><td>${mrFmt(expRows.reduce((sum, row) => sum + row.total, 0))} ر</td><td>—</td><td>—</td></tr></tfoot>
         </table>
       </div>
       <div class="chart-card"><div class="chart-title">مصاريف الشهر حسب البنود</div><canvas id="monthly-report-expense-chart" height="210"></canvas></div>
@@ -121,6 +122,49 @@ function renderMonthlyReportDetail(month) {
     </div>
   `;
   renderMonthlyExpenseChart(expRows);
+}
+
+function monthlyExpenseRows(rows, previous) {
+  return rows.map(row => {
+    const prevItems = previous?.breakdown?.[row.cat] || [];
+    const prevTotal = prevItems.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
+    const change = prevTotal ? ((row.total - prevTotal) / Math.abs(prevTotal)) * 100 : null;
+    const isOpen = monthlyReportOpenExpenseCategory === row.cat;
+    return `
+      <tr class="monthly-expense-row" onclick="toggleMonthlyExpenseCategory('${escapeMonthlyAttr(row.cat)}')">
+        <td><strong>${row.cat}</strong></td>
+        <td>${mrFmt(row.total)} ر</td>
+        <td>${row.items.length}</td>
+        <td>${change === null ? "—" : monthlyChangeText(row.total, prevTotal, true)}</td>
+      </tr>
+      ${isOpen ? monthlyExpenseDetailRow(row) : ""}
+    `;
+  }).join("");
+}
+
+function monthlyExpenseDetailRow(row) {
+  return `
+    <tr class="monthly-expense-detail">
+      <td colspan="4">
+        <table class="inner-detail-table">
+          <thead><tr><th>البند</th><th>المبلغ</th></tr></thead>
+          <tbody>
+            ${row.items.map(item => `<tr><td>${item.name}</td><td>${mrFmt(item.amount)} ر</td></tr>`).join("")}
+          </tbody>
+        </table>
+      </td>
+    </tr>
+  `;
+}
+
+function toggleMonthlyExpenseCategory(cat) {
+  monthlyReportOpenExpenseCategory = monthlyReportOpenExpenseCategory === cat ? null : cat;
+  const select = document.getElementById("monthly-report-select");
+  if (select?.value) renderMonthlyReportDetail(select.value);
+}
+
+function escapeMonthlyAttr(value) {
+  return String(value).replace(/\\/g, "\\\\").replace(/'/g, "\\'");
 }
 
 function monthlyChangeText(current, previous, inverse = false) {

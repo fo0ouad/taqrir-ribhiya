@@ -688,6 +688,9 @@ function initSummaryTable() {
   updateSummaryYearCounts();
   const activeBtn = document.querySelector('.year-btn.active');
   filterByYear(activeBtn?.dataset.year || 'all');
+  if (typeof renderLatestAnalysisInto === 'function') {
+    renderLatestAnalysisInto('summary-latest-analysis');
+  }
 }
 
 // ===== YEAR FILTER =====
