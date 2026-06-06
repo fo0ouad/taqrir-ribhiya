@@ -2,6 +2,7 @@
 // صفحة التقارير الشهرية المستقلة
 
 let monthlyReportExpenseChart = null;
+let monthlyBranchSalesChart = null;
 let monthlyReportOpenExpenseCategory = null;
 
 function mrFmt(value) {
@@ -83,6 +84,7 @@ function renderMonthlyReportDetail(month) {
   const purchaseChange = previous ? ((current.purchases - previous.purchases) / Math.abs(previous.purchases || 1)) * 100 : null;
   const purchaseTone = purchaseChange === null ? "purple" : purchaseChange >= 0 ? "green" : "danger";
   const cashTone = current.cash >= 0 ? "green" : "danger";
+  const branchSalesHtml = monthlyBranchSalesHtml(month);
   const expRows = Object.entries(current.breakdown)
     .map(([cat, items]) => ({ cat, total: items.reduce((sum, item) => sum + (Number(item.amount) || 0), 0), items }))
     .filter(row => row.total > 0)
@@ -103,6 +105,8 @@ function renderMonthlyReportDetail(month) {
       ${previous ? purchaseCompareRow(previous.month, previous.purchases, Math.max(current.purchases, previous.purchases), "#CBD5E1") : ""}
     </div>
 
+    ${branchSalesHtml}
+
     <div class="report-dyn-grid">
       <div class="table-card">
         <h3>تفصيل المصاريف حسب البند</h3>
@@ -122,6 +126,93 @@ function renderMonthlyReportDetail(month) {
     </div>
   `;
   renderMonthlyExpenseChart(expRows);
+  renderMonthlyBranchSalesChart(month);
+}
+
+function monthlyBranchSalesHtml(month) {
+  const branchSales = (typeof BRANCH_SALES !== "undefined" && BRANCH_SALES[month]) ? BRANCH_SALES[month] : null;
+  if (!branchSales) {
+    return `<div class="note-box">لا توجد بيانات أداء فروع مفصلة لهذا الشهر حتى الآن.</div>`;
+  }
+  const b1 = branchSales["فرع 1"] || { cash: 0, bank: 0, total: 0 };
+  const b2 = branchSales["فرع 2"] || { cash: 0, bank: 0, total: 0 };
+  const total = (b1.total || 0) + (b2.total || 0);
+  const reportRevenue = mrDetail(month).revenue;
+  const revenueGap = reportRevenue - total;
+  const share = value => total ? ((value / total) * 100).toFixed(1) + "%" : "0.0%";
+  const gapNote = Math.abs(revenueGap) > 1 ? `
+    <div class="note-box branch-gap-note">
+      ملاحظة مهمة: إجمالي الفروع في ملف ${month} هو ${mrFmt(total)} ر، بينما إيراد الشهر في التقرير الشهري ${mrFmt(reportRevenue)} ر. الفرق ${mrFmt(Math.abs(revenueGap))} ر.
+    </div>
+  ` : "";
+  return `
+    <div class="report-dyn-section monthly-branch-section">
+      <h3>أداء الفروع</h3>
+      <div class="report-dyn-grid branch-performance-grid">
+        <div class="branch-sales-grid modal-branch-sales">
+          <div class="branch-sales-card">
+            <div class="branch-sales-name">فرع 1</div>
+            <div class="branch-sales-value">${mrFmt(b1.total)} ر</div>
+            <div class="branch-sales-sub">كاش ${mrFmt(b1.cash)} · بنك ${mrFmt(b1.bank)} · ${share(b1.total || 0)}</div>
+          </div>
+          <div class="branch-sales-card">
+            <div class="branch-sales-name">فرع 2</div>
+            <div class="branch-sales-value">${mrFmt(b2.total)} ر</div>
+            <div class="branch-sales-sub">كاش ${mrFmt(b2.cash)} · بنك ${mrFmt(b2.bank)} · ${share(b2.total || 0)}</div>
+          </div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">مساهمة الفروع من مبيعات الشهر</div>
+          <canvas id="monthly-branch-sales-chart" height="180"></canvas>
+        </div>
+      </div>
+      ${gapNote}
+    </div>
+  `;
+}
+
+function renderMonthlyBranchSalesChart(month) {
+  const canvas = document.getElementById("monthly-branch-sales-chart");
+  if (!canvas || typeof Chart === "undefined") return;
+  const branchSales = (typeof BRANCH_SALES !== "undefined" && BRANCH_SALES[month]) ? BRANCH_SALES[month] : null;
+  if (!branchSales) return;
+  const b1 = branchSales["فرع 1"] || { total: 0 };
+  const b2 = branchSales["فرع 2"] || { total: 0 };
+  const values = [Number(b1.total) || 0, Number(b2.total) || 0];
+  const total = values.reduce((sum, value) => sum + value, 0);
+  if (monthlyBranchSalesChart) monthlyBranchSalesChart.destroy();
+  monthlyBranchSalesChart = new Chart(canvas, {
+    type: "bar",
+    data: {
+      labels: ["فرع 1", "فرع 2"],
+      datasets: [{
+        label: "المبيعات",
+        data: values,
+        backgroundColor: ["#3B82F6", "#10B981"],
+        borderRadius: 6
+      }]
+    },
+    options: {
+      ...chartDefaults,
+      indexAxis: "y",
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: context => {
+              const value = Number(context.raw) || 0;
+              const share = total ? ((value / total) * 100).toFixed(1) : "0.0";
+              return `${mrFmt(value)} ر · ${share}%`;
+            }
+          }
+        }
+      },
+      scales: {
+        x: { ticks: { callback: v => `${(v / 1000).toFixed(0)}K` } },
+        y: { ticks: { font: { family: "Segoe UI, Tahoma, Arial" } } }
+      }
+    }
+  });
 }
 
 function monthlyExpenseRows(rows, previous) {

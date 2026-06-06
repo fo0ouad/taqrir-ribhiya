@@ -391,6 +391,8 @@ tr:hover { background: #f8faff; }
 .inner-detail-table { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; }
 .inner-detail-table th,
 .inner-detail-table td { padding: 9px 12px; border-bottom: 1px solid #e2e8f0; text-align: right; }
+.branch-performance-grid { align-items: stretch; }
+.branch-performance-grid .branch-sales-grid { align-content: start; }
 
 /* ===== Dynamic Analytical Report ===== */
 .report-dyn-page { display: flex; flex-direction: column; gap: 18px; }
