@@ -34,6 +34,7 @@
   <button class="tab-btn" onclick="switchTab('tab-women-suppliers', this)">موردين النسائي</button>
   <button class="tab-btn" onclick="switchTab('tab-customers', this)">عملاء النسائي</button>
   <button class="tab-btn" onclick="switchTab('tab-report', this)">التقرير التحليلي</button>
+  <button class="tab-btn" onclick="switchTab('tab-profit-scenario', this)">سيناريو الربحية</button>
   <button class="tab-btn" onclick="switchTab('tab-suppliers', this)">موردين الرجالي</button>
 </div>
 
@@ -413,6 +414,143 @@
   <!-- يتم بناء هذه الصفحة من js/analyticalReport.js اعتماداً على data.js وبيانات المخزون -->
 </div>
 
+<div id="tab-profit-scenario" class="tab-content">
+  <main class="scenario-page embedded">
+    <section class="scenario-hero">
+      <div>
+        <h2>اختبر متى يصبح المحل رابحاً</h2>
+        <p>غيّر الأرقام في النموذج، وستتحدث النتائج فوراً بنفس منطق ملف الإكسل.</p>
+      </div>
+      <div id="scenario-status" class="scenario-status">—</div>
+    </section>
+
+    <section class="scenario-layout">
+      <div class="scenario-panel">
+        <div class="scenario-panel-head">
+          <h3>المدخلات</h3>
+          <button type="button" id="reset-scenario" class="btn-secondary">استعادة قيم الإكسل</button>
+        </div>
+
+        <div class="scenario-input-grid">
+          <label>
+            <span>المصاريف</span>
+            <input id="expense-input" type="number" min="0" step="100" value="30000">
+          </label>
+          <label>
+            <span>رأس المال</span>
+            <input id="capital-input" type="number" min="0" step="1000" value="50000">
+          </label>
+          <label>
+            <span>التدوير</span>
+            <input id="turnover-input" type="number" min="0" step="0.1" value="4">
+          </label>
+          <label>
+            <span>هامش على التكلفة %</span>
+            <input id="cost-margin-input" type="number" min="0" step="0.5" value="20">
+          </label>
+          <label>
+            <span>نسبة المستثمر %</span>
+            <input id="investor-share-input" type="number" min="0" max="100" step="0.5" value="10">
+          </label>
+        </div>
+
+        <div class="scenario-sliders">
+          <label>
+            <span>رأس المال</span>
+            <input id="capital-slider" type="range" min="10000" max="250000" step="1000" value="50000">
+          </label>
+          <label>
+            <span>التدوير</span>
+            <input id="turnover-slider" type="range" min="1" max="15" step="0.1" value="4">
+          </label>
+          <label>
+            <span>الهامش</span>
+            <input id="margin-slider" type="range" min="1" max="60" step="0.5" value="20">
+          </label>
+        </div>
+      </div>
+
+      <div class="scenario-panel scenario-result-panel">
+        <h3>النتيجة المباشرة</h3>
+        <div class="scenario-profit" id="net-profit">—</div>
+        <div class="scenario-profit-label">الهامش بعد المصاريف</div>
+        <div class="scenario-progress">
+          <div id="profit-bar"></div>
+        </div>
+        <p id="scenario-message" class="scenario-message">—</p>
+      </div>
+    </section>
+
+    <section class="scenario-kpis">
+      <div class="scenario-kpi">
+        <span>إجمالي البضاعة</span>
+        <strong id="goods-total">—</strong>
+      </div>
+      <div class="scenario-kpi">
+        <span>إجمالي المبيع</span>
+        <strong id="sales-total">—</strong>
+      </div>
+      <div class="scenario-kpi">
+        <span>الهامش</span>
+        <strong id="gross-margin">—</strong>
+      </div>
+      <div class="scenario-kpi">
+        <span>حصة المستثمر</span>
+        <strong id="investor-amount">—</strong>
+      </div>
+      <div class="scenario-kpi">
+        <span>الباقي بعد المستثمر</span>
+        <strong id="after-investor">—</strong>
+      </div>
+    </section>
+
+    <section class="scenario-layout">
+      <div class="scenario-panel">
+        <h3>نقطة التعادل</h3>
+        <div class="breakeven-grid">
+          <div>
+            <span>التدوير المطلوب بنفس رأس المال والهامش</span>
+            <strong id="required-turnover">—</strong>
+          </div>
+          <div>
+            <span>الهامش المطلوب بنفس رأس المال والتدوير</span>
+            <strong id="required-margin">—</strong>
+          </div>
+          <div>
+            <span>رأس المال المطلوب بنفس التدوير والهامش</span>
+            <strong id="required-capital">—</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="scenario-panel">
+        <h3>قراءة سريعة</h3>
+        <ul class="scenario-notes" id="scenario-notes"></ul>
+      </div>
+    </section>
+
+    <section class="scenario-panel">
+      <h3>مقارنة السيناريوهات من ملف الإكسل</h3>
+      <div class="scenario-table-wrap">
+        <table class="scenario-table">
+          <thead>
+            <tr>
+              <th>السيناريو</th>
+              <th>المصاريف</th>
+              <th>رأس المال</th>
+              <th>التدوير</th>
+              <th>هامش التكلفة</th>
+              <th>الهامش بعد المصاريف</th>
+              <th>الحالة</th>
+            </tr>
+          </thead>
+          <tbody id="scenario-comparison"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</div>
+
 <div id="tab-women-suppliers" class="tab-content" >
   <!-- يتم بناء هذه الصفحة من js/womenSuppliers.js اعتماداً على ملف موردين النسائي 2026 -->
 </div>
@@ -439,6 +577,7 @@
 <script src="js/monthlyReports.js"></script>
 <script src="js/customers.js"></script>
 <script src="js/analyticalReport.js"></script>
+<script src="js/profitScenario.js"></script>
 <script src="js/womenSuppliers.js"></script>
 
 </body>

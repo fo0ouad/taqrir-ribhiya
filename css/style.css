@@ -440,3 +440,62 @@ tr:hover { background: #f8faff; }
 .report-actions-list .watch { background: #fffbeb; border-color: #fde68a; }
 .report-actions-list .good { background: #f0fdf4; border-color: #bbf7d0; }
 @media(max-width: 900px) { .report-dyn-header { flex-direction: column; } .report-dyn-grid { grid-template-columns: 1fr; } .report-cogs-equation { align-items: stretch; flex-direction: column; } .report-cogs-equation b { display: none; } }
+
+/* ===== Profit Scenario Calculator ===== */
+.scenario-body { background: #f0f4f8; }
+.scenario-page { padding: 24px 30px 40px; display: flex; flex-direction: column; gap: 18px; }
+.scenario-page.embedded { padding: 0; }
+.scenario-hero { background: #fff; border: 1px solid #dbeafe; border-radius: 8px; padding: 22px; display: flex; justify-content: space-between; align-items: center; gap: 18px; box-shadow: 0 8px 18px rgba(15,23,42,0.04); }
+.scenario-hero h2 { color: #1e3a5f; font-size: 1.35rem; margin-bottom: 8px; }
+.scenario-hero p { color: #64748b; line-height: 1.7; }
+.scenario-status { min-width: 110px; text-align: center; border-radius: 999px; padding: 10px 16px; font-weight: 900; background: #f8fafc; color: #475569; border: 1px solid #cbd5e1; }
+.scenario-status.positive { background: #ecfdf5; color: #047857; border-color: #86efac; }
+.scenario-status.negative { background: #fef2f2; color: #b91c1c; border-color: #fecaca; }
+.scenario-layout { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(320px, 0.75fr); gap: 18px; align-items: stretch; }
+.scenario-panel { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 18px; box-shadow: 0 8px 18px rgba(15,23,42,0.04); }
+.scenario-panel h3 { color: #1e3a5f; font-size: 1.05rem; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 2px solid #e2e8f0; }
+.scenario-panel-head { display: flex; justify-content: space-between; gap: 12px; align-items: center; margin-bottom: 14px; }
+.scenario-panel-head h3 { margin: 0; }
+.scenario-panel-head .btn-secondary { padding: 9px 14px; border-width: 1px; border-radius: 8px; }
+.scenario-input-grid { display: grid; grid-template-columns: repeat(5, minmax(130px, 1fr)); gap: 12px; margin-bottom: 18px; }
+.scenario-input-grid label, .scenario-sliders label { display: flex; flex-direction: column; gap: 7px; color: #475569; font-weight: 800; font-size: 0.82rem; }
+.scenario-input-grid input { width: 100%; border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px 12px; font: inherit; text-align: center; direction: ltr; color: #1e293b; }
+.scenario-input-grid input:focus { outline: none; border-color: #1e3a5f; box-shadow: 0 0 0 3px rgba(30,58,95,0.1); }
+.scenario-sliders { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; }
+.scenario-sliders input { accent-color: #1e3a5f; }
+.scenario-result-panel { text-align: center; display: flex; flex-direction: column; justify-content: center; }
+.scenario-profit { direction: ltr; font-size: 2.4rem; font-weight: 900; color: #1e293b; margin-top: 4px; }
+.scenario-profit.positive { color: #047857; }
+.scenario-profit.negative { color: #dc2626; }
+.scenario-profit-label { color: #64748b; font-size: 0.85rem; font-weight: 800; margin-top: 6px; }
+.scenario-progress { height: 12px; background: #eef2f7; border-radius: 999px; overflow: hidden; margin: 18px 0 12px; direction: rtl; }
+.scenario-progress div { height: 100%; border-radius: 999px; transition: width 0.2s ease; }
+.scenario-progress div.positive { background: #10b981; }
+.scenario-progress div.negative { background: #ef4444; }
+.scenario-message { color: #475569; line-height: 1.7; font-weight: 800; }
+.scenario-kpis { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; }
+.scenario-kpi { background: #fff; border: 1px solid #e2e8f0; border-top: 4px solid #3b82f6; border-radius: 8px; padding: 15px; text-align: center; box-shadow: 0 8px 18px rgba(15,23,42,0.04); }
+.scenario-kpi span { display: block; color: #64748b; font-size: 0.78rem; font-weight: 800; margin-bottom: 8px; }
+.scenario-kpi strong { display: block; color: #1e293b; font-size: 1.18rem; direction: ltr; }
+.breakeven-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.breakeven-grid div { background: #f8faff; border: 1px solid #dbeafe; border-radius: 8px; padding: 13px; }
+.breakeven-grid span { display: block; color: #64748b; font-size: 0.78rem; font-weight: 800; line-height: 1.6; margin-bottom: 7px; }
+.breakeven-grid strong { color: #1e3a5f; font-size: 1.12rem; direction: ltr; display: block; }
+.scenario-notes { padding-right: 20px; color: #475569; line-height: 1.9; font-weight: 700; }
+.scenario-table-wrap { overflow-x: auto; }
+.scenario-table td:first-child { font-weight: 900; color: #1e3a5f; }
+.scenario-green { color: #047857; font-weight: 900; direction: ltr; }
+.scenario-red { color: #dc2626; font-weight: 900; direction: ltr; }
+.scenario-pill { display: inline-flex; align-items: center; justify-content: center; min-width: 64px; border-radius: 999px; padding: 5px 10px; font-size: 0.78rem; font-weight: 900; }
+.scenario-pill.positive { color: #047857; background: #ecfdf5; }
+.scenario-pill.negative { color: #b91c1c; background: #fef2f2; }
+@media(max-width: 1100px) {
+  .scenario-input-grid, .scenario-kpis { grid-template-columns: repeat(2, 1fr); }
+  .scenario-layout, .scenario-sliders, .breakeven-grid { grid-template-columns: 1fr; }
+}
+@media(max-width: 700px) {
+  .scenario-page { padding: 18px 14px 28px; }
+  .scenario-hero { flex-direction: column; align-items: stretch; }
+  .scenario-input-grid, .scenario-kpis { grid-template-columns: 1fr; }
+  .scenario-profit { font-size: 2rem; }
+}
