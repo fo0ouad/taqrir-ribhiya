@@ -22,6 +22,9 @@
 
   const opexSum = Math.max(sumLast(EXPENSES) - taxSum - familySum - ownerPaySum, 0);
 
+  // الربح = عمود "ربح" في جدول الملخص الشهري (هامش 15% − مصاريف)، مجموع آخر 12 شهر
+  const profitSum = sumLast(PROFIT_ACTUAL);
+
   document.getElementById('pfMonthsRange').textContent = pfMonths[0] + ' — ' + pfMonths[pfMonths.length - 1];
 
   // Figure 1 — Target Allocation Percentages by Real Revenue range
@@ -38,7 +41,7 @@
     return TAP[TAP.length - 1];
   }
 
-  const state = { materialSubs: purchasesSum, profit: 0, owner: ownerPaySum, tax: taxSum, opex: opexSum };
+  const state = { materialSubs: purchasesSum, profit: profitSum, owner: ownerPaySum, tax: taxSum, opex: opexSum };
   const money = v => Math.round(v).toLocaleString('en-US');
   const BLEED_TOL = rr => Math.max(rr * 0.01, 2000);
 
@@ -122,8 +125,8 @@
     } else {
       noteEl.innerHTML = `<strong style="color:#dc2626">⚠️ فرق توازن قدره ${money(diff)} ريال</strong> — مجموع البنود الأربعة لا يساوي الإيراد الحقيقي. `
         + (diff > 0
-          ? 'يعني في مبلغ غير مخصص رسمياً كربح (على الأغلب لأن الربح غير مسجل كبند منفصل حالياً).'
-          : 'يعني البنود الأربعة مجتمعة أكبر من الإيراد الحقيقي — راجع الأرقام المدخلة.');
+          ? 'يعني في مبلغ غير مخصص رسمياً لأي بند حتى الآن — راجع الأرقام وعدّلها إذا لزم.'
+          : 'يعني البنود الأربعة مجتمعة أكبر من الإيراد الحقيقي. سبب محتمل: بند "الربح" مبني على هامش 15% تقديري على كامل الإيراد، بينما "الإيراد الحقيقي" هنا مبني على تكلفة البضاعة الفعلية — الأساسان مختلفان. راجع الأرقام وعدّلها لتطابق واقعك.');
     }
 
     let tapHead = `<thead><tr><th>البند</th>${TAP.map(c => `<th class="${c.key === col.key ? 'selected' : ''}">${c.key}<br><span style="font-weight:400;font-size:.7rem">${c.label}</span></th>`).join('')}</tr></thead>`;
