@@ -11,7 +11,16 @@
   const suppliersPaidSum = sumLast(SUPPLIERS_PAID);
   const taxSum = sumLast(EXP_TOTALS['الزكاة والدخل']);
   const familySum = sumLast(EXP_TOTALS['مصاريف عائلة']);
-  const opexSum = Math.max(sumLast(EXPENSES) - taxSum - familySum, 0);
+
+  // أجر المالك = رواتب محمد وهاني وسعيد (مسجّلة كبنود منفصلة داخل فئة "رواتب" في EXP_DETAILS)
+  const OWNER_NAME_PREFIXES = ['راتب محمد', 'راتب هاني', 'راتب سعيد'];
+  function ownerPayForMonth(month) {
+    const rows = (EXP_DETAILS[month] && EXP_DETAILS[month]['رواتب']) || [];
+    return rows.reduce((sum, r) => OWNER_NAME_PREFIXES.some(p => r.name.startsWith(p)) ? sum + r.amount : sum, 0);
+  }
+  const ownerPaySum = pfMonths.reduce((sum, m) => sum + ownerPayForMonth(m), 0);
+
+  const opexSum = Math.max(sumLast(EXPENSES) - taxSum - familySum - ownerPaySum, 0);
 
   document.getElementById('pfMonthsRange').textContent = pfMonths[0] + ' — ' + pfMonths[pfMonths.length - 1];
 
@@ -29,7 +38,7 @@
     return TAP[TAP.length - 1];
   }
 
-  const state = { materialSubs: purchasesSum, profit: 0, owner: 0, tax: taxSum, opex: opexSum };
+  const state = { materialSubs: purchasesSum, profit: 0, owner: ownerPaySum, tax: taxSum, opex: opexSum };
   const money = v => Math.round(v).toLocaleString('en-US');
   const BLEED_TOL = rr => Math.max(rr * 0.01, 2000);
 
@@ -113,7 +122,7 @@
     } else {
       noteEl.innerHTML = `<strong style="color:#dc2626">⚠️ فرق توازن قدره ${money(diff)} ريال</strong> — مجموع البنود الأربعة لا يساوي الإيراد الحقيقي. `
         + (diff > 0
-          ? 'يعني في مبلغ غير مخصص رسمياً لأي بند (على الأغلب لأن الربح/أجر المالك غير مسجلين كبنود منفصلة حالياً).'
+          ? 'يعني في مبلغ غير مخصص رسمياً كربح (على الأغلب لأن الربح غير مسجل كبند منفصل حالياً).'
           : 'يعني البنود الأربعة مجتمعة أكبر من الإيراد الحقيقي — راجع الأرقام المدخلة.');
     }
 
