@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>تقييم Profit First الفوري</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<link rel="stylesheet" href="css/style.css">
+<style>
+.pf-input { width:100%; max-width:130px; padding:8px 10px; border:1px solid #cbd5e1; border-radius:8px; font-size:.9rem; text-align:center; font-family:inherit; direction:ltr; color:#1e293b; }
+.pf-input:focus { outline:none; border-color:#1e3a5f; box-shadow:0 0 0 3px rgba(30,58,95,.1); }
+.pf-input[readonly] { background:#f8fafc; color:#64748b; }
+.pf-table td, .pf-table th { padding:10px 12px; border-bottom:1px solid #e2e8f0; text-align:center; }
+.pf-table th { background:#f8fafc; color:#64748b; font-weight:800; font-size:.78rem; white-space:nowrap; }
+.pf-table td:first-child, .pf-table th:first-child { text-align:right; }
+.pf-table .lbl { font-weight:900; color:#1e3a5f; }
+.pf-table .row-revenue { background:#f8faff; }
+.pf-profit { color:#047857; font-weight:900; }
+.pf-loss { color:#dc2626; font-weight:900; }
+.pf-neutral { color:#94a3b8; }
+.tap-table td.selected, .tap-table th.selected { background:rgba(30,58,95,.08); font-weight:900; color:#1e3a5f; }
+.pf-basis { display:flex; align-items:center; gap:10px; margin-bottom:16px; flex-wrap:wrap; font-size:.85rem; color:#475569; font-weight:700; }
+.pf-basis select { padding:8px 12px; border-radius:8px; border:1px solid #cbd5e1; font-family:inherit; background:#fff; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-main">
+    <div class="header-mark">🎯</div>
+    <div>
+      <h1>تقييم Profit First الفوري</h1>
+      <div class="header-sub" id="pfMonthsRange">—</div>
+    </div>
+  </div>
+  <div class="header-actions">
+    <a href="index.html" class="upload-btn">العودة للداشبورد</a>
+  </div>
+</div>
+
+<main class="scenario-page">
+
+  <section class="kpi-grid" id="pfKpiGrid">
+    <div class="kpi-card" style="border-color:#3B82F6">
+      <div class="kpi-value" id="pfKpiTop" style="color:#3B82F6">—</div>
+      <div class="kpi-label">الإيراد الإجمالي (١٢ شهر)</div>
+    </div>
+    <div class="kpi-card" style="border-color:#10B981">
+      <div class="kpi-value" id="pfKpiReal" style="color:#10B981">—</div>
+      <div class="kpi-label">الإيراد الحقيقي (Real Revenue)</div>
+    </div>
+    <div class="kpi-card" style="border-color:#8B5CF6">
+      <div class="kpi-value" id="pfKpiCol" style="color:#8B5CF6;font-size:1.2rem">—</div>
+      <div class="kpi-label">عمود التقييم المستخدم</div>
+    </div>
+    <div class="kpi-card" style="border-color:#F59E0B">
+      <div class="kpi-value" id="pfKpiBleedCount" style="color:#F59E0B">—</div>
+      <div class="kpi-label">بنود بعيدة عن الهدف</div>
+    </div>
+    <div class="kpi-card" id="pfKpiBalanceCard" style="border-color:#dc2626">
+      <div class="kpi-value" id="pfKpiBalance" style="color:#dc2626">—</div>
+      <div class="kpi-label">فرق التوازن</div>
+    </div>
+  </section>
+
+  <section class="scenario-panel">
+    <h3>🎯 التقييم الفوري — Profit First Instant Assessment</h3>
+    <p style="font-size:.85rem;color:#64748b;line-height:1.8;margin-bottom:14px;">
+      مبني على منهجية <strong>Profit First</strong> لمايك ميكالوفيتش. الإيراد الإجمالي والمصاريف التشغيلية ومواد/مشتريات البضاعة
+      والضريبة/الزكاة محسوبة تلقائياً من بيانات آخر 12 شهر الموجودة في <code>data.js</code>.
+      حقل <strong>الربح</strong> وحقل <strong>أجر المالك</strong> غير مفصولين حالياً عن باقي البيانات، فهما معبّآن بصفر —
+      عدّلهما لأرقامك الفعلية وباقي الجدول (PF% ، PF$ ، الفجوة، الإجراء) يتحدث تلقائياً.
+    </p>
+    <div class="pf-basis">
+      <label for="pfBasisSelect">أساس تكلفة البضاعة (Material &amp; Subs):</label>
+      <select id="pfBasisSelect">
+        <option value="purchases">المشتريات الفعلية (أساس الاستحقاق)</option>
+        <option value="paid">المدفوع للموردين نقداً</option>
+      </select>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="pf-table" id="pfTable"></table>
+    </div>
+    <p style="font-size:.82rem;color:#64748b;margin-top:12px;line-height:1.7;" id="pfBalanceNote"></p>
+  </section>
+
+  <section class="scenario-layout">
+    <div class="chart-card">
+      <div class="chart-title">الفعلي مقابل الهدف لكل بند</div>
+      <canvas id="pfBarChart" height="160"></canvas>
+    </div>
+    <div class="scenario-panel">
+      <h3>جدول النسب المستهدفة (Figure 1) — حسب حجم الإيراد الحقيقي</h3>
+      <div style="overflow-x:auto">
+        <table class="pf-table tap-table" id="pfTapTable"></table>
+      </div>
+    </div>
+  </section>
+
+  <section class="quick-insights" id="pfInsights"></section>
+
+</main>
+
+<script src="data.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/profitFirst.js"></script>
+</body>
+</html>
