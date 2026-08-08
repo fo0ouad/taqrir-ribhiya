@@ -136,25 +136,6 @@ function renderExpenseKpis(data) {
   setText('expenses-average-sub', 'متوسط الفترة المختارة');
 }
 
-function renderExpenseMatrix(data) {
-  const head = document.getElementById('exp-table-head');
-  const body = document.getElementById('exp-table-body');
-  const foot = document.getElementById('exp-table-foot');
-  if (!head || !body || !foot) return;
-  head.innerHTML = `<tr><th>الفئة</th>${data.selectedMonths.map(month => `<th>${month}</th>`).join('')}<th>الإجمالي</th></tr>`;
-  body.innerHTML = data.categoryRows.map(row => {
-    const rowMax = Math.max(...row.values);
-    const cells = row.values.map((value, idx) => {
-      if (!value) return '<td class="exp-empty">—</td>';
-      const month = data.selectedMonths[idx];
-      const isMax = value === rowMax;
-      return `<td class="exp-cell ${isMax ? 'exp-cell-max' : ''}" onclick="openExpDetail('${month}','${row.cat}')" style="background:${hexToRgba(CAT_COLORS[row.cat] || '#4E7CFF', 0.12)}">${value.toLocaleString('en-US', { maximumFractionDigits: 0 })}</td>`;
-    }).join('');
-    return `<tr><td class="exp-category" style="color:${CAT_COLORS[row.cat] || '#33394C'}">${row.cat}</td>${cells}<td class="exp-total">${row.total.toLocaleString('en-US', { maximumFractionDigits: 0 })}</td></tr>`;
-  }).join('');
-  foot.innerHTML = `<tr><td>إجمالي الشهر</td>${data.monthTotals.map(item => `<td>${item.total.toLocaleString('en-US', { maximumFractionDigits: 0 })}</td>`).join('')}<td>${data.monthTotals.reduce((sum, item) => sum + item.total, 0).toLocaleString('en-US', { maximumFractionDigits: 0 })}</td></tr>`;
-}
-
 function renderExpenseCharts(data) {
   const topCanvas = document.getElementById('ch-exp-top');
   const stackCanvas = document.getElementById('ch-exp-stack');
@@ -208,36 +189,109 @@ function renderExpenseCharts(data) {
   }
 }
 
-function hexToRgba(hex, alpha) {
-  const normalized = hex.replace('#', '');
-  const bigint = parseInt(normalized, 16);
-  const r = (bigint >> 16) & 255;
-  const g = (bigint >> 8) & 255;
-  const b = bigint & 255;
-  return `rgba(${r},${g},${b},${alpha})`;
+// ===== خط اتجاه مصغّر (Sparkline) بدون أي مكتبة خارجية =====
+function buildSparklineSvg(values, color) {
+  const w = 108, h = 32, pad = 3;
+  if (!values.length) return '';
+  const max = Math.max(...values, 0);
+  const min = Math.min(...values, 0);
+  const range = (max - min) || 1;
+  const stepX = values.length > 1 ? (w - pad * 2) / (values.length - 1) : 0;
+  const points = values.map((v, i) => {
+    const x = pad + i * stepX;
+    const y = h - pad - ((v - min) / range) * (h - pad * 2);
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  });
+  const linePoints = points.join(' ');
+  const areaPoints = `${pad},${h - pad} ${linePoints} ${(w - pad).toFixed(1)},${h - pad}`;
+  return `<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none">
+    <polyline points="${areaPoints}" fill="${color}" opacity="0.14" stroke="none"></polyline>
+    <polyline points="${linePoints}" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></polyline>
+  </svg>`;
 }
+
+// ===== الفئات مرتّبة + Sparkline لكل فئة، مفلترة بنفس فترة الصفحة =====
+let expOpenCategory = null;
 
 function renderExpenseRankedList(data) {
   const el = document.getElementById('exp-ranked-list');
   if (!el) return;
   const sorted = data.categoryRows.slice().sort((a, b) => b.total - a.total);
   const max = sorted.length ? sorted[0].total : 0;
+
   el.innerHTML = sorted.map(row => {
     const pct = max ? (row.total / max) * 100 : 0;
+    const color = CAT_COLORS[row.cat] || '#4E7CFF';
+    const nonZero = row.values.filter(v => v > 0);
+    const firstVal = nonZero[0] || 0;
+    const lastVal = nonZero[nonZero.length - 1] || 0;
+    const change = (firstVal && nonZero.length > 1) ? ((lastVal - firstVal) / firstVal) * 100 : null;
+    // مصروف أكثر = أسوأ، فنعكس منطق الألوان الوظيفي المعتاد (ارتفاع = أحمر)
+    const changeColor = change === null ? '#94A3B8' : (change > 0 ? '#B91C1C' : '#15803D');
+    const changeText = change === null ? '—' : `${change >= 0 ? '▲' : '▼'} ${Math.abs(change).toFixed(0)}%`;
+    const isOpen = expOpenCategory === row.cat;
+    const safeCat = row.cat.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+
     return `
-      <div>
-        <div class="exp-ranked-row-head"><span>${row.cat}</span><span>${fmt(row.total)} ر</span></div>
-        <div class="exp-ranked-track"><div class="exp-ranked-fill" style="width:${pct}%;background:${CAT_COLORS[row.cat] || '#4E7CFF'}"></div></div>
+      <div class="exp-ranked-row row-expand-toggle ${isOpen ? 'open' : ''}" onclick="toggleExpCategory('${safeCat}')">
+        <div class="exp-ranked-row-top">
+          <div class="exp-ranked-name"><span class="row-expand-arrow">▾</span> ${row.cat}</div>
+          <div class="exp-ranked-track2"><div class="exp-ranked-fill2" style="width:${pct}%;background:${color}"></div></div>
+          <div class="exp-ranked-spark">${buildSparklineSvg(row.values, color)}</div>
+          <div class="exp-ranked-total">${fmt(row.total)} ر</div>
+          <div class="exp-ranked-change" style="color:${changeColor}">${changeText}</div>
+        </div>
+        <div class="exp-ranked-detail ${isOpen ? 'open' : ''}">
+          ${isOpen ? renderExpCategoryMonths(row, data.selectedMonths) : ''}
+        </div>
       </div>
     `;
-  }).join('') || '<div style="color:#94A3B8;font-size:0.85rem">لا توجد بيانات لهذه الفترة</div>';
+  }).join('') || '<div style="color:#94A3B8;font-size:0.85rem;padding:8px">لا توجد بيانات لهذه الفترة</div>';
 }
 
-function renderExpensesPage(period = 'all') {
+function toggleExpCategory(cat) {
+  expOpenCategory = expOpenCategory === cat ? null : cat;
+  renderExpensesPage(currentExpensesPeriod);
+}
+
+function renderExpCategoryMonths(row, months) {
+  const safeCat = row.cat.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+  const chips = months.map((month, i) => {
+    const value = row.values[i];
+    if (!value) return '';
+    const safeMonth = month.replace(/'/g, "\\'");
+    return `<button type="button" class="exp-ranked-month-chip" data-month="${month}" onclick="event.stopPropagation(); showExpMonthItems(this, '${safeMonth}', '${safeCat}')">
+      <span>${month}</span><strong>${fmt(value)} ر</strong>
+    </button>`;
+  }).join('');
+  return `
+    <div class="exp-ranked-chips">${chips}</div>
+    <div class="exp-ranked-item-detail" id="exp-item-detail" onclick="event.stopPropagation()"></div>
+  `;
+}
+
+function showExpMonthItems(chipEl, month, cat) {
+  document.querySelectorAll('.exp-ranked-month-chip').forEach(c => c.classList.toggle('active', c === chipEl));
+  const box = document.getElementById('exp-item-detail');
+  if (!box) return;
+  const items = getExpenseItems(month, cat);
+  const total = items.reduce((s, i) => s + (i.amount || 0), 0);
+  const rows = items.length === 0
+    ? '<tr><td colspan="2" style="text-align:center;color:#94A3B8">لا توجد تفاصيل مسجلة</td></tr>'
+    : items.map(i => `<tr><td style="text-align:right">${i.name}</td><td style="font-weight:700">${fmt(i.amount)} ر</td></tr>`).join('');
+  box.innerHTML = `
+    <div class="detail-item-label" style="margin-bottom:8px">${cat} — ${month} · الإجمالي: ${fmt(total)} ر</div>
+    <table><thead><tr><th>البند</th><th>المبلغ (ريال)</th></tr></thead><tbody>${rows}</tbody></table>
+  `;
+}
+
+let currentExpensesPeriod = 'all';
+
+function renderExpensesPage(period = currentExpensesPeriod) {
+  currentExpensesPeriod = period;
   const data = getExpenseRows(period);
   renderExpenseKpis(data);
   renderExpenseRankedList(data);
-  renderExpenseMatrix(data);
   renderExpenseCharts(data);
 }
 
@@ -245,26 +299,8 @@ function setExpensesPeriod(period, btn) {
   document.querySelectorAll('.expenses-filter').forEach(item => {
     item.classList.toggle('active', item.dataset.period === period);
   });
+  expOpenCategory = null;
   renderExpensesPage(period);
-}
-
-// ===== INLINE EXPAND: تفاصيل بند مصاريف (بدل نافذة منبثقة) =====
-function openExpDetail(month, cat) {
-  const box = document.getElementById('exp-cell-detail');
-  if (!box) return;
-  const items = getExpenseItems(month, cat);
-  const total = items.reduce((s, i) => s + i.amount, 0);
-
-  const rows = items.length === 0
-    ? '<tr><td colspan="2" style="text-align:center;color:#94A3B8">لا توجد تفاصيل مسجلة</td></tr>'
-    : items.map(i => `<tr><td style="text-align:right">${i.name}</td><td style="font-weight:700">${i.amount.toLocaleString('en-US', {maximumFractionDigits:0})} ر</td></tr>`).join('');
-
-  box.innerHTML = `
-    <div class="detail-item-label" style="margin-bottom:8px">${cat} — ${month} · الإجمالي: ${total.toLocaleString('en-US', {maximumFractionDigits:0})} ر</div>
-    <table><thead><tr><th>البند</th><th>المبلغ (ريال)</th></tr></thead><tbody>${rows}</tbody></table>
-  `;
-  box.classList.add('open');
-  box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
 // ===== SUPPLIERS FILTER =====

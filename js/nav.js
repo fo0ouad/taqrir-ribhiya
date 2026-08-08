@@ -201,14 +201,6 @@ function applyCustomRange() {
   toggleRangePanel();
 }
 
-// ===== Expenses: full matrix toggle =====
-function toggleExpFullTable() {
-  const wrap = document.getElementById('exp-full-table-wrap');
-  const btn = document.getElementById('exp-full-table-toggle-btn');
-  if (!wrap) return;
-  const open = wrap.classList.toggle('open');
-  if (btn) btn.textContent = open ? 'إخفاء الجدول الكامل ▴' : 'عرض الجدول الكامل (فئة × شهر) ▾';
-}
 
 document.addEventListener('DOMContentLoaded', () => {
   populateRangeSelects();
