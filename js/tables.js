@@ -36,10 +36,11 @@ function formatK(value, showPlus = false) {
   return `${sign}${abs.toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}K`;
 }
 
-function changeSubText(current, previous) {
+function changeSubText(current, previous, inverse = false) {
   if (previous === null || previous === undefined || !previous) return 'لا توجد فترة سابقة للمقارنة';
   const pct = ((current - previous) / Math.abs(previous)) * 100;
-  const color = pct >= 0 ? '#15803D' : '#B91C1C';
+  const isGood = inverse ? pct <= 0 : pct >= 0;
+  const color = isGood ? '#15803D' : '#B91C1C';
   return `<span style="color:${color};font-weight:800">${pct >= 0 ? '▲' : '▼'} ${Math.abs(pct).toFixed(0)}%</span> عن الفترة السابقة المكافئة`;
 }
 
@@ -115,6 +116,22 @@ function getExpenseRows(period = 'all') {
   return { selectedMonths, categoryRows, monthTotals };
 }
 
+// إجمالي مصاريف "فترة سابقة مكافئة" لنفس عدد أشهر الفترة المختارة، للمقارنة الدائمة بالكروت
+function expensePreviousPeriodTotal(selectedMonths) {
+  if (!selectedMonths.length) return null;
+  const firstIdx = MONTHS.indexOf(selectedMonths[0]);
+  const len = selectedMonths.length;
+  const prevHi = firstIdx - 1;
+  const prevLo = prevHi - len + 1;
+  if (firstIdx === -1 || prevLo < 0) return null;
+  let total = 0;
+  for (let i = prevLo; i <= prevHi; i++) {
+    const month = MONTHS[i];
+    total += Number(MONTHLY_DETAIL[month]?.expenses ?? EXPENSES[i] ?? 0);
+  }
+  return { total, count: len };
+}
+
 function renderExpenseKpis(data) {
   const total = data.categoryRows.reduce((sum, row) => sum + row.total, 0);
   const topCategory = data.categoryRows.slice().sort((a, b) => b.total - a.total)[0];
@@ -125,15 +142,24 @@ function renderExpenseKpis(data) {
     const el = document.getElementById(id);
     if (el) el.textContent = value;
   };
+  const setHtml = (id, value) => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = value;
+  };
+
+  const previous = expensePreviousPeriodTotal(data.selectedMonths);
+  const previousAvg = previous ? previous.total / previous.count : null;
+  // ارتفاع المصاريف سيء دائماً بصرياً (inverse) — عكس منطق الإيراد/الربح
+  const changeVs = (current, prev) => prev ? changeSubText(current, prev, true) : `${data.selectedMonths.length} شهر`;
 
   setText('expenses-total', fmtAmount(total));
-  setText('expenses-total-sub', `${data.selectedMonths.length} شهر`);
+  setHtml('expenses-total-sub', changeVs(total, previous?.total));
   setText('expenses-top-category', topCategory?.cat || '—');
-  setText('expenses-top-category-sub', topCategory ? fmtAmount(topCategory.total) : '—');
+  setText('expenses-top-category-sub', topCategory && total ? `${((topCategory.total / total) * 100).toFixed(0)}% من الإجمالي` : '—');
   setText('expenses-top-month', topMonth?.month || '—');
-  setText('expenses-top-month-sub', topMonth ? fmtAmount(topMonth.total) : '—');
+  setText('expenses-top-month-sub', topMonth ? `${fmtAmount(topMonth.total)}${average ? ` · ${((topMonth.total / average - 1) * 100).toFixed(0)}% عن المتوسط` : ''}` : '—');
   setText('expenses-average', fmtAmount(average));
-  setText('expenses-average-sub', 'متوسط الفترة المختارة');
+  setHtml('expenses-average-sub', changeVs(average, previousAvg));
 }
 
 function renderExpenseCharts(data) {
@@ -210,76 +236,73 @@ function buildSparklineSvg(values, color) {
   </svg>`;
 }
 
-// ===== الفئات مرتّبة + Sparkline لكل فئة، مفلترة بنفس فترة الصفحة =====
-let expOpenCategory = null;
+// ===== مصفوفة المصاريف: الفئة × الشهر، مرتّبة تنازلياً، مع عمود اتجاه (Sparkline) ثابت =====
+// كل خلية شهر تفتح بنقرة واحدة تفصيل بنودها inline أسفل صف الفئة (بدون نافذة منبثقة)
+let expOpenCell = null; // { cat, month }
 
-function renderExpenseRankedList(data) {
-  const el = document.getElementById('exp-ranked-list');
-  if (!el) return;
+function renderExpenseMatrix(data) {
+  const head = document.getElementById('exp-table-head');
+  const body = document.getElementById('exp-table-body');
+  const foot = document.getElementById('exp-table-foot');
+  if (!head || !body || !foot) return;
   const sorted = data.categoryRows.slice().sort((a, b) => b.total - a.total);
-  const max = sorted.length ? sorted[0].total : 0;
+  const colCount = data.selectedMonths.length + 2;
 
-  el.innerHTML = sorted.map(row => {
-    const pct = max ? (row.total / max) * 100 : 0;
+  head.innerHTML = `<tr><th>الفئة / الاتجاه</th>${data.selectedMonths.map(month => `<th>${month}</th>`).join('')}<th>الإجمالي</th></tr>`;
+
+  body.innerHTML = sorted.map((row, idx) => {
     const color = CAT_COLORS[row.cat] || '#4E7CFF';
-    const nonZero = row.values.filter(v => v > 0);
-    const firstVal = nonZero[0] || 0;
-    const lastVal = nonZero[nonZero.length - 1] || 0;
-    const change = (firstVal && nonZero.length > 1) ? ((lastVal - firstVal) / firstVal) * 100 : null;
-    // مصروف أكثر = أسوأ، فنعكس منطق الألوان الوظيفي المعتاد (ارتفاع = أحمر)
-    const changeColor = change === null ? '#94A3B8' : (change > 0 ? '#B91C1C' : '#15803D');
-    const changeText = change === null ? '—' : `${change >= 0 ? '▲' : '▼'} ${Math.abs(change).toFixed(0)}%`;
-    const isOpen = expOpenCategory === row.cat;
-    const safeCat = row.cat.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    const rowMax = Math.max(...row.values);
+    const rowId = 'exp-mrow-' + idx;
+    const safeCat = row.cat.replace(/'/g, "\\'");
+    const isOpenRow = expOpenCell && expOpenCell.cat === row.cat;
+
+    const cells = row.values.map((value, i) => {
+      if (!value) return '<td class="exp-empty">—</td>';
+      const month = data.selectedMonths[i];
+      const isMax = value === rowMax;
+      const safeMonth = month.replace(/'/g, "\\'");
+      const isActiveCell = isOpenRow && expOpenCell.month === month;
+      return `<td class="exp-cell ${isMax ? 'exp-cell-max' : ''}" style="background:rgba(${hexToRgbTriplet(color)},${isActiveCell ? 0.28 : 0.12})" onclick="toggleExpCell('${safeCat}','${safeMonth}')">${fmt(value)}</td>`;
+    }).join('');
 
     return `
-      <div class="exp-ranked-row row-expand-toggle ${isOpen ? 'open' : ''}" onclick="toggleExpCategory('${safeCat}')">
-        <div class="exp-ranked-row-top">
-          <div class="exp-ranked-name"><span class="row-expand-arrow">▾</span> ${row.cat}</div>
-          <div class="exp-ranked-track2"><div class="exp-ranked-fill2" style="width:${pct}%;background:${color}"></div></div>
-          <div class="exp-ranked-spark">${buildSparklineSvg(row.values, color)}</div>
-          <div class="exp-ranked-total">${fmt(row.total)} ر</div>
-          <div class="exp-ranked-change" style="color:${changeColor}">${changeText}</div>
-        </div>
-        <div class="exp-ranked-detail ${isOpen ? 'open' : ''}">
-          ${isOpen ? renderExpCategoryMonths(row, data.selectedMonths) : ''}
-        </div>
-      </div>
+      <tr>
+        <td class="exp-category-cell">
+          <div class="exp-category-name" style="color:${color}">${row.cat}</div>
+          <div class="exp-category-spark">${buildSparklineSvg(row.values, color)}</div>
+        </td>
+        ${cells}
+        <td class="exp-total">${fmt(row.total)}</td>
+      </tr>
+      <tr class="detail-row ${isOpenRow ? 'open' : ''}" id="${rowId}-detail">
+        <td colspan="${colCount}">${isOpenRow ? renderExpCellDetail(row.cat, expOpenCell.month) : ''}</td>
+      </tr>
     `;
-  }).join('') || '<div style="color:#94A3B8;font-size:0.85rem;padding:8px">لا توجد بيانات لهذه الفترة</div>';
+  }).join('') || `<tr><td colspan="${colCount}" style="color:#94A3B8">لا توجد بيانات لهذه الفترة</td></tr>`;
+
+  foot.innerHTML = `<tr><td>إجمالي الشهر</td>${data.monthTotals.map(item => `<td>${fmt(item.total)}</td>`).join('')}<td>${fmt(data.monthTotals.reduce((sum, item) => sum + item.total, 0))}</td></tr>`;
 }
 
-function toggleExpCategory(cat) {
-  expOpenCategory = expOpenCategory === cat ? null : cat;
+function hexToRgbTriplet(hex) {
+  const normalized = hex.replace('#', '');
+  const bigint = parseInt(normalized, 16);
+  return `${(bigint >> 16) & 255},${(bigint >> 8) & 255},${bigint & 255}`;
+}
+
+function toggleExpCell(cat, month) {
+  const isSame = expOpenCell && expOpenCell.cat === cat && expOpenCell.month === month;
+  expOpenCell = isSame ? null : { cat, month };
   renderExpensesPage(currentExpensesPeriod);
 }
 
-function renderExpCategoryMonths(row, months) {
-  const safeCat = row.cat.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-  const chips = months.map((month, i) => {
-    const value = row.values[i];
-    if (!value) return '';
-    const safeMonth = month.replace(/'/g, "\\'");
-    return `<button type="button" class="exp-ranked-month-chip" data-month="${month}" onclick="event.stopPropagation(); showExpMonthItems(this, '${safeMonth}', '${safeCat}')">
-      <span>${month}</span><strong>${fmt(value)} ر</strong>
-    </button>`;
-  }).join('');
-  return `
-    <div class="exp-ranked-chips">${chips}</div>
-    <div class="exp-ranked-item-detail" id="exp-item-detail" onclick="event.stopPropagation()"></div>
-  `;
-}
-
-function showExpMonthItems(chipEl, month, cat) {
-  document.querySelectorAll('.exp-ranked-month-chip').forEach(c => c.classList.toggle('active', c === chipEl));
-  const box = document.getElementById('exp-item-detail');
-  if (!box) return;
+function renderExpCellDetail(cat, month) {
   const items = getExpenseItems(month, cat);
   const total = items.reduce((s, i) => s + (i.amount || 0), 0);
   const rows = items.length === 0
     ? '<tr><td colspan="2" style="text-align:center;color:#94A3B8">لا توجد تفاصيل مسجلة</td></tr>'
     : items.map(i => `<tr><td style="text-align:right">${i.name}</td><td style="font-weight:700">${fmt(i.amount)} ر</td></tr>`).join('');
-  box.innerHTML = `
+  return `
     <div class="detail-item-label" style="margin-bottom:8px">${cat} — ${month} · الإجمالي: ${fmt(total)} ر</div>
     <table><thead><tr><th>البند</th><th>المبلغ (ريال)</th></tr></thead><tbody>${rows}</tbody></table>
   `;
@@ -291,7 +314,7 @@ function renderExpensesPage(period = currentExpensesPeriod) {
   currentExpensesPeriod = period;
   const data = getExpenseRows(period);
   renderExpenseKpis(data);
-  renderExpenseRankedList(data);
+  renderExpenseMatrix(data);
   renderExpenseCharts(data);
 }
 
@@ -299,7 +322,7 @@ function setExpensesPeriod(period, btn) {
   document.querySelectorAll('.expenses-filter').forEach(item => {
     item.classList.toggle('active', item.dataset.period === period);
   });
-  expOpenCategory = null;
+  expOpenCell = null;
   renderExpensesPage(period);
 }
 
