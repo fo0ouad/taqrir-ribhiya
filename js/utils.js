@@ -85,9 +85,9 @@ function closeModal() {
 const chartDefaults = {
   locale: 'en-US',
   responsive: true,
-  plugins: { legend: { labels: { font: { family: 'Segoe UI, Tahoma, Arial' } } } },
+  plugins: { legend: { labels: { font: { family: 'IBM Plex Sans Arabic, Tahoma, Arial' } } } },
   scales: {
-    x: { ticks: { font: { family: 'Segoe UI, Tahoma, Arial', size: 11 } } },
-    y: { ticks: { font: { family: 'Segoe UI, Tahoma, Arial' }, callback: v => (v/1000).toFixed(0)+'K' } }
+    x: { ticks: { font: { family: 'IBM Plex Sans Arabic, Tahoma, Arial', size: 11 } } },
+    y: { ticks: { font: { family: 'IBM Plex Sans Arabic, Tahoma, Arial' }, callback: v => (v/1000).toFixed(0)+'K' } }
   }
 };

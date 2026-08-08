@@ -2,119 +2,18 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>تقييم Profit First الفوري</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<meta http-equiv="refresh" content="0; url=index.html#tab-profit-first">
+<title>تقييم Profit First — انتقل إلى الداشبورد</title>
 <link rel="stylesheet" href="css/style.css">
-<style>
-.pf-input { width:100%; max-width:130px; padding:8px 10px; border:1px solid #cbd5e1; border-radius:8px; font-size:.9rem; text-align:center; font-family:inherit; direction:ltr; color:#1e293b; }
-.pf-input:focus { outline:none; border-color:#1e3a5f; box-shadow:0 0 0 3px rgba(30,58,95,.1); }
-.pf-input[readonly] { background:#f8fafc; color:#64748b; }
-.pf-table td, .pf-table th { padding:10px 12px; border-bottom:1px solid #e2e8f0; text-align:center; }
-.pf-table th { background:#f8fafc; color:#64748b; font-weight:800; font-size:.78rem; white-space:nowrap; }
-.pf-table td:first-child, .pf-table th:first-child { text-align:right; }
-.pf-table .lbl { font-weight:900; color:#1e3a5f; }
-.pf-table .row-revenue { background:#f8faff; }
-.pf-profit { color:#047857; font-weight:900; }
-.pf-loss { color:#dc2626; font-weight:900; }
-.pf-neutral { color:#94a3b8; }
-.tap-table td.selected, .tap-table th.selected { background:rgba(30,58,95,.08); font-weight:900; color:#1e3a5f; }
-.pf-basis { display:flex; align-items:center; gap:10px; margin-bottom:16px; flex-wrap:wrap; font-size:.85rem; color:#475569; font-weight:700; }
-.pf-basis select { padding:8px 12px; border-radius:8px; border:1px solid #cbd5e1; font-family:inherit; background:#fff; }
-.pf-glossary { list-style:none; padding:0; margin:0 0 18px; display:flex; flex-direction:column; gap:8px; }
-.pf-glossary li { background:#f8fafc; border-right:4px solid #3B82F6; border-radius:8px; padding:10px 14px; font-size:.82rem; color:#475569; line-height:1.8; }
-.pf-glossary li strong { color:#1e3a5f; }
-</style>
+<script>window.location.replace('index.html#tab-profit-first');</script>
 </head>
 <body>
-
-<div class="header">
-  <div class="header-main">
-    <div class="header-mark">🎯</div>
-    <div>
-      <h1>تقييم Profit First الفوري</h1>
-      <div class="header-sub" id="pfMonthsRange">—</div>
-    </div>
-  </div>
-  <div class="header-actions">
-    <a href="index.html" class="upload-btn">العودة للداشبورد</a>
+<div class="login-page">
+  <div class="login-card">
+    <div class="login-logo">🎯</div>
+    <div class="login-title">تقييم Profit First أصبح تاباً داخل الداشبورد</div>
+    <div class="login-sub">جاري التحويل تلقائياً... إن لم يتم التحويل، <a href="index.html#tab-profit-first">اضغط هنا</a>.</div>
   </div>
 </div>
-
-<main class="scenario-page">
-
-  <section class="kpi-grid" id="pfKpiGrid">
-    <div class="kpi-card" style="border-color:#3B82F6">
-      <div class="kpi-value" id="pfKpiTop" style="color:#3B82F6">—</div>
-      <div class="kpi-label">الإيراد الإجمالي (١٢ شهر)</div>
-    </div>
-    <div class="kpi-card" style="border-color:#10B981">
-      <div class="kpi-value" id="pfKpiReal" style="color:#10B981">—</div>
-      <div class="kpi-label">الإيراد الحقيقي (Real Revenue)</div>
-    </div>
-    <div class="kpi-card" style="border-color:#8B5CF6">
-      <div class="kpi-value" id="pfKpiCol" style="color:#8B5CF6;font-size:1.2rem">—</div>
-      <div class="kpi-label">عمود التقييم المستخدم</div>
-    </div>
-    <div class="kpi-card" style="border-color:#F59E0B">
-      <div class="kpi-value" id="pfKpiBleedCount" style="color:#F59E0B">—</div>
-      <div class="kpi-label">بنود بعيدة عن الهدف</div>
-    </div>
-    <div class="kpi-card" id="pfKpiBalanceCard" style="border-color:#dc2626">
-      <div class="kpi-value" id="pfKpiBalance" style="color:#dc2626">—</div>
-      <div class="kpi-label">فرق التوازن</div>
-    </div>
-  </section>
-
-  <section class="scenario-panel">
-    <h3>🎯 التقييم الفوري — Profit First Instant Assessment</h3>
-    <p style="font-size:.85rem;color:#64748b;line-height:1.8;margin-bottom:10px;">
-      مبني على منهجية <strong>Profit First</strong> لمايك ميكالوفيتش. كل الحقول معبّأة تلقائياً من بيانات آخر 12 شهر الموجودة في
-      <code>data.js</code>، وكل حقل قابل للتعديل يدوياً — غيّر أي رقم لأقرب لواقعك وباقي الجدول (PF% ، PF$ ، الفجوة، الإجراء)
-      يتحدث تلقائياً. تفصيل كل بند وكيف حسبناه:
-    </p>
-    <ul class="pf-glossary">
-      <li><strong>الإيراد الإجمالي (Top Line Revenue):</strong> مجموع المبيعات المسجلة لآخر 12 شهر — نفس رقم "الإيراد" في جدول الملخص الشهري بالداشبورد الرئيسي.</li>
-      <li><strong>المواد والمقاولون (Material &amp; Subs):</strong> تكلفة البضاعة المشتراة فقط. افتراضياً "المشتريات الفعلية" (أساس الاستحقاق — البضاعة المستلمة بغض النظر عن موعد السداد)، وتقدر تبدلها لـ"المدفوع للموردين نقداً" من القائمة تحت. لا يشمل رواتب أو أي مصروف تشغيلي.</li>
-      <li><strong>الإيراد الحقيقي (Real Revenue):</strong> محسوب تلقائياً = الإيراد الإجمالي − المواد والمقاولون. كل النسب المستهدفة (PF%) في الجدول محسوبة من هذا الرقم.</li>
-      <li><strong>الربح (Profit):</strong> مجموع عمود "ربح" في جدول الملخص الشهري لآخر 12 شهر (هامش 15% تقديري على المبيعات ناقص كل المصاريف). هذا "ربح محاسبي تقديري" — مو بالضرورة نفس تعريف الكتاب الأصلي (المبلغ الفعلي المحتفظ به في البنك أو الموزّع كمكافأة)، فعدّله لرقمك الفعلي إذا يختلف.</li>
-      <li><strong>أجر المالك (Owner's Pay):</strong> مجموع 3 بنود رواتب محددة داخل تفاصيل بند "رواتب": "راتب محمد سعيد" + "راتب هاني سعيد" + "راتب سعيد ماحيله" لآخر 12 شهر. تم طرحها من "المصاريف التشغيلية" تحت حتى لا تُحتسب مرتين.</li>
-      <li><strong>الضريبة / الزكاة (Tax):</strong> مجموع بند "الزكاة والدخل" من تفصيل المصاريف لآخر 12 شهر.</li>
-      <li><strong>المصاريف التشغيلية (Operating Expenses):</strong> إجمالي "المصاريف" الشهري (نفس رقم عمود "المصاريف" في جدول الملخص الشهري) لآخر 12 شهر، ناقص: الزكاة/الضريبة، ناقص مصاريف العائلة (مستبعدة كلياً لأنها شخصية مو تجارية)، وناقص أجر المالك أعلاه. يشمل عملياً: رواتب باقي الموظفين، الإيجار، مصاريف المشغل، رسوم بنكية، عمولات مشتركة، نقل، مصاريف حكومية، رسوم مرافقين، تأمينات، كهرباء الفروع، اتصالات، مستحقات سابقة، وأخرى — بالإضافة لأي مبلغ غير مصنّف ضمن هذه البنود بالتفصيل (حوالي 115 ألف ريال من إجمالي آخر 12 شهر غير مصنّف تحت أي بند محدد في البيانات، وهو داخل ضمن هذا الرقم).</li>
-    </ul>
-    <div class="pf-basis">
-      <label for="pfBasisSelect">أساس تكلفة البضاعة (Material &amp; Subs):</label>
-      <select id="pfBasisSelect">
-        <option value="purchases">المشتريات الفعلية (أساس الاستحقاق)</option>
-        <option value="paid">المدفوع للموردين نقداً</option>
-      </select>
-    </div>
-    <div style="overflow-x:auto">
-      <table class="pf-table" id="pfTable"></table>
-    </div>
-    <p style="font-size:.82rem;color:#64748b;margin-top:12px;line-height:1.7;" id="pfBalanceNote"></p>
-  </section>
-
-  <section class="scenario-layout">
-    <div class="chart-card">
-      <div class="chart-title">الفعلي مقابل الهدف لكل بند</div>
-      <canvas id="pfBarChart" height="160"></canvas>
-    </div>
-    <div class="scenario-panel">
-      <h3>جدول النسب المستهدفة (Figure 1) — حسب حجم الإيراد الحقيقي</h3>
-      <div style="overflow-x:auto">
-        <table class="pf-table tap-table" id="pfTapTable"></table>
-      </div>
-    </div>
-  </section>
-
-  <section class="quick-insights" id="pfInsights"></section>
-
-</main>
-
-<script src="data.js"></script>
-<script src="js/auth.js"></script>
-<script src="js/utils.js"></script>
-<script src="js/profitFirst.js"></script>
 </body>
 </html>

@@ -101,8 +101,8 @@ function renderMonthlyReportDetail(month) {
 
     <div class="purchase-compare-box">
       <div class="purchase-compare-head"><span>مقارنة مشتريات الشهر بالشهر السابق</span><strong>${previous ? previous.month : "لا يوجد شهر سابق"}</strong></div>
-      ${purchaseCompareRow(month, current.purchases, Math.max(current.purchases, previous?.purchases || 0), "#10B981")}
-      ${previous ? purchaseCompareRow(previous.month, previous.purchases, Math.max(current.purchases, previous.purchases), "#CBD5E1") : ""}
+      ${purchaseCompareRow(month, current.purchases, Math.max(current.purchases, previous?.purchases || 0), "#15803D")}
+      ${previous ? purchaseCompareRow(previous.month, previous.purchases, Math.max(current.purchases, previous.purchases), "#E7E9EE") : ""}
     </div>
 
     ${branchSalesHtml}
@@ -188,7 +188,7 @@ function renderMonthlyBranchSalesChart(month) {
       datasets: [{
         label: "المبيعات",
         data: values,
-        backgroundColor: ["#3B82F6", "#10B981"],
+        backgroundColor: ["#4E7CFF", "#15803D"],
         borderRadius: 6
       }]
     },
@@ -262,7 +262,7 @@ function monthlyChangeText(current, previous, inverse = false) {
   if (!previous) return "—";
   const value = ((current - previous) / Math.abs(previous)) * 100;
   const good = inverse ? value <= 0 : value >= 0;
-  return `<span style="color:${good ? "#15803d" : "#dc2626"}">${value >= 0 ? "+" : ""}${value.toFixed(1)}% عن السابق</span>`;
+  return `<span style="color:${good ? "#15803D" : "#B91C1C"}">${value >= 0 ? "+" : ""}${value.toFixed(1)}% عن السابق</span>`;
 }
 
 function purchaseCompareRow(label, value, max, color) {
@@ -278,7 +278,7 @@ function renderMonthlyExpenseChart(rows) {
     type: "bar",
     data: {
       labels: rows.map(row => row.cat),
-      datasets: [{ label: "المصاريف", data: rows.map(row => row.total), backgroundColor: rows.map(row => CAT_COLORS[row.cat] || "#3B82F6"), borderRadius: 5 }]
+      datasets: [{ label: "المصاريف", data: rows.map(row => row.total), backgroundColor: rows.map(row => CAT_COLORS[row.cat] || "#4E7CFF"), borderRadius: 5 }]
     },
     options: { ...chartDefaults, indexAxis: "y", plugins: { legend: { display: false } }, scales: { x: { ticks: { callback: v => `${(v / 1000).toFixed(0)}K` } } } }
   });

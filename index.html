@@ -4,73 +4,137 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>داشبورد محلات العائلة — 2025/2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-<!-- Header -->
-<div class="header">
-  <div class="header-main">
-    <div class="header-mark">📊</div>
+<div class="app-shell">
+
+<!-- Sidebar (RTL: sits on the right) -->
+<nav class="sidebar" id="app-sidebar">
+  <div class="sidebar-brand">
+    <div class="sidebar-mark">م</div>
     <div>
-      <h1>داشبورد محلات العائلة</h1>
-      <div class="header-sub" id="dashboard-period">يناير 2025 — أبريل 2026 · 16 شهراً من البيانات</div>
+      <div class="sidebar-brand-title">محلات العائلة</div>
+      <div class="sidebar-brand-sub">لوحة البيانات المالية</div>
     </div>
   </div>
-  <div class="header-actions">
-    <div class="last-update" id="dashboard-last-update">آخر تحديث: أبريل 2026</div>
+
+  <input type="text" class="sidebar-search" id="global-search" placeholder="ابحث في التقارير، الموردين، الأرقام..." oninput="runGlobalSearch(this.value)">
+  <div class="sidebar-search-results" id="global-search-results"></div>
+
+  <div class="sidebar-groups">
+    <div class="sidebar-group" data-nav-group="home">
+      <div class="sidebar-group-title">الرئيسية</div>
+      <div class="sidebar-group-items">
+        <button class="sidebar-item" data-tab="tab-summary" onclick="switchTab('tab-summary', this)">الملخص التنفيذي</button>
+      </div>
+    </div>
+    <div class="sidebar-group" data-nav-group="reports">
+      <div class="sidebar-group-title">التقارير</div>
+      <div class="sidebar-group-items">
+        <button class="sidebar-item" data-tab="tab-monthly-reports" onclick="switchTab('tab-monthly-reports', this)">التقارير الشهرية</button>
+        <button class="sidebar-item" data-tab="tab-expenses" onclick="switchTab('tab-expenses', this)">المصاريف التفصيلية</button>
+        <button class="sidebar-item" data-tab="tab-purchases" onclick="switchTab('tab-purchases', this)">المشتريات</button>
+        <button class="sidebar-item" data-tab="tab-report" onclick="switchTab('tab-report', this)">التقرير التحليلي</button>
+      </div>
+    </div>
+    <div class="sidebar-group" data-nav-group="parties">
+      <div class="sidebar-group-title">الأطراف التجارية</div>
+      <div class="sidebar-group-items">
+        <button class="sidebar-item" data-tab="tab-suppliers" onclick="switchTab('tab-suppliers', this)">موردين الرجالي</button>
+        <button class="sidebar-item" data-tab="tab-women-suppliers" onclick="switchTab('tab-women-suppliers', this)">موردين النسائي</button>
+        <button class="sidebar-item" data-tab="tab-customers" onclick="switchTab('tab-customers', this)">عملاء النسائي</button>
+      </div>
+    </div>
+    <div class="sidebar-group" data-nav-group="tools">
+      <div class="sidebar-group-title">الأدوات والتخطيط</div>
+      <div class="sidebar-group-items">
+        <button class="sidebar-item" data-tab="tab-profit-scenario" onclick="switchTab('tab-profit-scenario', this)">سيناريو الربحية</button>
+        <button class="sidebar-item" data-tab="tab-profit-first" onclick="switchTab('tab-profit-first', this)">🎯 تقييم Profit First</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="sidebar-footer">
     <a href="upload.html" class="upload-btn">رفع بيانات</a>
     <button class="logout-btn" onclick="logout()">خروج</button>
   </div>
-</div>
+</nav>
 
-<!-- Tabs Navigation -->
-<div class="tabs">
-  <button class="tab-btn active" onclick="switchTab('tab-summary', this)">الملخص التنفيذي</button>
-  <button class="tab-btn" onclick="switchTab('tab-monthly-reports', this)">التقارير الشهرية</button>
-  <button class="tab-btn" onclick="switchTab('tab-expenses', this)">المصاريف التفصيلية</button>
-  <button class="tab-btn" onclick="switchTab('tab-purchases', this)">المشتريات</button>
-  <button class="tab-btn" onclick="switchTab('tab-women-suppliers', this)">موردين النسائي</button>
-  <button class="tab-btn" onclick="switchTab('tab-customers', this)">عملاء النسائي</button>
-  <button class="tab-btn" onclick="switchTab('tab-report', this)">التقرير التحليلي</button>
-  <button class="tab-btn" onclick="switchTab('tab-profit-scenario', this)">سيناريو الربحية</button>
-  <button class="tab-btn" onclick="switchTab('tab-suppliers', this)">موردين الرجالي</button>
-  <a href="profit-first.html" class="tab-btn" style="text-decoration:none;display:inline-flex;align-items:center;">🎯 تقييم Profit First</a>
-</div>
+<!-- Main content -->
+<main class="main-content">
+  <div class="last-update" id="dashboard-last-update">آخر تحديث: أبريل 2026</div>
+  <div class="mobile-subnav" id="mobile-subnav"></div>
 
 <!-- ===== TAB CONTENTS ===== -->
 <div id="tab-summary" class="tab-content active">
+
+<div class="page-head">
+  <div>
+    <h1>الملخص التنفيذي</h1>
+    <div class="page-head-sub" id="dashboard-period">يناير 2025 — أبريل 2026 · 16 شهراً من البيانات</div>
+  </div>
+  <div class="page-head-tools">
+    <div class="range-control">
+      <button class="range-pill" id="range-pill-btn" onclick="toggleRangePanel()">الفترة: الكل ▾</button>
+      <div class="range-panel" id="range-panel">
+        <div class="range-panel-row">
+          <select id="range-from"></select>
+          <select id="range-to"></select>
+        </div>
+        <button class="range-pill" style="width:100%;margin-bottom:8px" onclick="applyCustomRange()">تطبيق</button>
+        <div class="range-panel-presets">
+          <button class="category-chip summary-kpi-filter active" data-period="all" onclick="setExecutiveKpiPeriod('all', this)">الكل</button>
+          <button class="category-chip summary-kpi-filter" data-period="2025" onclick="setExecutiveKpiPeriod('2025', this)">2025</button>
+          <button class="category-chip summary-kpi-filter" data-period="2026" onclick="setExecutiveKpiPeriod('2026', this)">2026</button>
+        </div>
+      </div>
+    </div>
+    <button class="compare-toggle-btn" id="compare-toggle-btn" onclick="toggleCompareMode()">وضع المقارنة</button>
+  </div>
+</div>
+
+<div class="alert-banner" id="summary-alert-banner" style="display:none"></div>
+
+<div class="compare-panel" id="summary-compare-panel">
+  <div class="compare-panel-title" id="compare-panel-title">مقارنة الفترات</div>
+  <div class="compare-grid" id="compare-panel-body"></div>
+</div>
+
 <!-- KPI Cards -->
-<div class="summary-kpi-toolbar">
+<div class="summary-kpi-toolbar" style="display:none">
   <span>عرض الكروت:</span>
   <button class="summary-kpi-filter active" data-period="all" onclick="setExecutiveKpiPeriod('all', this)">الكل</button>
   <button class="summary-kpi-filter" data-period="2025" onclick="setExecutiveKpiPeriod('2025', this)">2025</button>
   <button class="summary-kpi-filter" data-period="2026" onclick="setExecutiveKpiPeriod('2026', this)">2026</button>
 </div>
 <div class="kpi-grid">
-  <div class="kpi-card" style="border-color:#3B82F6">
-    <div class="kpi-value" id="summary-total-revenue" style="color:#3B82F6">5,591.9K</div>
+  <div class="kpi-card">
+    <div class="kpi-value" id="summary-total-revenue" style="color:#4E7CFF">5,591.9K</div>
     <div class="kpi-label">إجمالي الإيرادات</div>
     <div class="kpi-sub" id="summary-total-revenue-sub">آخر 16 شهر</div>
   </div>
-  <div class="kpi-card" style="border-color:#dc2626">
-    <div class="kpi-value" id="summary-net-result" style="color:#dc2626">-300.9K</div>
+  <div class="kpi-card">
+    <div class="kpi-value" id="summary-net-result" style="color:#B91C1C">-300.9K</div>
     <div class="kpi-label">صافي النتيجة التشغيلية</div>
     <div class="kpi-sub">حسب هامش 15% − المصاريف</div>
   </div>
-  <div class="kpi-card" style="border-color:#8B5CF6">
-    <div class="kpi-value" id="summary-profit-months" style="color:#8B5CF6">4/16</div>
+  <div class="kpi-card">
+    <div class="kpi-value" id="summary-profit-months" style="color:#7033FF">4/16</div>
     <div class="kpi-label">أشهر الربح</div>
     <div class="kpi-sub" id="summary-profit-months-sub">4 أشهر رابحة من أصل 16</div>
   </div>
-  <div class="kpi-card" style="border-color:#EF4444">
-    <div class="kpi-value" id="summary-loss-total" style="color:#EF4444">-350.1K</div>
+  <div class="kpi-card">
+    <div class="kpi-value" id="summary-loss-total" style="color:#B91C1C">-350.1K</div>
     <div class="kpi-label">مجموع الخسائر</div>
     <div class="kpi-sub">إجمالي الأشهر الخاسرة</div>
   </div>
-  <div class="kpi-card" style="border-color:#10B981">
-    <div class="kpi-value" id="summary-profit-total" style="color:#10B981">+49.2K</div>
+  <div class="kpi-card">
+    <div class="kpi-value" id="summary-profit-total" style="color:#15803D">+49.2K</div>
     <div class="kpi-label">مجموع الأرباح</div>
     <div class="kpi-sub">إجمالي الأشهر الرابحة</div>
   </div>
@@ -119,7 +183,7 @@
   </div>
   
   <div class="table-card">
-    <h3>جدول الملخص الشهري — انقر على أي شهر لعرض تفاصيله</h3>
+    <h3>جدول الملخص الشهري — انقر على أي شهر لتوسيع تفاصيله (بدون نافذة منبثقة)</h3>
 <div class="year-filter">
   <span>تصفية حسب السنة:</span>
   <button id="filter-all" class="year-btn active" data-year="all" onclick="filterByYear('all')">الكل (16)</button>
@@ -138,226 +202,53 @@
           <th onclick="sortTable('summary-table',0)">الشهر ↕</th>
           <th onclick="sortTable('summary-table',1)">الإيراد ↕</th>
           <th onclick="sortTable('summary-table',2)">هامش 15% ↕</th>
-          <th onclick="sortTable('summary-table',3)" title="الهامش الفعلي ÷ أيام الشهر" style="background:#1a4a7a;cursor:help">متوسط يومي ↕ ℹ️</th>
+          <th onclick="sortTable('summary-table',3)" title="الهامش الفعلي ÷ أيام الشهر" style="background:#4E7CFF;cursor:help">متوسط يومي ↕ ℹ️</th>
           <th onclick="sortTable('summary-table',4)">المصاريف ↕</th>
-          <th onclick="sortTable('summary-table',5)" title="هامش 15% − مصاريف" style="background:#1a4a7a;cursor:help">ربح ↕ ℹ️</th>
-          <th onclick="sortTable('summary-table',6)" title="الإيراد − المصاريف − المدفوع للموردين" style="background:#1a4a7a;cursor:help">فائض نقدي ↕ ℹ️</th>
+          <th onclick="sortTable('summary-table',5)" title="هامش 15% − مصاريف" style="background:#4E7CFF;cursor:help">ربح ↕ ℹ️</th>
+          <th onclick="sortTable('summary-table',6)" title="الإيراد − المصاريف − المدفوع للموردين" style="background:#4E7CFF;cursor:help">فائض نقدي ↕ ℹ️</th>
           <th onclick="sortTable('summary-table',7)">موردين مدفوع ↕</th>
           <th onclick="sortTable('summary-table',8)">مشتريات ↕</th>
-          <th onclick="sortTable('summary-table',9)" title="المدفوع للموردين − المشتريات" style="background:#1a4a7a;cursor:help">فرق الموردين ↕</th>
+          <th onclick="sortTable('summary-table',9)" title="المدفوع للموردين − المشتريات" style="background:#4E7CFF;cursor:help">فرق الموردين ↕</th>
         </tr>
       </thead>
-      <tbody id="summary-tbody"><tr onclick="openMonthDetail('يناير 25')">
-<td style="font-weight:600;color:#1e3a5f;text-decoration:underline;text-underline-offset:3px">يناير 25</td>
-<td>285,038</td>
-<td>42,756</td>
-<td style="color:#b45309;font-weight:700">1,379 ر</td>
-<td>91,363</td>
-<td style="color:#dc2626;font-weight:700">-48,607</td>
-<td style="color:#16a34a;font-weight:700">+3,216</td>
-<td>190,459</td>
-<td>173,491</td>
-<td style="color:#16a34a">+16,968</td>
-</tr><tr onclick="openMonthDetail('فبراير 25')">
-<td style="font-weight:600;color:#1e3a5f;text-decoration:underline;text-underline-offset:3px">فبراير 25</td>
-<td>548,674</td>
-<td>82,301</td>
-<td style="color:#15803d;font-weight:700">2,939 ر</td>
-<td>67,611</td>
-<td style="color:#16a34a;font-weight:700">+14,690</td>
-<td style="color:#16a34a;font-weight:700">+2,115</td>
-<td>478,948</td>
-<td>119,085</td>
-<td style="color:#16a34a">+359,863</td>
-</tr><tr onclick="openMonthDetail('مارس 25')">
-<td style="font-weight:600;color:#1e3a5f;text-decoration:underline;text-underline-offset:3px">مارس 25</td>
-<td>532,048</td>
-<td>79,807</td>
-<td style="color:#15803d;font-weight:700">2,574 ر</td>
-<td>124,379</td>
-<td style="color:#dc2626;font-weight:700">-44,572</td>
-<td style="color:#dc2626;font-weight:700">-11,708</td>
-<td>419,377</td>
-<td>413,550</td>
-<td style="color:#16a34a">+5,827</td>
-</tr><tr onclick="openMonthDetail('أبريل 25')">
-<td style="font-weight:600;color:#1e3a5f;text-decoration:underline;text-underline-offset:3px">أبريل 25</td>
-<td>288,659</td>
-<td>43,299</td>
-<td style="color:#b45309;font-weight:700">1,443 ر</td>
-<td>48,810</td>
-<td style="color:#dc2626;font-weight:700">-5,511</td>
-<td style="color:#16a34a;font-weight:700">+6,854</td>
-<td>232,995</td>
-<td>0</td>
-<td style="color:#16a34a">+232,995</td>
-</tr><tr onclick="openMonthDetail('مايو 25')">
-<td style="font-weight:600;color:#1e3a5f;text-decoration:underline;text-underline-offset:3px">مايو 25</td>
-<td>450,582</td>
-<td>67,587</td>
-<td style="color:#15803d;font-weight:700">2,180 ر</td>
-<td>59,338</td>
-<td style="color:#16a34a;font-weight:700">+8,249</td>
-<td style="color:#16a34a;font-weight:700">+162</td>
-<td>391,082</td>
-<td>303,697</td>
-<td style="color:#16a34a">+87,385</td>
-</tr><tr onclick="openMonthDetail('يونيو 25')">
-<td style="font-weight:600;color:#1e3a5f;text-decoration:underline;text-underline-offset:3px">يونيو 25</td>
-<td>417,150</td>
-<td>62,573</td>
-<td style="color:#15803d;font-weight:700">2,086 ر</td>
-<td>80,794</td>
-<td style="color:#dc2626;font-weight:700">-18,221</td>
-<td style="color:#dc2626;font-weight:700">-5,579</td>
-<td>341,935</td>
-<td>206,858</td>
-<td style="color:#16a34a">+135,077</td>
-</tr><tr onclick="openMonthDetail('يوليو 25')">
-<td style="font-weight:600;color:#1e3a5f;text-decoration:underline;text-underline-offset:3px">يوليو 25</td>
-<td>316,654</td>
-<td>47,498</td>
-<td style="color:#0369a1;font-weight:700">1,532 ر</td>
-<td>104,640</td>
-<td style="color:#dc2626;font-weight:700">-57,142</td>
-<td style="color:#16a34a;font-weight:700">+2,129</td>
-<td>209,885</td>
-<td>188,271</td>
-<td style="color:#16a34a">+21,614</td>
-</tr><tr onclick="openMonthDetail('أغسطس 25')">
-<td style="font-weight:600;color:#1e3a5f;text-decoration:underline;text-underline-offset:3px">أغسطس 25</td>
-<td>267,659</td>
-<td>40,149</td>
-<td style="color:#b45309;font-weight:700">1,295 ر</td>
-<td>49,409</td>
-<td style="color:#dc2626;font-weight:700">-9,260</td>
-<td style="color:#16a34a;font-weight:700">+1,265</td>
-<td>216,985</td>
-<td>243,113</td>
-<td style="color:#dc2626">-26,128</td>
-</tr><tr onclick="openMonthDetail('سبتمبر 25')">
-<td style="font-weight:600;color:#1e3a5f;text-decoration:underline;text-underline-offset:3px">سبتمبر 25</td>
-<td>182,358</td>
-<td>27,354</td>
-<td style="color:#dc2626;font-weight:700">912 ر</td>
-<td>50,369</td>
-<td style="color:#dc2626;font-weight:700">-23,015</td>
-<td style="color:#dc2626;font-weight:700">-2,507</td>
-<td>134,496</td>
-<td>151,015</td>
-<td style="color:#dc2626">-16,519</td>
-</tr><tr onclick="openMonthDetail('أكتوبر 25')">
-<td style="font-weight:600;color:#1e3a5f;text-decoration:underline;text-underline-offset:3px">أكتوبر 25</td>
-<td>181,199</td>
-<td>27,180</td>
-<td style="color:#dc2626;font-weight:700">877 ر</td>
-<td>40,460</td>
-<td style="color:#dc2626;font-weight:700">-13,280</td>
-<td style="color:#16a34a;font-weight:700">+824</td>
-<td>139,915</td>
-<td>96,265</td>
-<td style="color:#16a34a">+43,650</td>
-</tr><tr onclick="openMonthDetail('نوفمبر 25')">
-<td style="font-weight:600;color:#1e3a5f;text-decoration:underline;text-underline-offset:3px">نوفمبر 25</td>
-<td>468,087</td>
-<td>65,052</td>
-<td style="color:#15803d;font-weight:700">2,168 ر</td>
-<td>48,745</td>
-<td style="color:#16a34a;font-weight:700">+16,307</td>
-<td style="color:#16a34a;font-weight:700">+10,952</td>
-<td>408,390</td>
-<td>112,969</td>
-<td style="color:#16a34a">+295,421</td>
-</tr><tr onclick="openMonthDetail('ديسمبر 25')">
-<td style="font-weight:600;color:#1e3a5f;text-decoration:underline;text-underline-offset:3px">ديسمبر 25</td>
-<td>399,272</td>
-<td>56,408</td>
-<td style="color:#0369a1;font-weight:700">1,820 ر</td>
-<td>46,429</td>
-<td style="color:#16a34a;font-weight:700">+9,979</td>
-<td style="color:#dc2626;font-weight:700">-3,752</td>
-<td>356,595</td>
-<td>185,888</td>
-<td style="color:#16a34a">+170,707</td>
-</tr><tr onclick="openMonthDetail('يناير 26')">
-<td style="font-weight:600;color:#1e3a5f;text-decoration:underline;text-underline-offset:3px">يناير 26</td>
-<td>253,649</td>
-<td>37,987</td>
-<td style="color:#b45309;font-weight:700">1,225 ر</td>
-<td>108,598</td>
-<td style="color:#dc2626;font-weight:700">-70,611</td>
-<td style="color:#16a34a;font-weight:700">+2,879</td>
-<td>142,172</td>
-<td>209,915</td>
-<td style="color:#dc2626">-67,743</td>
-</tr><tr onclick="openMonthDetail('فبراير 26')">
-<td style="font-weight:600;color:#1e3a5f;text-decoration:underline;text-underline-offset:3px">فبراير 26</td>
-<td>467,264</td>
-<td>70,022</td>
-<td style="color:#15803d;font-weight:700">2,501 ر</td>
-<td>83,246</td>
-<td style="color:#dc2626;font-weight:700">-13,224</td>
-<td style="color:#dc2626;font-weight:700">-1,248</td>
-<td>385,266</td>
-<td>266,151</td>
-<td style="color:#16a34a">+119,115</td>
-</tr><tr onclick="openMonthDetail('مارس 26')">
-<td style="font-weight:600;color:#1e3a5f;text-decoration:underline;text-underline-offset:3px">مارس 26</td>
-<td>297,333</td>
-<td>44,600</td>
-<td style="color:#b45309;font-weight:700">1,439 ر</td>
-<td>69,880</td>
-<td style="color:#dc2626;font-weight:700">-25,280</td>
-<td style="color:#dc2626;font-weight:700">-6,477</td>
-<td>233,930</td>
-<td>175,622</td>
-<td style="color:#16a34a">+58,308</td>
-</tr>
-<tr onclick="openMonthDetail('أبريل 26')">
-<td style="font-weight:600;color:#1e3a5f;text-decoration:underline;text-underline-offset:3px">أبريل 26</td>
-<td>236,283</td>
-<td>35,442</td>
-<td style="color:#b45309;font-weight:700">1,356 ر</td>
-<td>56,831</td>
-<td style="color:#dc2626;font-weight:700">-21,389</td>
-<td style="color:#dc2626;font-weight:700">-933</td>
-<td>180,385</td>
-<td>181,356</td>
-<td style="color:#16a34a">+971</td>
-</tr></tbody>
+      <tbody id="summary-tbody"></tbody>
     </table>
   </div>
   <div id="summary-latest-analysis"></div>
 </div>
 
 <div id="tab-expenses" class="tab-content">
-  <div class="info-banner">انقر على أي خلية ملوّنة لعرض تفاصيل المصروفات الفردية لذلك الشهر والفئة. مصاريف العائلة ورسوم المرافقين مصنفة كبنود مستقلة ضمن المصاريف.</div>
+  <div class="page-head">
+    <div>
+      <h1>المصاريف التفصيلية</h1>
+      <div class="page-head-sub">انقر على أي فئة لعرض تفاصيل بنودها. مصاريف العائلة ورسوم المرافقين مصنفة كبنود مستقلة ضمن المصاريف.</div>
+    </div>
+  </div>
 
-  <div class="expenses-toolbar">
-    <span>عرض المصاريف:</span>
-    <button class="expenses-filter active" data-period="all" onclick="setExpensesPeriod('all', this)">الكل</button>
-    <button class="expenses-filter" data-period="2025" onclick="setExpensesPeriod('2025', this)">2025</button>
-    <button class="expenses-filter" data-period="2026" onclick="setExpensesPeriod('2026', this)">2026</button>
+  <div class="category-chips" id="expenses-category-chips">
+    <button class="category-chip expenses-filter active" data-period="all" onclick="setExpensesPeriod('all', this)">الكل</button>
+    <button class="category-chip expenses-filter" data-period="2025" onclick="setExpensesPeriod('2025', this)">2025</button>
+    <button class="category-chip expenses-filter" data-period="2026" onclick="setExpensesPeriod('2026', this)">2026</button>
   </div>
 
   <div class="expenses-kpi-grid">
-    <div class="kpi-card" style="border-color:#F59E0B">
-      <div class="kpi-value" id="expenses-total" style="color:#F59E0B;font-size:1.55rem">—</div>
+    <div class="kpi-card">
+      <div class="kpi-value" id="expenses-total" style="color:#7033FF;font-size:1.35rem">—</div>
       <div class="kpi-label">إجمالي المصاريف</div>
       <div class="kpi-sub" id="expenses-total-sub">—</div>
     </div>
-    <div class="kpi-card" style="border-color:#3B82F6">
-      <div class="kpi-value" id="expenses-top-category" style="color:#3B82F6;font-size:1.35rem">—</div>
+    <div class="kpi-card">
+      <div class="kpi-value" id="expenses-top-category" style="color:#4E7CFF;font-size:1.1rem">—</div>
       <div class="kpi-label">أكبر فئة</div>
       <div class="kpi-sub" id="expenses-top-category-sub">—</div>
     </div>
-    <div class="kpi-card" style="border-color:#EF4444">
-      <div class="kpi-value" id="expenses-top-month" style="color:#EF4444;font-size:1.35rem">—</div>
+    <div class="kpi-card">
+      <div class="kpi-value" id="expenses-top-month" style="color:#B91C1C;font-size:1.1rem">—</div>
       <div class="kpi-label">أعلى شهر مصاريف</div>
       <div class="kpi-sub" id="expenses-top-month-sub">—</div>
     </div>
-    <div class="kpi-card" style="border-color:#10B981">
-      <div class="kpi-value" id="expenses-average" style="color:#10B981;font-size:1.55rem">—</div>
+    <div class="kpi-card">
+      <div class="kpi-value" id="expenses-average" style="color:#33394C;font-size:1.35rem">—</div>
       <div class="kpi-label">متوسط شهري</div>
       <div class="kpi-sub" id="expenses-average-sub">—</div>
     </div>
@@ -373,22 +264,25 @@
       <canvas id="ch-exp-stack" height="160"></canvas>
     </div>
   </div>
-  
+
   <div class="table-card">
+    <h3>أكبر فئات المصاريف (ترتيب تنازلي)</h3>
+    <div class="exp-ranked-list" id="exp-ranked-list"></div>
+  </div>
+
+  <div class="exp-full-table-toggle">
+    <button class="exp-full-table-btn" id="exp-full-table-toggle-btn" onclick="toggleExpFullTable()">عرض الجدول الكامل (فئة × شهر) ▾</button>
+  </div>
+  <div class="table-card exp-full-table-wrap" id="exp-full-table-wrap">
     <h3>مصفوفة المصاريف: الفئة × الشهر (ريال)</h3>
-    <div class="expenses-toolbar table-expenses-toolbar">
-      <span>تصفية الجدول:</span>
-      <button class="expenses-filter active" data-period="all" onclick="setExpensesPeriod('all', this)">الكل</button>
-      <button class="expenses-filter" data-period="2025" onclick="setExpensesPeriod('2025', this)">2025</button>
-      <button class="expenses-filter" data-period="2026" onclick="setExpensesPeriod('2026', this)">2026</button>
-    </div>
-    <div class="table-note">الأرقام في الجدول والشارت محسوبة من تفاصيل المصاريف في <strong>data.js</strong>. عند إضافة شهر جديد، يظهر تلقائياً هنا إذا أضيف ضمن بيانات الأشهر.</div>
+    <div class="table-note">الأرقام في الجدول والشارت محسوبة من تفاصيل المصاريف في <strong>data.js</strong>. عند إضافة شهر جديد، يظهر تلقائياً هنا إذا أضيف ضمن بيانات الأشهر. انقر على أي خلية لتوسيع تفاصيل بنودها.</div>
     <div class="exp-matrix">
       <table id="exp-table">
         <thead id="exp-table-head"></thead>
         <tbody id="exp-table-body"></tbody>
         <tfoot id="exp-table-foot"></tfoot>
       </table>
+      <div class="exp-cell-detail-box" id="exp-cell-detail"></div>
     </div>
   </div>
 </div>
@@ -557,20 +451,98 @@
 </div>
 <!-- ===== نهاية تبويب موردين النسائي ===== -->
 
-<!-- Modal Overlay -->
-<div id="modal-overlay" onclick="closeModal(event)">
-  <div class="modal" id="modal-box">
-    <button class="modal-close" onclick="closeModalBtn()">✕</button>
-    <div class="modal-title" id="modal-title"></div>
-    <div class="modal-total" id="modal-total"></div>
-    <div id="modal-body"></div>
+<div id="tab-profit-first" class="tab-content">
+  <div class="page-head">
+    <div>
+      <h1>تقييم Profit First</h1>
+      <div class="page-head-sub" id="pfMonthsRange">—</div>
+    </div>
   </div>
+
+  <section class="kpi-grid" id="pfKpiGrid">
+    <div class="kpi-card">
+      <div class="kpi-value" id="pfKpiTop" style="color:#4E7CFF">—</div>
+      <div class="kpi-label">الإيراد الإجمالي (١٢ شهر)</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-value" id="pfKpiReal" style="color:#15803D">—</div>
+      <div class="kpi-label">الإيراد الحقيقي (Real Revenue)</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-value" id="pfKpiCol" style="color:#7033FF;font-size:1.2rem">—</div>
+      <div class="kpi-label">عمود التقييم المستخدم</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-value" id="pfKpiBleedCount" style="color:#7033FF">—</div>
+      <div class="kpi-label">بنود بعيدة عن الهدف</div>
+    </div>
+    <div class="kpi-card" id="pfKpiBalanceCard">
+      <div class="kpi-value" id="pfKpiBalance" style="color:#B91C1C">—</div>
+      <div class="kpi-label">فرق التوازن</div>
+    </div>
+  </section>
+
+  <section class="scenario-panel">
+    <h3>🎯 التقييم الفوري — Profit First Instant Assessment</h3>
+    <p style="font-size:.85rem;color:#64748B;line-height:1.8;margin-bottom:10px;">
+      مبني على منهجية <strong>Profit First</strong> لمايك ميكالوفيتش. كل الحقول معبّأة تلقائياً من بيانات آخر 12 شهر الموجودة في
+      <code>data.js</code>، وكل حقل قابل للتعديل يدوياً — غيّر أي رقم لأقرب لواقعك وباقي الجدول (PF% ، PF$ ، الفجوة، الإجراء)
+      يتحدث تلقائياً. تفصيل كل بند وكيف حسبناه:
+    </p>
+    <ul class="pf-glossary">
+      <li><strong>الإيراد الإجمالي (Top Line Revenue):</strong> مجموع المبيعات المسجلة لآخر 12 شهر — نفس رقم "الإيراد" في جدول الملخص الشهري بالداشبورد الرئيسي.</li>
+      <li><strong>المواد والمقاولون (Material &amp; Subs):</strong> تكلفة البضاعة المشتراة فقط. افتراضياً "المشتريات الفعلية" (أساس الاستحقاق — البضاعة المستلمة بغض النظر عن موعد السداد)، وتقدر تبدلها لـ"المدفوع للموردين نقداً" من القائمة تحت. لا يشمل رواتب أو أي مصروف تشغيلي.</li>
+      <li><strong>الإيراد الحقيقي (Real Revenue):</strong> محسوب تلقائياً = الإيراد الإجمالي − المواد والمقاولون. كل النسب المستهدفة (PF%) في الجدول محسوبة من هذا الرقم.</li>
+      <li><strong>الربح (Profit):</strong> مجموع عمود "ربح" في جدول الملخص الشهري لآخر 12 شهر (هامش 15% تقديري على المبيعات ناقص كل المصاريف). هذا "ربح محاسبي تقديري" — مو بالضرورة نفس تعريف الكتاب الأصلي (المبلغ الفعلي المحتفظ به في البنك أو الموزّع كمكافأة)، فعدّله لرقمك الفعلي إذا يختلف.</li>
+      <li><strong>أجر المالك (Owner's Pay):</strong> مجموع 3 بنود رواتب محددة داخل تفاصيل بند "رواتب": "راتب محمد سعيد" + "راتب هاني سعيد" + "راتب سعيد ماحيله" لآخر 12 شهر. تم طرحها من "المصاريف التشغيلية" تحت حتى لا تُحتسب مرتين.</li>
+      <li><strong>الضريبة / الزكاة (Tax):</strong> مجموع بند "الزكاة والدخل" من تفصيل المصاريف لآخر 12 شهر.</li>
+      <li><strong>المصاريف التشغيلية (Operating Expenses):</strong> إجمالي "المصاريف" الشهري (نفس رقم عمود "المصاريف" في جدول الملخص الشهري) لآخر 12 شهر، ناقص: الزكاة/الضريبة، ناقص مصاريف العائلة (مستبعدة كلياً لأنها شخصية مو تجارية)، وناقص أجر المالك أعلاه. يشمل عملياً: رواتب باقي الموظفين، الإيجار، مصاريف المشغل، رسوم بنكية، عمولات مشتركة، نقل، مصاريف حكومية، رسوم مرافقين، تأمينات، كهرباء الفروع، اتصالات، مستحقات سابقة، وأخرى — بالإضافة لأي مبلغ غير مصنّف ضمن هذه البنود بالتفصيل (حوالي 115 ألف ريال من إجمالي آخر 12 شهر غير مصنّف تحت أي بند محدد في البيانات، وهو داخل ضمن هذا الرقم).</li>
+    </ul>
+    <div class="pf-basis">
+      <label for="pfBasisSelect">أساس تكلفة البضاعة (Material &amp; Subs):</label>
+      <select id="pfBasisSelect">
+        <option value="purchases">المشتريات الفعلية (أساس الاستحقاق)</option>
+        <option value="paid">المدفوع للموردين نقداً</option>
+      </select>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="pf-table" id="pfTable"></table>
+    </div>
+    <p style="font-size:.82rem;color:#64748B;margin-top:12px;line-height:1.7;" id="pfBalanceNote"></p>
+  </section>
+
+  <section class="scenario-layout">
+    <div class="chart-card">
+      <div class="chart-title">الفعلي مقابل الهدف لكل بند</div>
+      <canvas id="pfBarChart" height="160"></canvas>
+    </div>
+    <div class="scenario-panel">
+      <h3>جدول النسب المستهدفة (Figure 1) — حسب حجم الإيراد الحقيقي</h3>
+      <div style="overflow-x:auto">
+        <table class="pf-table tap-table" id="pfTapTable"></table>
+      </div>
+    </div>
+  </section>
+
+  <section class="quick-insights" id="pfInsights"></section>
 </div>
+
+</main>
+</div>
+
+<!-- Mobile bottom nav (real @media breakpoint, not a manual toggle) -->
+<nav class="bottom-nav" id="bottom-nav">
+  <button class="bottom-nav-item" data-nav-group="home" onclick="switchNavGroup('home')"><span class="glyph">▦</span><span class="label">الرئيسية</span></button>
+  <button class="bottom-nav-item" data-nav-group="reports" onclick="switchNavGroup('reports')"><span class="glyph">▤</span><span class="label">التقارير</span></button>
+  <button class="bottom-nav-item" data-nav-group="parties" onclick="switchNavGroup('parties')"><span class="glyph">◎</span><span class="label">الأطراف</span></button>
+  <button class="bottom-nav-item" data-nav-group="tools" onclick="switchNavGroup('tools')"><span class="glyph">⚙</span><span class="label">الأدوات</span></button>
+</nav>
 
 <!-- Scripts -->
 <script src="data.js"></script>
 <script src="js/auth.js"></script>
 <script src="js/utils.js"></script>
+<script src="js/nav.js"></script>
 <script src="js/charts.js"></script>
 <script src="js/tables.js"></script>
 <script src="js/menSuppliers.js"></script>
@@ -580,6 +552,7 @@
 <script src="js/analyticalReport.js"></script>
 <script src="js/profitScenario.js"></script>
 <script src="js/womenSuppliers.js"></script>
+<script src="js/profitFirst.js"></script>
 
 </body>
 </html>

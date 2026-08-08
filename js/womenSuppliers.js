@@ -1491,8 +1491,8 @@ function renderWomenDebtPlanChart(rows) {
     data: {
       labels: rows.map(row => row.label),
       datasets: [
-        { label: 'الرصيد', data: rows.map(row => row.debt), backgroundColor: '#CBD5E1', borderRadius: 5 },
-        { label: 'السداد الشهري', data: rows.map(row => row.planned), backgroundColor: '#10B981', borderRadius: 5 }
+        { label: 'الرصيد', data: rows.map(row => row.debt), backgroundColor: '#E7E9EE', borderRadius: 5 },
+        { label: 'السداد الشهري', data: rows.map(row => row.planned), backgroundColor: '#15803D', borderRadius: 5 }
       ]
     },
     options: {
@@ -1514,7 +1514,7 @@ function renderWomenSuppliersCharts() {
       type: 'bar',
       data: {
         labels: topRows.map(item => item.name),
-        datasets: [{ label: 'الرصيد', data: topRows.map(item => item.total), backgroundColor: topRows.map(item => item.priority ? '#8B5CF6' : '#3B82F6'), borderRadius: 5 }]
+        datasets: [{ label: 'الرصيد', data: topRows.map(item => item.total), backgroundColor: topRows.map(item => item.priority ? '#7033FF' : '#4E7CFF'), borderRadius: 5 }]
       },
       options: { ...chartDefaults, indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { ticks: { callback: v => (v / 1000).toFixed(0) + 'K' } }, y: { ticks: { font: { family: 'Segoe UI, Tahoma, Arial', size: 10 } } } } }
     });
@@ -1529,7 +1529,7 @@ function renderWomenSuppliersCharts() {
     const labels = Object.keys(buckets);
     womenSuppliersCharts.distribution = new Chart(statusCanvas, {
       type: 'doughnut',
-      data: { labels, datasets: [{ data: labels.map(label => buckets[label]), backgroundColor: ['#8B5CF6','#10B981','#F59E0B','#EF4444','#94A3B8'] }] },
+      data: { labels, datasets: [{ data: labels.map(label => buckets[label]), backgroundColor: ['#7033FF','#15803D','#7033FF','#B91C1C','#94A3B8'] }] },
       options: { locale: 'en-US', responsive: true, plugins: { legend: { position: 'bottom', labels: { font: { family: 'Segoe UI, Tahoma, Arial' } } } } }
     });
   }

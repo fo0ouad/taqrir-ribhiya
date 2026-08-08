@@ -189,7 +189,7 @@ function reportYearCards(year, m) {
 function comparisonCell(value, inverse = false) {
   if (value === null || value === undefined || !Number.isFinite(value)) return `<td>—</td>`;
   const good = inverse ? value <= 0 : value >= 0;
-  return `<td style="color:${good ? "#15803d" : "#dc2626"};font-weight:900">${reportSignedPct(value)}</td>`;
+  return `<td style="color:${good ? "#15803D" : "#B91C1C"};font-weight:900">${reportSignedPct(value)}</td>`;
 }
 
 function latestAnalysisMarkup(m, sectionId = "report-dyn-latest") {
@@ -299,7 +299,7 @@ function renderAnalyticalReport() {
                     <td>${reportFmt(branch.quantity)}</td>
                     <td>${reportFmt(branch.cost)}</td>
                     <td>${reportFmt(branch.sale)}</td>
-                    <td style="color:#15803d;font-weight:900">${reportPct((branch.sale - branch.cost) / branch.sale * 100)}</td>
+                    <td style="color:#15803D;font-weight:900">${reportPct((branch.sale - branch.cost) / branch.sale * 100)}</td>
                   </tr>
                 `).join("")}
                 <tr class="report-total-row"><td>الإجمالي</td><td>${m.inventory.itemRows} صنف موحد</td><td>${reportFmt(m.inventory.quantity)}</td><td>${reportFmt(m.inventory.cost)}</td><td>${reportFmt(m.inventory.sale)}</td><td>${reportPct(m.inventory.margin)}</td></tr>
@@ -413,8 +413,8 @@ function renderAnalyticalReportCharts(m) {
     data: {
       labels: m.inventory.branches.map(branch => branch.name),
       datasets: [
-        { label: "التكلفة", data: m.inventory.branches.map(branch => branch.cost), backgroundColor: "#3B82F6", borderRadius: 5 },
-        { label: "سعر البيع", data: m.inventory.branches.map(branch => branch.sale), backgroundColor: "#10B981", borderRadius: 5 }
+        { label: "التكلفة", data: m.inventory.branches.map(branch => branch.cost), backgroundColor: "#4E7CFF", borderRadius: 5 },
+        { label: "سعر البيع", data: m.inventory.branches.map(branch => branch.sale), backgroundColor: "#15803D", borderRadius: 5 }
       ]
     },
     options: reportBarOptions()
@@ -424,8 +424,8 @@ function renderAnalyticalReportCharts(m) {
     data: {
       labels: m.rows.map(row => row.month),
       datasets: [
-        { label: "الإيرادات", data: m.rows.map(row => row.revenue), backgroundColor: "#3B82F6", borderRadius: 5 },
-        { label: "الربح", data: m.rows.map(row => row.profit), backgroundColor: m.rows.map(row => row.profit >= 0 ? "#10B981" : "#EF4444"), borderRadius: 5 }
+        { label: "الإيرادات", data: m.rows.map(row => row.revenue), backgroundColor: "#4E7CFF", borderRadius: 5 },
+        { label: "الربح", data: m.rows.map(row => row.profit), backgroundColor: m.rows.map(row => row.profit >= 0 ? "#15803D" : "#B91C1C"), borderRadius: 5 }
       ]
     },
     options: reportBarOptions()
@@ -477,8 +477,8 @@ function renderReportSupplierChart(rows) {
     data: {
       labels: rows.map(row => row.month),
       datasets: [
-        { label: "المشتريات", data: rows.map(row => row.purchases), backgroundColor: "#8B5CF6", borderRadius: 5 },
-        { label: "مدفوع للموردين", data: rows.map(row => row.suppliersPaid), backgroundColor: "#F59E0B", borderRadius: 5 }
+        { label: "المشتريات", data: rows.map(row => row.purchases), backgroundColor: "#7033FF", borderRadius: 5 },
+        { label: "مدفوع للموردين", data: rows.map(row => row.suppliersPaid), backgroundColor: "#7033FF", borderRadius: 5 }
       ]
     },
     options: reportBarOptions()
