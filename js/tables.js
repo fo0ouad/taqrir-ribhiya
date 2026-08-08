@@ -248,9 +248,9 @@ function renderExpenseMatrix(data) {
   // ترتيب ثابت بنفس ترتيب الفئات الأصلي في data.js (CATS) — بدل إعادة الترتيب حسب الإجمالي كل مرة يتغيّر الفلتر
   const catOrder = cat => { const i = CATS.indexOf(cat); return i === -1 ? CATS.length : i; };
   const sorted = data.categoryRows.slice().sort((a, b) => catOrder(a.cat) - catOrder(b.cat));
-  const colCount = data.selectedMonths.length + 2;
+  const colCount = data.selectedMonths.length + 3;
 
-  head.innerHTML = `<tr><th>الفئة / الاتجاه</th>${data.selectedMonths.map(month => `<th>${month}</th>`).join('')}<th>الإجمالي</th></tr>`;
+  head.innerHTML = `<tr><th>الفئة</th><th>الاتجاه</th>${data.selectedMonths.map(month => `<th>${month}</th>`).join('')}<th>الإجمالي</th></tr>`;
 
   body.innerHTML = sorted.map((row, idx) => {
     const color = CAT_COLORS[row.cat] || '#4E7CFF';
@@ -258,6 +258,14 @@ function renderExpenseMatrix(data) {
     const rowId = 'exp-mrow-' + idx;
     const safeCat = row.cat.replace(/'/g, "\\'");
     const isOpenRow = expOpenCell && expOpenCell.cat === row.cat;
+
+    const nonZero = row.values.filter(v => v > 0);
+    const firstVal = nonZero[0] || 0;
+    const lastVal = nonZero[nonZero.length - 1] || 0;
+    const change = (firstVal && nonZero.length > 1) ? ((lastVal - firstVal) / firstVal) * 100 : null;
+    // مصروف أكثر = أسوأ، فنعكس منطق الألوان الوظيفي المعتاد (ارتفاع = أحمر)
+    const changeColor = change === null ? '#94A3B8' : (change > 0 ? '#B91C1C' : '#15803D');
+    const changeText = change === null ? '—' : `${change >= 0 ? '▲' : '▼'} ${Math.abs(change).toFixed(0)}%`;
 
     const cells = row.values.map((value, i) => {
       if (!value) return '<td class="exp-empty">—</td>';
@@ -272,7 +280,10 @@ function renderExpenseMatrix(data) {
       <tr>
         <td class="exp-category-cell">
           <div class="exp-category-name" style="color:${color}">${row.cat}</div>
+        </td>
+        <td class="exp-trend-cell">
           <div class="exp-category-spark">${buildSparklineSvg(row.values, color)}</div>
+          <div class="exp-trend-change" style="color:${changeColor}">${changeText}</div>
         </td>
         ${cells}
         <td class="exp-total">${fmt(row.total)}</td>
@@ -283,7 +294,7 @@ function renderExpenseMatrix(data) {
     `;
   }).join('') || `<tr><td colspan="${colCount}" style="color:#94A3B8">لا توجد بيانات لهذه الفترة</td></tr>`;
 
-  foot.innerHTML = `<tr><td>إجمالي الشهر</td>${data.monthTotals.map(item => `<td>${fmt(item.total)}</td>`).join('')}<td>${fmt(data.monthTotals.reduce((sum, item) => sum + item.total, 0))}</td></tr>`;
+  foot.innerHTML = `<tr><td>إجمالي الشهر</td><td></td>${data.monthTotals.map(item => `<td>${fmt(item.total)}</td>`).join('')}<td>${fmt(data.monthTotals.reduce((sum, item) => sum + item.total, 0))}</td></tr>`;
 }
 
 function hexToRgbTriplet(hex) {
