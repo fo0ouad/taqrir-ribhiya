@@ -4,6 +4,8 @@
 let monthlyReportExpenseChart = null;
 let monthlyBranchSalesChart = null;
 let monthlyReportOpenExpenseCategory = null;
+let monthlySalesTrendChart = null;
+let monthlyPurchasesChart = null;
 
 function mrFmt(value) {
   return Math.round(Number(value) || 0).toLocaleString("en-US");
@@ -28,6 +30,7 @@ function mrDetail(month) {
     cash: Number(detail.metric3 ?? ((detail.revenue ?? REVENUES[index] ?? 0) - (detail.expenses ?? EXPENSES[index] ?? 0) - (detail.suppliers_paid ?? SUPPLIERS_PAID[index] ?? 0))),
     suppliersPaid: Number(detail.suppliers_paid ?? SUPPLIERS_PAID[index] ?? 0),
     purchases: Number(detail.purchases ?? PURCHASES[index] ?? 0),
+    dailyAverage: (Number(detail.gross_margin ?? GROSS_MARGINS[index] ?? 0)) / (typeof summaryMonthDays === 'function' ? summaryMonthDays(month) : 30),
     issues: detail.issues || [],
     notes: detail.notes || [],
     breakdown: detail.exp_breakdown || getExpenseBreakdown(month) || {}
@@ -95,14 +98,20 @@ function renderMonthlyReportDetail(month) {
       <div class="women-kpi green"><span>هامش 15%</span><strong>${mrFmt(current.grossMargin)} ر</strong><small>${previous ? monthlyChangeText(current.grossMargin, previous.grossMargin) : "حسب عمود الفائدة"}</small></div>
       <div class="women-kpi danger"><span>المصاريف</span><strong>${mrFmt(current.expenses)} ر</strong><small>${previous ? monthlyChangeText(current.expenses, previous.expenses, true) : "—"}</small></div>
       <div class="women-kpi ${current.profit >= 0 ? "green" : "danger"}"><span>الربح</span><strong>${mrFmt(current.profit)} ر</strong><small>${previous ? monthlyChangeText(current.profit, previous.profit) : "هامش 15% - المصاريف"}</small></div>
-      <div class="women-kpi ${purchaseTone}"><span>المشتريات</span><strong>${mrFmt(current.purchases)} ر</strong><small>${previous ? monthlyChangeText(current.purchases, previous.purchases) : "—"}</small></div>
+      <div class="women-kpi purple"><span>المتوسط اليومي</span><strong>${mrFmt(current.dailyAverage)} ر</strong><small>${previous ? monthlyChangeText(current.dailyAverage, previous.dailyAverage) : "هامش 15% ÷ أيام الشهر"}</small></div>
       <div class="women-kpi ${cashTone}"><span>الفائض النقدي</span><strong>${mrFmt(current.cash)} ر</strong><small>${previous ? monthlyChangeText(current.cash, previous.cash) : "الإيراد - المصاريف - المدفوع للموردين"}</small></div>
+      <div class="women-kpi ${purchaseTone}"><span>المشتريات</span><strong>${mrFmt(current.purchases)} ر</strong><small>${previous ? monthlyChangeText(current.purchases, previous.purchases) : "—"}</small></div>
+      <div class="women-kpi amber"><span>مدفوع للموردين</span><strong>${mrFmt(current.suppliersPaid)} ر</strong><small>${previous ? monthlyChangeText(current.suppliersPaid, previous.suppliersPaid, true) : "—"}</small></div>
     </div>
 
-    <div class="purchase-compare-box">
-      <div class="purchase-compare-head"><span>مقارنة مشتريات الشهر بالشهر السابق</span><strong>${previous ? previous.month : "لا يوجد شهر سابق"}</strong></div>
-      ${purchaseCompareRow(month, current.purchases, Math.max(current.purchases, previous?.purchases || 0), "#15803D")}
-      ${previous ? purchaseCompareRow(previous.month, previous.purchases, Math.max(current.purchases, previous.purchases), "#E7E9EE") : ""}
+    <div class="chart-card">
+      <div class="chart-title">اتجاه المبيعات — هذا الشهر مقابل الأشهر السابقة</div>
+      <canvas id="monthly-sales-trend-chart" height="90"></canvas>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-title">المشتريات مقابل المدفوع للموردين — هذا الشهر والشهر السابق</div>
+      <canvas id="monthly-purchases-chart" height="140"></canvas>
     </div>
 
     ${branchSalesHtml}
@@ -127,6 +136,8 @@ function renderMonthlyReportDetail(month) {
   `;
   renderMonthlyExpenseChart(expRows);
   renderMonthlyBranchSalesChart(month);
+  renderMonthlySalesTrendChart(current.index);
+  renderMonthlyPurchasesChart(current, previous);
 }
 
 function monthlyBranchSalesHtml(month) {
@@ -265,9 +276,52 @@ function monthlyChangeText(current, previous, inverse = false) {
   return `<span style="color:${good ? "#15803D" : "#B91C1C"}">${value >= 0 ? "+" : ""}${value.toFixed(1)}% عن السابق</span>`;
 }
 
-function purchaseCompareRow(label, value, max, color) {
-  const width = max ? Math.max(4, (value / max) * 100) : 0;
-  return `<div class="purchase-compare-row"><div class="purchase-compare-label">${label}</div><div class="purchase-compare-track"><div class="purchase-compare-fill" style="width:${width}%;background:${color}"></div></div><div class="purchase-compare-value">${mrFmt(value)} ر</div></div>`;
+function renderMonthlySalesTrendChart(currentIndex) {
+  const canvas = document.getElementById("monthly-sales-trend-chart");
+  if (!canvas || typeof Chart === "undefined") return;
+  const span = 6;
+  const from = Math.max(0, currentIndex - (span - 1));
+  const labels = MONTHS.slice(from, currentIndex + 1);
+  const values = labels.map((_, i) => mrDetail(MONTHS[from + i]).revenue);
+  if (monthlySalesTrendChart) monthlySalesTrendChart.destroy();
+  monthlySalesTrendChart = new Chart(canvas, {
+    type: "line",
+    data: {
+      labels,
+      datasets: [{
+        label: "الإيراد",
+        data: values,
+        borderColor: "#4E7CFF",
+        backgroundColor: "rgba(78,124,255,0.1)",
+        borderWidth: 2.5,
+        pointRadius: labels.map((_, i) => i === labels.length - 1 ? 6 : 3),
+        pointBackgroundColor: labels.map((_, i) => i === labels.length - 1 ? "#7033FF" : "#4E7CFF"),
+        fill: true,
+        tension: 0.3
+      }]
+    },
+    options: { ...chartDefaults, plugins: { legend: { display: false } } }
+  });
+}
+
+function renderMonthlyPurchasesChart(current, previous) {
+  const canvas = document.getElementById("monthly-purchases-chart");
+  if (!canvas || typeof Chart === "undefined") return;
+  const labels = previous ? [previous.month, current.month] : [current.month];
+  const purchases = previous ? [previous.purchases, current.purchases] : [current.purchases];
+  const paid = previous ? [previous.suppliersPaid, current.suppliersPaid] : [current.suppliersPaid];
+  if (monthlyPurchasesChart) monthlyPurchasesChart.destroy();
+  monthlyPurchasesChart = new Chart(canvas, {
+    type: "bar",
+    data: {
+      labels,
+      datasets: [
+        { label: "المشتريات", data: purchases, backgroundColor: "#7033FF", borderRadius: 5 },
+        { label: "مدفوع للموردين", data: paid, backgroundColor: "#F65164", borderRadius: 5 }
+      ]
+    },
+    options: { ...chartDefaults }
+  });
 }
 
 function renderMonthlyExpenseChart(rows) {

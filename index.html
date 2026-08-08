@@ -30,7 +30,7 @@
     <div class="sidebar-group" data-nav-group="home">
       <div class="sidebar-group-title">الرئيسية</div>
       <div class="sidebar-group-items">
-        <button class="sidebar-item" data-tab="tab-summary" onclick="switchTab('tab-summary', this)">الملخص التنفيذي</button>
+        <button class="sidebar-item" data-tab="tab-summary" onclick="switchTab('tab-summary', this)">نظرة عامة</button>
       </div>
     </div>
     <div class="sidebar-group" data-nav-group="reports">
@@ -75,7 +75,7 @@
 
 <div class="page-head">
   <div>
-    <h1>الملخص التنفيذي</h1>
+    <h1>نظرة عامة</h1>
     <div class="page-head-sub" id="dashboard-period">يناير 2025 — أبريل 2026 · 16 شهراً من البيانات</div>
   </div>
   <div class="page-head-tools">
@@ -105,66 +105,35 @@
   <div class="compare-grid" id="compare-panel-body"></div>
 </div>
 
-<!-- KPI Cards -->
-<div class="summary-kpi-toolbar" style="display:none">
-  <span>عرض الكروت:</span>
-  <button class="summary-kpi-filter active" data-period="all" onclick="setExecutiveKpiPeriod('all', this)">الكل</button>
-  <button class="summary-kpi-filter" data-period="2025" onclick="setExecutiveKpiPeriod('2025', this)">2025</button>
-  <button class="summary-kpi-filter" data-period="2026" onclick="setExecutiveKpiPeriod('2026', this)">2026</button>
-</div>
-<div class="kpi-grid">
+<!-- 4 KPI cards only — each carries a % change vs. the previous equivalent period -->
+<div class="kpi-grid kpi-grid-4">
   <div class="kpi-card">
     <div class="kpi-value" id="summary-total-revenue" style="color:#4E7CFF">5,591.9K</div>
-    <div class="kpi-label">إجمالي الإيرادات</div>
-    <div class="kpi-sub" id="summary-total-revenue-sub">آخر 16 شهر</div>
+    <div class="kpi-label">إجمالي المبيعات</div>
+    <div class="kpi-sub" id="summary-total-revenue-sub">—</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-value" id="summary-gross-margin" style="color:#7033FF">—</div>
+    <div class="kpi-label">الربح الإجمالي (هامش 15%)</div>
+    <div class="kpi-sub" id="summary-gross-margin-sub">—</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-value" id="summary-expenses-total" style="color:#33394C">—</div>
+    <div class="kpi-label">إجمالي المصاريف</div>
+    <div class="kpi-sub" id="summary-expenses-total-sub">—</div>
   </div>
   <div class="kpi-card">
     <div class="kpi-value" id="summary-net-result" style="color:#B91C1C">-300.9K</div>
-    <div class="kpi-label">صافي النتيجة التشغيلية</div>
-    <div class="kpi-sub">حسب هامش 15% − المصاريف</div>
-  </div>
-  <div class="kpi-card">
-    <div class="kpi-value" id="summary-profit-months" style="color:#7033FF">4/16</div>
-    <div class="kpi-label">أشهر الربح</div>
-    <div class="kpi-sub" id="summary-profit-months-sub">4 أشهر رابحة من أصل 16</div>
-  </div>
-  <div class="kpi-card">
-    <div class="kpi-value" id="summary-loss-total" style="color:#B91C1C">-350.1K</div>
-    <div class="kpi-label">مجموع الخسائر</div>
-    <div class="kpi-sub">إجمالي الأشهر الخاسرة</div>
-  </div>
-  <div class="kpi-card">
-    <div class="kpi-value" id="summary-profit-total" style="color:#15803D">+49.2K</div>
-    <div class="kpi-label">مجموع الأرباح</div>
-    <div class="kpi-sub">إجمالي الأشهر الرابحة</div>
+    <div class="kpi-label">صافي الربح</div>
+    <div class="kpi-sub" id="summary-net-result-sub">هامش 15% − المصاريف</div>
   </div>
 </div>
 
-<div class="branch-sales-summary" id="branch-sales-summary" style="display:none">
-  <div class="branch-sales-head">
-    <div>
-      <h3>أداء الفروع</h3>
-      <p id="branch-sales-period">—</p>
-    </div>
-    <div class="branch-sales-total" id="branch-sales-total">—</div>
-  </div>
-  <div class="branch-sales-grid">
-    <div class="branch-sales-card">
-      <div class="branch-sales-name">فرع 1</div>
-      <div class="branch-sales-value" id="branch-1-total">—</div>
-      <div class="branch-sales-sub" id="branch-1-split">—</div>
-    </div>
-    <div class="branch-sales-card">
-      <div class="branch-sales-name">فرع 2</div>
-      <div class="branch-sales-value" id="branch-2-total">—</div>
-      <div class="branch-sales-sub" id="branch-2-split">—</div>
-    </div>
-    <div class="branch-sales-card">
-      <div class="branch-sales-name">الفارق</div>
-      <div class="branch-sales-value" id="branch-sales-gap">—</div>
-      <div class="branch-sales-sub" id="branch-sales-leader">—</div>
-    </div>
-  </div>
+<!-- purchases summary: one number only — full detail lives in تاب المشتريات -->
+<div class="mini-stat-card" id="summary-purchases-mini">
+  <div class="mini-stat-label">إجمالي المشتريات — آخر شهر</div>
+  <div class="mini-stat-value" id="summary-purchases-value">—</div>
+  <a class="mini-stat-link" data-tab="tab-purchases" onclick="switchTab('tab-purchases', this)">التفاصيل بتاب المشتريات ←</a>
 </div>
 
   <div class="charts-grid">
@@ -181,20 +150,11 @@
       <canvas id="ch-expenses" height="160"></canvas>
     </div>
   </div>
-  
+
   <div class="table-card">
-    <h3>جدول الملخص الشهري — انقر على أي شهر لتوسيع تفاصيله (بدون نافذة منبثقة)</h3>
-<div class="year-filter">
-  <span>تصفية حسب السنة:</span>
-  <button id="filter-all" class="year-btn active" data-year="all" onclick="filterByYear('all')">الكل (16)</button>
-  <button id="filter-2025" class="year-btn" data-year="2025" onclick="filterByYear('2025')">2025 (12)</button>
-  <button id="filter-2026" class="year-btn" data-year="2026" onclick="filterByYear('2026')">2026 (4)</button>
-</div>
+    <h3>ملخص شهري سريع — انقر على أي شهر لتفاصيله الكاملة في التقارير الشهرية</h3>
     <div class="table-note">
-      <strong>طريقة القراءة:</strong>
-      ربح = هامش 15% − المصاريف.
-      الفائض النقدي = الإيراد − المصاريف − المدفوع للموردين.
-      فرق الموردين = المدفوع للموردين − المشتريات.
+      <strong>طريقة القراءة:</strong> ربح = هامش 15% − المصاريف. التفاصيل التشغيلية (متوسط يومي، مدفوع الموردين، المشتريات، أداء الفروع) موجودة بالكامل في تاب <strong>التقارير الشهرية</strong>.
     </div>
     <table id="summary-table">
       <thead>
@@ -202,19 +162,13 @@
           <th onclick="sortTable('summary-table',0)">الشهر ↕</th>
           <th onclick="sortTable('summary-table',1)">الإيراد ↕</th>
           <th onclick="sortTable('summary-table',2)">هامش 15% ↕</th>
-          <th onclick="sortTable('summary-table',3)" title="الهامش الفعلي ÷ أيام الشهر" style="background:#4E7CFF;cursor:help">متوسط يومي ↕ ℹ️</th>
-          <th onclick="sortTable('summary-table',4)">المصاريف ↕</th>
-          <th onclick="sortTable('summary-table',5)" title="هامش 15% − مصاريف" style="background:#4E7CFF;cursor:help">ربح ↕ ℹ️</th>
-          <th onclick="sortTable('summary-table',6)" title="الإيراد − المصاريف − المدفوع للموردين" style="background:#4E7CFF;cursor:help">فائض نقدي ↕ ℹ️</th>
-          <th onclick="sortTable('summary-table',7)">موردين مدفوع ↕</th>
-          <th onclick="sortTable('summary-table',8)">مشتريات ↕</th>
-          <th onclick="sortTable('summary-table',9)" title="المدفوع للموردين − المشتريات" style="background:#4E7CFF;cursor:help">فرق الموردين ↕</th>
+          <th onclick="sortTable('summary-table',3)">المصاريف ↕</th>
+          <th onclick="sortTable('summary-table',4)" title="هامش 15% − مصاريف" style="background:#4E7CFF;cursor:help">ربح ↕ ℹ️</th>
         </tr>
       </thead>
       <tbody id="summary-tbody"></tbody>
     </table>
   </div>
-  <div id="summary-latest-analysis"></div>
 </div>
 
 <div id="tab-expenses" class="tab-content">

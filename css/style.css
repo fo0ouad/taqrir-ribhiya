@@ -123,6 +123,12 @@ h1, h2, h3, h4 { font-weight: 800; }
 .summary-kpi-filter { border: 1px solid #E7E9EE; background: white; color: #33394C; padding: 7px 14px; border-radius: 8px; cursor: pointer; font-family: inherit; font-weight: 700; }
 .summary-kpi-filter.active { background: #33394C; color: white; border-color: #33394C; }
 .kpi-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin-bottom: 28px; }
+.kpi-grid-4 { grid-template-columns: repeat(4, 1fr); }
+.mini-stat-card { background: var(--box); border: 1px solid var(--border); border-radius: var(--radius-card); padding: 14px 18px; margin-bottom: 24px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.mini-stat-label { font-size: 0.8rem; color: var(--muted); font-weight: 700; }
+.mini-stat-value { font-size: 1.1rem; font-weight: 800; color: var(--text); }
+.mini-stat-link { margin-right: auto; font-size: 0.8rem; color: var(--primary-1); font-weight: 700; text-decoration: none; cursor: pointer; }
+.mini-stat-link:hover { text-decoration: underline; }
 .kpi-card { background: var(--box); border-radius: var(--radius-card); padding: 16px 14px; box-shadow: none; border: 1px solid var(--border); border-top: 1px solid var(--border); text-align: right; }
 .kpi-value { font-size: 1.5rem; font-weight: 800; margin-bottom: 6px; }
 .kpi-label { font-size: 0.76rem; color: #64748B; font-weight: 700; }
@@ -323,6 +329,7 @@ tr:hover { background: #F5F7FB; }
   .header { align-items: flex-start; flex-direction: column; }
   .header-actions { justify-content: flex-start; }
   .kpi-grid { grid-template-columns: repeat(3, 1fr); }
+  .kpi-grid-4 { grid-template-columns: repeat(2, 1fr); }
   .expenses-kpi-grid { grid-template-columns: repeat(2, 1fr); }
   .quick-insights { grid-template-columns: 1fr; }
   .suppliers-grid { grid-template-columns: repeat(2, 1fr); }

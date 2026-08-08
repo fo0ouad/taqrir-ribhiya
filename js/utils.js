@@ -55,32 +55,6 @@ function sortTable(tableId, colIndex) {
   rows.forEach(r => tbody.appendChild(r));
 }
 
-// فلترة الجدول حسب السنة
-function filterByYear(year) {
-  const rows = document.querySelectorAll('#summary-tbody tr');
-  rows.forEach(row => {
-    const rowYear = row.dataset.year;
-    const month = row.cells[0]?.textContent.trim();
-    if (year === 'all') {
-      row.style.display = '';
-    } else if (year === '2025') {
-      row.style.display = rowYear === '2025' || month?.includes('25') ? '' : 'none';
-    } else if (year === '2026') {
-      row.style.display = rowYear === '2026' || month?.includes('26') ? '' : 'none';
-    }
-  });
-  
-  // تحديث أزرار الفلترة
-  document.querySelectorAll('.year-btn').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.year === year);
-  });
-}
-
-// إغلاق المودال
-function closeModal() {
-  document.getElementById('modal-overlay').classList.remove('open');
-}
-
 // Chart.js defaults
 const chartDefaults = {
   locale: 'en-US',

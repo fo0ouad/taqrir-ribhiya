@@ -12,84 +12,76 @@ function renderDashboardHeader() {
   if (updateEl) updateEl.textContent = `آخر تحديث: ${lastMonth}`;
 }
 
-function renderExecutiveKpis(period = 'all') {
-  const selectedMonths = MONTHS
-    .map((month, idx) => ({ month, idx }))
-    .filter(item => period === 'all' || item.month.includes(period.slice(-2)));
-  const monthCount = selectedMonths.length;
-  const revenueValues = selectedMonths.map(({ month, idx }) => MONTHLY_DETAIL[month]?.revenue ?? REVENUES[idx] ?? 0);
-  const profitValues = selectedMonths.map(({ month, idx }) => {
-    const detail = MONTHLY_DETAIL[month];
-    if (detail?.metric1 !== undefined) return detail.metric1;
-    if (detail?.profit !== undefined) return detail.profit;
-    return PROFIT_ACTUAL[idx] ?? ((GROSS_MARGINS[idx] || 0) - (EXPENSES[idx] || 0));
-  });
-  const totalRevenue = revenueValues.reduce((sum, value) => sum + value, 0);
-  const profitTotal = profitValues.filter(value => value > 0).reduce((sum, value) => sum + value, 0);
-  const lossTotal = profitValues.filter(value => value < 0).reduce((sum, value) => sum + value, 0);
-  const netResult = profitValues.reduce((sum, value) => sum + value, 0);
-  const profitableMonths = profitValues.filter(value => value > 0).length;
-  const formatK = (value, showPlus = false) => {
-    const sign = value < 0 ? '-' : (showPlus && value > 0 ? '+' : '');
-    const abs = Math.abs(value) / 1000;
-    return `${sign}${abs.toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}K`;
+// ===== نظرة عامة: مؤشرات مالية للفترة المحددة، مع مقارنة دائمة بفترة سابقة مكافئة =====
+function summaryValuesFor(fromIdx, toIdx) {
+  const revenue = [], margin = [], expenses = [], profit = [];
+  for (let idx = fromIdx; idx <= toIdx; idx++) {
+    const month = MONTHS[idx];
+    const detail = MONTHLY_DETAIL[month] || {};
+    revenue.push(Number(detail.revenue ?? REVENUES[idx] ?? 0));
+    margin.push(Number(detail.gross_margin ?? GROSS_MARGINS[idx] ?? 0));
+    expenses.push(Number(detail.expenses ?? EXPENSES[idx] ?? 0));
+    profit.push(Number(detail.metric1 ?? detail.profit ?? PROFIT_ACTUAL[idx] ?? ((GROSS_MARGINS[idx] || 0) - (EXPENSES[idx] || 0))));
+  }
+  const sum = arr => arr.reduce((a, b) => a + b, 0);
+  return {
+    revenue: sum(revenue), margin: sum(margin), expenses: sum(expenses), profit: sum(profit),
+    count: toIdx - fromIdx + 1
   };
-  const setText = (id, value) => {
-    const el = document.getElementById(id);
-    if (el) el.textContent = value;
-  };
+}
 
-  setText('summary-total-revenue', formatK(totalRevenue));
-  setText('summary-total-revenue-sub', period === 'all' ? `آخر ${monthCount} شهر` : `${period} (${monthCount} شهر)`);
-  setText('summary-net-result', formatK(netResult));
-  setText('summary-profit-months', `${profitableMonths}/${monthCount}`);
-  setText('summary-profit-months-sub', `${profitableMonths} أشهر رابحة من أصل ${monthCount}`);
-  setText('summary-loss-total', formatK(lossTotal));
-  setText('summary-profit-total', formatK(profitTotal, true));
+function formatK(value, showPlus = false) {
+  const sign = value < 0 ? '-' : (showPlus && value > 0 ? '+' : '');
+  const abs = Math.abs(value) / 1000;
+  return `${sign}${abs.toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}K`;
+}
+
+function changeSubText(current, previous) {
+  if (previous === null || previous === undefined || !previous) return 'لا توجد فترة سابقة للمقارنة';
+  const pct = ((current - previous) / Math.abs(previous)) * 100;
+  const color = pct >= 0 ? '#15803D' : '#B91C1C';
+  return `<span style="color:${color};font-weight:800">${pct >= 0 ? '▲' : '▼'} ${Math.abs(pct).toFixed(0)}%</span> عن الفترة السابقة المكافئة`;
+}
+
+function renderExecutiveKpis(fromIdx, toIdx) {
+  if (typeof MONTHS === 'undefined' || !MONTHS.length) return;
+  const lo = Math.max(0, fromIdx ?? 0);
+  const hi = Math.min(MONTHS.length - 1, toIdx ?? MONTHS.length - 1);
+  const current = summaryValuesFor(lo, hi);
+  const periodLen = hi - lo + 1;
+  const prevHi = lo - 1;
+  const prevLo = prevHi - periodLen + 1;
+  const previous = prevLo >= 0 ? summaryValuesFor(prevLo, prevHi) : null;
+
+  const setText = (id, value) => { const el = document.getElementById(id); if (el) el.textContent = value; };
+  const setHtml = (id, value) => { const el = document.getElementById(id); if (el) el.innerHTML = value; };
+
+  setText('summary-total-revenue', formatK(current.revenue));
+  setHtml('summary-total-revenue-sub', previous ? changeSubText(current.revenue, previous.revenue) : `${current.count} شهر`);
+
+  setText('summary-gross-margin', formatK(current.margin));
+  setHtml('summary-gross-margin-sub', previous ? changeSubText(current.margin, previous.margin) : `${current.count} شهر`);
+
+  setText('summary-expenses-total', formatK(current.expenses));
+  setHtml('summary-expenses-total-sub', previous ? changeSubText(current.expenses, previous.expenses) : `${current.count} شهر`);
+
+  setText('summary-net-result', formatK(current.profit));
+  setHtml('summary-net-result-sub', previous ? changeSubText(current.profit, previous.profit) : 'هامش 15% − المصاريف');
 
   const netEl = document.getElementById('summary-net-result');
-  if (netEl) netEl.style.color = netResult >= 0 ? '#15803D' : '#B91C1C';
-  renderBranchSalesSummary(selectedMonths);
+  if (netEl) netEl.style.color = current.profit >= 0 ? '#15803D' : '#B91C1C';
+
+  renderPurchasesMini();
 }
 
-function renderBranchSalesSummary(selectedMonths) {
-  const box = document.getElementById('branch-sales-summary');
-  if (!box || typeof BRANCH_SALES === 'undefined') return;
-  const latest = selectedMonths
-    .slice()
-    .reverse()
-    .find(({ month }) => BRANCH_SALES[month]);
-  if (!latest) {
-    box.style.display = 'none';
-    return;
-  }
-  const month = latest.month;
-  const sales = BRANCH_SALES[month] || {};
-  const branch1 = sales["فرع 1"] || { cash: 0, bank: 0, total: 0 };
-  const branch2 = sales["فرع 2"] || { cash: 0, bank: 0, total: 0 };
-  const total = (branch1.total || 0) + (branch2.total || 0);
-  const gap = Math.abs((branch1.total || 0) - (branch2.total || 0));
-  const leader = (branch1.total || 0) === (branch2.total || 0) ? 'الأداء متعادل' : ((branch1.total || 0) > (branch2.total || 0) ? 'فرع 1 أعلى' : 'فرع 2 أعلى');
-  const fmt = value => value.toLocaleString('en-US', { maximumFractionDigits: 0 }) + ' ر';
-  const setText = (id, value) => {
-    const el = document.getElementById(id);
-    if (el) el.textContent = value;
-  };
-  box.style.display = 'block';
-  setText('branch-sales-period', `آخر شهر لديه بيانات فروع: ${month}`);
-  setText('branch-sales-total', fmt(total));
-  setText('branch-1-total', fmt(branch1.total || 0));
-  setText('branch-1-split', `كاش ${fmt(branch1.cash || 0)} · بنك ${fmt(branch1.bank || 0)}`);
-  setText('branch-2-total', fmt(branch2.total || 0));
-  setText('branch-2-split', `كاش ${fmt(branch2.cash || 0)} · بنك ${fmt(branch2.bank || 0)}`);
-  setText('branch-sales-gap', fmt(gap));
-  setText('branch-sales-leader', leader);
-}
-
-function setExecutiveKpiPeriod(period, btn) {
-  document.querySelectorAll('.summary-kpi-filter').forEach(item => item.classList.remove('active'));
-  if (btn) btn.classList.add('active');
-  renderExecutiveKpis(period);
+// بطاقة "إجمالي المشتريات" — دايم آخر شهر فعلي بالبيانات، بغض النظر عن فلتر الفترة (رقم واحد فقط، التفصيل بتاب المشتريات)
+function renderPurchasesMini() {
+  if (typeof MONTHS === 'undefined' || !MONTHS.length) return;
+  const lastMonth = MONTHS[MONTHS.length - 1];
+  const detail = MONTHLY_DETAIL[lastMonth] || {};
+  const purchases = Number(detail.purchases ?? PURCHASES[MONTHS.length - 1] ?? 0);
+  const el = document.getElementById('summary-purchases-value');
+  if (el) el.textContent = `${fmt(purchases)} ر — ${lastMonth}`;
 }
 
 let expensesTopChart = null;
@@ -391,114 +383,45 @@ function signedCell(value, options = {}) {
   return `<td style="color:${color};font-weight:700">${fmtSigned(numeric)}${suffix}</td>`;
 }
 
-function renderSummaryTable() {
+// جدول "نظرة عامة" مختصر — 5 أعمدة فقط. النقر على شهر يفتحه بتفصيله الكامل في التقارير الشهرية (بدون توسيع مكانه هنا)
+function renderSummaryTable(fromIdx, toIdx) {
   const tbody = document.getElementById('summary-tbody');
   if (!tbody || typeof MONTHS === 'undefined') return;
+  const lo = Math.max(0, fromIdx ?? 0);
+  const hi = Math.min(MONTHS.length - 1, toIdx ?? MONTHS.length - 1);
 
-  tbody.innerHTML = MONTHS.map((month, index) => {
+  const rows = [];
+  for (let index = hi; index >= lo; index--) {
+    const month = MONTHS[index];
     const detail = MONTHLY_DETAIL[month] || {};
     const revenue = Number(detail.revenue ?? REVENUES[index] ?? 0);
     const grossMargin = Number(detail.gross_margin ?? GROSS_MARGINS[index] ?? 0);
     const expenses = Number(detail.expenses ?? EXPENSES[index] ?? 0);
     const profit = Number(detail.metric1 ?? detail.profit ?? (grossMargin - expenses));
-    const cashSurplus = Number(detail.metric3 ?? (revenue - expenses - Number(detail.suppliers_paid ?? SUPPLIERS_PAID[index] ?? 0)));
-    const suppliersPaid = Number(detail.suppliers_paid ?? SUPPLIERS_PAID[index] ?? 0);
-    const purchases = Number(detail.purchases ?? PURCHASES[index] ?? 0);
-    const supplierGap = suppliersPaid - purchases;
-    const dailyAverage = grossMargin / summaryMonthDays(month);
-    const year = summaryYearFromMonth(month);
     const escapedMonth = String(month).replace(/'/g, "\\'");
-    const rowId = 'summary-row-' + index;
 
-    return `
-      <tr class="summary-month-row row-expand-toggle" id="${rowId}" data-year="${year}" data-month="${month}" onclick="toggleSummaryRow('${rowId}')">
-        <td style="font-weight:600;color:#33394C"><span class="row-expand-arrow">▾</span> ${month}</td>
+    rows.push(`
+      <tr class="summary-month-row" data-month="${month}" onclick="openMonthInReports('${escapedMonth}')">
+        <td style="font-weight:600;color:#33394C">${month}</td>
         <td>${fmt(revenue)}</td>
         <td>${fmt(grossMargin)}</td>
-        <td style="color:#7033FF;font-weight:700">${fmt(dailyAverage)} ر</td>
         <td>${fmt(expenses)}</td>
         ${signedCell(profit)}
-        ${signedCell(cashSurplus)}
-        <td>${fmt(suppliersPaid)}</td>
-        <td>${fmt(purchases)}</td>
-        ${signedCell(supplierGap)}
       </tr>
-      <tr class="detail-row" id="${rowId}-detail" data-year="${year}">
-        <td colspan="10">
-          <div class="detail-grid">
-            <div><div class="detail-item-label">هامش 15%</div><div class="detail-item-value">${fmt(grossMargin)} ر</div></div>
-            <div><div class="detail-item-label">متوسط يومي</div><div class="detail-item-value">${fmt(dailyAverage)} ر</div></div>
-            <div><div class="detail-item-label">فائض نقدي</div><div class="detail-item-value" style="color:${cashSurplus >= 0 ? '#15803D' : '#B91C1C'}">${fmtSigned(cashSurplus)} ر</div></div>
-            <div><div class="detail-item-label">فرق الموردين</div><div class="detail-item-value" style="color:${supplierGap >= 0 ? '#15803D' : '#B91C1C'}">${fmtSigned(supplierGap)} ر</div></div>
-            <div><div class="detail-item-label">موردين مدفوع</div><div class="detail-item-value">${fmt(suppliersPaid)} ر</div></div>
-            <div><div class="detail-item-label">مشتريات</div><div class="detail-item-value">${fmt(purchases)} ر</div></div>
-          </div>
-        </td>
-      </tr>
-    `;
-  }).join('');
+    `);
+  }
+  tbody.innerHTML = rows.join('');
 }
 
-// ===== INLINE EXPAND: تفاصيل شهر (بدل نافذة منبثقة) =====
-function toggleSummaryRow(rowId) {
-  const row = document.getElementById(rowId);
-  const detail = document.getElementById(rowId + '-detail');
-  if (!row || !detail) return;
-  const willOpen = !detail.classList.contains('open');
-  document.querySelectorAll('.detail-row.open').forEach(el => { if (el !== detail) el.classList.remove('open'); });
-  document.querySelectorAll('.summary-month-row.open').forEach(el => { if (el !== row) el.classList.remove('open'); });
-  detail.classList.toggle('open', willOpen);
-  row.classList.toggle('open', willOpen);
-}
-
-function updateSummaryYearCounts() {
-  if (typeof MONTHS === 'undefined') return;
-  const counts = MONTHS.reduce((acc, month) => {
-    const year = summaryYearFromMonth(month);
-    acc.all += 1;
-    if (year) acc[year] = (acc[year] || 0) + 1;
-    return acc;
-  }, { all: 0 });
-
-  const labels = {
-    all: `الكل (${counts.all})`,
-    '2025': `2025 (${counts['2025'] || 0})`,
-    '2026': `2026 (${counts['2026'] || 0})`
-  };
-
-  Object.entries(labels).forEach(([year, label]) => {
-    const btn = document.querySelector(`.year-btn[data-year="${year}"]`);
-    if (btn) btn.textContent = label;
-  });
+// النقر على شهر بجدول "نظرة عامة" ينقل لتاب التقارير الشهرية بنفس الشهر (بدون نافذة منبثقة ولا توسيع مكانه)
+function openMonthInReports(month) {
+  switchTab('tab-monthly-reports');
+  setTimeout(() => { if (typeof jumpToMonthlyReport === 'function') jumpToMonthlyReport(month); }, 60);
 }
 
 function initSummaryTable() {
-  renderSummaryTable();
-  updateSummaryYearCounts();
-  const activeBtn = document.querySelector('.year-btn.active');
-  filterByYear(activeBtn?.dataset.year || 'all');
-  if (typeof renderLatestAnalysisInto === 'function') {
-    renderLatestAnalysisInto('summary-latest-analysis');
-  }
-}
-
-// ===== YEAR FILTER =====
-function filterByYear(year) {
-  const rows = document.querySelectorAll('#summary-tbody tr');
-  rows.forEach(row => {
-    const rowYear = row.dataset.year;
-    const month = row.cells[0] ? row.cells[0].textContent.trim() : '';
-    if (year === 'all') {
-      row.style.display = '';
-    } else if (year === '2025') {
-      row.style.display = rowYear === '2025' || month.includes('25') ? '' : 'none';
-    } else if (year === '2026') {
-      row.style.display = rowYear === '2026' || month.includes('26') ? '' : 'none';
-    }
-  });
-  document.querySelectorAll('.year-btn').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.year === year);
-  });
+  if (typeof MONTHS === 'undefined' || !MONTHS.length) return;
+  applySummaryRange(0, MONTHS.length - 1, 'الكل');
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -579,7 +502,7 @@ function switchTab(id, btn) {
 
 // ===== INIT: Row numbers for customers =====
 (function() {
-  renderExecutiveKpis();
+  // نظرة عامة (كروت/شارتات/جدول) تُرسم عبر initSummaryTable() -> applySummaryRange() بعد DOMContentLoaded
   renderExpensesPage();
   const rows = document.querySelectorAll('#customers-tbody tr');
   rows.forEach((r, i) => { if(r.cells[0]) r.cells[0].textContent = i+1; });

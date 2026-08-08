@@ -8,7 +8,7 @@ const NAV_GROUPS = [
   { id: 'tools', label: 'الأدوات', tabs: ['tab-profit-scenario', 'tab-profit-first'] }
 ];
 const TAB_LABELS = {
-  'tab-summary': 'الملخص التنفيذي',
+  'tab-summary': 'نظرة عامة',
   'tab-monthly-reports': 'التقارير الشهرية',
   'tab-expenses': 'المصاريف التفصيلية',
   'tab-purchases': 'المشتريات',
@@ -60,7 +60,7 @@ function runGlobalSearch(query) {
 
   if (typeof MONTHS !== 'undefined') {
     MONTHS.filter(m => m.toLowerCase().includes(q)).slice(0, 5).forEach(m => {
-      results.push({ label: m, sub: 'شهر — الملخص التنفيذي', onClick: `switchTab('tab-summary'); setTimeout(()=>expandSummaryMonth('${m.replace(/'/g, "\\'")}'), 60);` });
+      results.push({ label: m, sub: 'شهر — التقارير الشهرية', onClick: `switchTab('tab-monthly-reports'); setTimeout(()=>jumpToMonthlyReport('${m.replace(/'/g, "\\'")}'), 60);` });
     });
   }
   if (typeof CATS !== 'undefined') {
@@ -85,9 +85,12 @@ function runGlobalSearch(query) {
   `).join('');
 }
 
-function expandSummaryMonth(month) {
-  const row = document.querySelector(`.summary-month-row[data-month="${month}"]`);
-  if (row) row.click();
+function jumpToMonthlyReport(month) {
+  const select = document.getElementById('monthly-report-select');
+  if (select && [...select.options].some(o => o.value === month)) {
+    select.value = month;
+    if (typeof renderMonthlyReportDetail === 'function') renderMonthlyReportDetail(month);
+  }
 }
 
 // ===== Compare mode (Executive Summary) =====
@@ -148,7 +151,7 @@ function renderAutoAlert() {
   el.innerHTML = `<span>⚠️</span><span>تنبيه تلقائي — ${lastMonth} (آخر شهر) ${profit < 0 ? `في خسارة تشغيلية: ${fmtSigned(profit)} ريال` : ''}${profit < 0 && cashSurplus < 0 ? '، و' : ''}${cashSurplus < 0 ? `الفائض النقدي سالب: ${fmtSigned(cashSurplus)} ريال` : ''}${dailyAvg ? `، والمتوسط اليومي ${fmt(dailyAvg)} ريال.` : '.'}</span>`;
 }
 
-// ===== Custom date range control =====
+// ===== فلتر الفترة الموحّد لـ"نظرة عامة" — يتحكم بالكروت + الشارتات + الجدول معاً =====
 function toggleRangePanel() {
   const panel = document.getElementById('range-panel');
   if (panel) panel.classList.toggle('open');
@@ -162,6 +165,30 @@ function populateRangeSelects() {
   from.value = MONTHS[0];
   to.value = MONTHS[MONTHS.length - 1];
 }
+
+// نقطة الحقيقة الوحيدة للفترة المختارة بتاب "نظرة عامة"
+function applySummaryRange(fromIdx, toIdx, label) {
+  if (typeof MONTHS === 'undefined') return;
+  const lo = Math.max(0, Math.min(fromIdx, toIdx));
+  const hi = Math.min(MONTHS.length - 1, Math.max(fromIdx, toIdx));
+  const pillBtn = document.getElementById('range-pill-btn');
+  if (pillBtn) pillBtn.textContent = `الفترة: ${label || (MONTHS[lo] + ' – ' + MONTHS[hi])} ▾`;
+  if (typeof renderExecutiveKpis === 'function') renderExecutiveKpis(lo, hi);
+  if (typeof renderSummaryCharts === 'function') renderSummaryCharts(lo, hi);
+  if (typeof renderSummaryTable === 'function') renderSummaryTable(lo, hi);
+}
+
+// أزرار الفترة الجاهزة (الكل/2025/2026) داخل قائمة "الفترة"
+function setExecutiveKpiPeriod(period, btn) {
+  document.querySelectorAll('.summary-kpi-filter').forEach(item => item.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  if (typeof MONTHS === 'undefined' || !MONTHS.length) return;
+  if (period === 'all') { applySummaryRange(0, MONTHS.length - 1, 'الكل'); return; }
+  const indices = MONTHS.map((m, i) => ({ m, i })).filter(({ m }) => m.includes(period.slice(-2)));
+  if (!indices.length) return;
+  applySummaryRange(indices[0].i, indices[indices.length - 1].i, period);
+}
+
 function applyCustomRange() {
   const from = document.getElementById('range-from')?.value;
   const to = document.getElementById('range-to')?.value;
@@ -169,17 +196,8 @@ function applyCustomRange() {
   const fromIdx = MONTHS.indexOf(from);
   const toIdx = MONTHS.indexOf(to);
   if (fromIdx === -1 || toIdx === -1) return;
-  const lo = Math.min(fromIdx, toIdx), hi = Math.max(fromIdx, toIdx);
-  document.querySelectorAll('#summary-tbody tr.summary-month-row').forEach(row => {
-    const idx = MONTHS.indexOf(row.dataset.month);
-    const show = idx >= lo && idx <= hi;
-    row.style.display = show ? '' : 'none';
-    const detail = row.nextElementSibling;
-    if (detail && detail.classList.contains('detail-row') && !show) detail.classList.remove('open');
-  });
-  document.querySelectorAll('.year-btn').forEach(b => b.classList.remove('active'));
-  const pillBtn = document.getElementById('range-pill-btn');
-  if (pillBtn) pillBtn.textContent = `الفترة: ${from} – ${to} ▾`;
+  document.querySelectorAll('.summary-kpi-filter').forEach(b => b.classList.remove('active'));
+  applySummaryRange(fromIdx, toIdx);
   toggleRangePanel();
 }
 
