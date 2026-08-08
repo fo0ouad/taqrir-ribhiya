@@ -245,7 +245,9 @@ function renderExpenseMatrix(data) {
   const body = document.getElementById('exp-table-body');
   const foot = document.getElementById('exp-table-foot');
   if (!head || !body || !foot) return;
-  const sorted = data.categoryRows.slice().sort((a, b) => b.total - a.total);
+  // ترتيب ثابت بنفس ترتيب الفئات الأصلي في data.js (CATS) — بدل إعادة الترتيب حسب الإجمالي كل مرة يتغيّر الفلتر
+  const catOrder = cat => { const i = CATS.indexOf(cat); return i === -1 ? CATS.length : i; };
+  const sorted = data.categoryRows.slice().sort((a, b) => catOrder(a.cat) - catOrder(b.cat));
   const colCount = data.selectedMonths.length + 2;
 
   head.innerHTML = `<tr><th>الفئة / الاتجاه</th>${data.selectedMonths.map(month => `<th>${month}</th>`).join('')}<th>الإجمالي</th></tr>`;
