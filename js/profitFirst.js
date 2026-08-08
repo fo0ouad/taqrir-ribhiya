@@ -67,8 +67,8 @@
     const diff = realRevenue - sumFour;
     const balanced = Math.abs(diff) < BLEED_TOL(topLineRevenue);
     document.getElementById('pfKpiBalance').textContent = fmtSigned(diff);
-    document.getElementById('pfKpiBalance').style.color = balanced ? '#10B981' : '#dc2626';
-    document.getElementById('pfKpiBalanceCard').style.borderColor = balanced ? '#10B981' : '#dc2626';
+    document.getElementById('pfKpiBalance').style.color = balanced ? '#15803D' : '#B91C1C';
+    document.getElementById('pfKpiBalanceCard').style.borderColor = balanced ? '#15803D' : '#B91C1C';
 
     let bleedCount = 0;
     let head = `<thead><tr><th>البند</th><th>الفعلي</th><th>PF%</th><th>PF$</th><th>الفجوة (Bleed)</th><th>الإجراء (Fix)</th></tr></thead>`;
@@ -121,9 +121,9 @@
 
     const noteEl = document.getElementById('pfBalanceNote');
     if (balanced) {
-      noteEl.innerHTML = `<strong style="color:#047857">✅ الأرقام متوازنة</strong> — مجموع (الربح + أجر المالك + الضريبة + المصاريف التشغيلية) يساوي تقريباً الإيراد الحقيقي.`;
+      noteEl.innerHTML = `<strong style="color:#15803D">✅ الأرقام متوازنة</strong> — مجموع (الربح + أجر المالك + الضريبة + المصاريف التشغيلية) يساوي تقريباً الإيراد الحقيقي.`;
     } else {
-      noteEl.innerHTML = `<strong style="color:#dc2626">⚠️ فرق توازن قدره ${money(diff)} ريال</strong> — مجموع البنود الأربعة لا يساوي الإيراد الحقيقي. `
+      noteEl.innerHTML = `<strong style="color:#B91C1C">⚠️ فرق توازن قدره ${money(diff)} ريال</strong> — مجموع البنود الأربعة لا يساوي الإيراد الحقيقي. `
         + (diff > 0
           ? 'يعني في مبلغ غير مخصص رسمياً لأي بند حتى الآن — راجع الأرقام وعدّلها إذا لزم.'
           : 'يعني البنود الأربعة مجتمعة أكبر من الإيراد الحقيقي. سبب محتمل: بند "الربح" مبني على هامش 15% تقديري على كامل الإيراد، بينما "الإيراد الحقيقي" هنا مبني على تكلفة البضاعة الفعلية — الأساسان مختلفان. راجع الأرقام وعدّلها لتطابق واقعك.');
@@ -167,7 +167,7 @@
           tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${ctx.raw.toLocaleString()} ريال` } },
         },
         scales: {
-          y: { ticks: { callback: v => (v / 1000) + 'K', font: { family: 'Segoe UI, Tahoma, Arial' } }, grid: { color: '#f1f5f9' } },
+          y: { ticks: { callback: v => (v / 1000) + 'K', font: { family: 'Segoe UI, Tahoma, Arial' } }, grid: { color: '#F5F7FB' } },
           x: { ticks: { font: { family: 'Segoe UI, Tahoma, Arial' } } },
         },
       },

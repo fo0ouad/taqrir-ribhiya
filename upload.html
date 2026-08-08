@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>رفع تقرير شهر جديد — داشبورد محلات العائلة</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
 <style>
   .upload-container {
@@ -29,8 +31,8 @@
     width: 38px;
     height: 38px;
     border-radius: 50%;
-    background: #e2e8f0;
-    color: #94a3b8;
+    background: #E7E9EE;
+    color: #94A3B8;
     font-weight: 700;
     font-size: 1rem;
     display: flex;
@@ -40,21 +42,21 @@
   }
   .step-label {
     font-size: 0.75rem;
-    color: #94a3b8;
+    color: #94A3B8;
     font-weight: 600;
     white-space: nowrap;
   }
-  .step.active .step-circle { background: #3b82f6; color: white; box-shadow: 0 0 0 4px rgba(59,130,246,0.2); }
-  .step.active .step-label  { color: #3b82f6; }
-  .step.done .step-circle   { background: #10b981; color: white; }
-  .step.done .step-label    { color: #10b981; }
+  .step.active .step-circle { background: #4E7CFF; color: white; box-shadow: 0 0 0 4px rgba(59,130,246,0.2); }
+  .step.active .step-label  { color: #4E7CFF; }
+  .step.done .step-circle   { background: #15803D; color: white; }
+  .step.done .step-label    { color: #15803D; }
   .step-line {
     width: 60px; height: 3px;
-    background: #e2e8f0;
+    background: #E7E9EE;
     margin-bottom: 22px;
     transition: background 0.3s;
   }
-  .step-line.done { background: #10b981; }
+  .step-line.done { background: #15803D; }
 
   .upload-card {
     background: white;
@@ -66,10 +68,10 @@
   .upload-card h2 {
     font-size: 1.2rem;
     font-weight: 700;
-    color: #1e293b;
+    color: #33394C;
     margin: 0 0 24px;
     padding-bottom: 14px;
-    border-bottom: 2px solid #f1f5f9;
+    border-bottom: 2px solid #F5F7FB;
     display: flex;
     align-items: center;
     gap: 10px;
@@ -77,18 +79,18 @@
   }
 
   .drop-zone {
-    border: 2.5px dashed #cbd5e1;
+    border: 2.5px dashed #E7E9EE;
     border-radius: 14px;
     padding: 52px 24px;
     text-align: center;
     cursor: pointer;
     transition: all 0.25s;
-    background: #f8fafc;
+    background: #F5F7FB;
   }
-  .drop-zone:hover, .drop-zone.dragover { border-color: #3b82f6; background: #eff6ff; }
+  .drop-zone:hover, .drop-zone.dragover { border-color: #4E7CFF; background: #EEF2FF; }
   .drop-zone .drop-icon { font-size: 3rem; margin-bottom: 12px; }
-  .drop-zone p { color: #64748b; margin: 6px 0; font-size: 0.95rem; }
-  .drop-zone strong { color: #1e293b; }
+  .drop-zone p { color: #64748B; margin: 6px 0; font-size: 0.95rem; }
+  .drop-zone strong { color: #33394C; }
   .drop-zone input[type=file] { display: none; }
   .file-types {
     display: inline-block;
@@ -103,27 +105,27 @@
 
   .gh-settings { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
   .field-group { display: flex; flex-direction: column; gap: 6px; }
-  .field-group label { font-size: 0.82rem; font-weight: 600; color: #475569; }
+  .field-group label { font-size: 0.82rem; font-weight: 600; color: #64748B; }
   .field-group input {
     padding: 10px 14px;
-    border: 1.5px solid #e2e8f0;
+    border: 1.5px solid #E7E9EE;
     border-radius: 10px;
     font-size: 0.9rem;
     font-family: monospace;
     direction: ltr;
     transition: border-color 0.2s;
   }
-  .field-group input:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
+  .field-group input:focus { outline: none; border-color: #4E7CFF; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
   .field-group select {
     padding: 10px 14px;
-    border: 1.5px solid #e2e8f0;
+    border: 1.5px solid #E7E9EE;
     border-radius: 10px;
     font-size: 0.9rem;
     font-family: inherit;
     background: white;
   }
-  .field-group select:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
-  .field-hint { font-size: 0.75rem; color: #94a3b8; }
+  .field-group select:focus { outline: none; border-color: #4E7CFF; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
+  .field-hint { font-size: 0.75rem; color: #94A3B8; }
 
   .summary-grid {
     display: grid;
@@ -132,15 +134,15 @@
     margin-bottom: 24px;
   }
   .summary-item {
-    background: #f8fafc;
+    background: #F5F7FB;
     border-radius: 12px;
     padding: 16px;
-    border: 1.5px solid #e2e8f0;
+    border: 1.5px solid #E7E9EE;
   }
-  .summary-item .s-label { font-size: 0.75rem; color: #64748b; font-weight: 600; margin-bottom: 6px; }
-  .summary-item .s-value { font-size: 1.15rem; font-weight: 700; color: #1e293b; }
+  .summary-item .s-label { font-size: 0.75rem; color: #64748B; font-weight: 600; margin-bottom: 6px; }
+  .summary-item .s-value { font-size: 1.15rem; font-weight: 700; color: #33394C; }
   .summary-item .s-value.green { color: #059669; }
-  .summary-item .s-value.red   { color: #dc2626; }
+  .summary-item .s-value.red   { color: #B91C1C; }
 
   .exp-table {
     width: 100%;
@@ -148,16 +150,16 @@
     font-size: 0.85rem;
   }
   .exp-table th {
-    background: #f1f5f9;
+    background: #F5F7FB;
     padding: 8px 14px;
     text-align: right;
     font-weight: 600;
-    color: #475569;
-    border-bottom: 2px solid #e2e8f0;
+    color: #64748B;
+    border-bottom: 2px solid #E7E9EE;
     position: sticky;
     top: 0;
   }
-  .exp-table td { padding: 7px 14px; border-bottom: 1px solid #f1f5f9; color: #334155; }
+  .exp-table td { padding: 7px 14px; border-bottom: 1px solid #F5F7FB; color: #334155; }
   .exp-table tr:last-child td { border-bottom: none; }
   .exp-table .num { text-align: left; font-weight: 600; direction: ltr; font-variant-numeric: tabular-nums; }
   .exp-table .total-row td { background: #f0fdf4; font-weight: 700; color: #065f46; border-top: 2px solid #bbf7d0; }
@@ -168,7 +170,7 @@
     border: 1.5px solid #dbe4f0;
     border-radius: 8px;
     background: white;
-    color: #1e293b;
+    color: #33394C;
     font-family: inherit;
     font-weight: 700;
   }
@@ -176,10 +178,10 @@
   .section-title {
     font-size: 0.88rem;
     font-weight: 700;
-    color: #475569;
+    color: #64748B;
     margin: 22px 0 10px;
     padding-bottom: 6px;
-    border-bottom: 1px solid #f1f5f9;
+    border-bottom: 1px solid #F5F7FB;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -195,15 +197,15 @@
     gap: 10px;
   }
   .alert-warning { background: #fffbeb; border: 1.5px solid #fcd34d; color: #92400e; }
-  .alert-success { background: #f0fdf4; border: 1.5px solid #86efac; color: #166534; }
-  .alert-error   { background: #fef2f2; border: 1.5px solid #fca5a5; color: #991b1b; }
-  .alert-info    { background: #eff6ff; border: 1.5px solid #93c5fd; color: #1e40af; }
+  .alert-success { background: #f0fdf4; border: 1.5px solid #BBF7D0; color: #166534; }
+  .alert-error   { background: #FEF2F2; border: 1.5px solid #FCA5A5; color: #991b1b; }
+  .alert-info    { background: #EEF2FF; border: 1.5px solid #93c5fd; color: #1e40af; }
   .existing-month-compare { margin-top: 12px; width: 100%; border-collapse: collapse; font-size: 0.82rem; }
   .existing-month-compare th, .existing-month-compare td { padding: 7px 10px; border-bottom: 1px solid rgba(146,64,14,0.18); text-align: right; }
-  .existing-month-compare th { font-weight: 800; color: #78350f; }
+  .existing-month-compare th { font-weight: 800; color: #7033FF; }
   .existing-month-compare td.num { text-align: left; direction: ltr; font-weight: 800; }
-  .existing-month-compare .diff-pos { color: #16a34a; }
-  .existing-month-compare .diff-neg { color: #dc2626; }
+  .existing-month-compare .diff-pos { color: #15803D; }
+  .existing-month-compare .diff-neg { color: #B91C1C; }
 
   .btn {
     padding: 11px 26px;
@@ -218,31 +220,31 @@
     gap: 8px;
     font-family: inherit;
   }
-  .btn-primary { background: #3b82f6; color: white; }
+  .btn-primary { background: #4E7CFF; color: white; }
   .btn-primary:hover:not(:disabled) { background: #2563eb; transform: translateY(-1px); }
   .btn-primary:disabled { background: #93c5fd; cursor: not-allowed; }
   .btn-success { background: #059669; color: white; }
-  .btn-success:hover:not(:disabled) { background: #047857; transform: translateY(-1px); }
+  .btn-success:hover:not(:disabled) { background: #15803D; transform: translateY(-1px); }
   .btn-success:disabled { background: #6ee7b7; cursor: not-allowed; }
-  .btn-outline { background: white; color: #475569; border: 1.5px solid #e2e8f0; }
-  .btn-outline:hover { background: #f8fafc; }
+  .btn-outline { background: white; color: #64748B; border: 1.5px solid #E7E9EE; }
+  .btn-outline:hover { background: #F5F7FB; }
   .btn-row { display: flex; gap: 12px; align-items: center; margin-top: 24px; flex-wrap: wrap; }
 
-  .progress-wrap { background: #f1f5f9; border-radius: 8px; height: 8px; overflow: hidden; margin: 14px 0; }
+  .progress-wrap { background: #F5F7FB; border-radius: 8px; height: 8px; overflow: hidden; margin: 14px 0; }
   .progress-fill {
     height: 100%;
-    background: linear-gradient(90deg, #3b82f6, #10b981);
+    background: linear-gradient(90deg, #4E7CFF, #15803D);
     border-radius: 8px;
     transition: width 0.4s ease;
     width: 0%;
   }
-  .status-msg { font-size: 0.85rem; color: #64748b; margin-top: 4px; }
+  .status-msg { font-size: 0.85rem; color: #64748B; margin-top: 4px; }
 
-  .table-scroll { max-height: 320px; overflow-y: auto; border-radius: 10px; border: 1px solid #e2e8f0; }
+  .table-scroll { max-height: 320px; overflow-y: auto; border-radius: 10px; border: 1px solid #E7E9EE; }
 
   .month-badge {
     display: inline-block;
-    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    background: linear-gradient(135deg, #4E7CFF, #7033FF);
     color: white;
     padding: 3px 14px;
     border-radius: 20px;
@@ -318,7 +320,7 @@
     </div>
 
     <div class="upload-card">
-      <h2>🔑 إعدادات GitHub <span style="font-size:0.72rem;color:#94a3b8;font-weight:400">(تُحفظ تلقائياً في المتصفح)</span></h2>
+      <h2>🔑 إعدادات GitHub <span style="font-size:0.72rem;color:#94A3B8;font-weight:400">(تُحفظ تلقائياً في المتصفح)</span></h2>
       <div class="gh-settings">
         <div class="field-group" style="grid-column:1/-1">
           <label>Personal Access Token</label>

@@ -271,7 +271,7 @@ function renderCustomersCharts() {
       type: 'bar',
       data: {
         labels: topRows.map(customer => customer.name),
-        datasets: [{ label: 'الرصيد', data: topRows.map(customer => customer.total), backgroundColor: '#3B82F6', borderRadius: 5 }]
+        datasets: [{ label: 'الرصيد', data: topRows.map(customer => customer.total), backgroundColor: '#4E7CFF', borderRadius: 5 }]
       },
       options: { ...chartDefaults, indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { ticks: { callback: v => (v / 1000).toFixed(0) + 'K' } }, y: { ticks: { font: { family: 'Segoe UI, Tahoma, Arial', size: 10 } } } } }
     });
@@ -283,7 +283,7 @@ function renderCustomersCharts() {
       type: 'doughnut',
       data: {
         labels: ['فرع محمد', 'فرع هاني'],
-        datasets: [{ data: [summary.branchM, summary.branchH], backgroundColor: ['#3B82F6', '#8B5CF6'] }]
+        datasets: [{ data: [summary.branchM, summary.branchH], backgroundColor: ['#4E7CFF', '#7033FF'] }]
       },
       options: { locale: 'en-US', responsive: true, plugins: { legend: { position: 'bottom', labels: { font: { family: 'Segoe UI, Tahoma, Arial' } } } } }
     });
@@ -299,7 +299,7 @@ function renderCollectionChart(rows) {
     type: 'bar',
     data: {
       labels: rows.map(customer => customer.name),
-      datasets: [{ label: 'الرصيد المستهدف', data: rows.map(customer => customer.selectedTotal), backgroundColor: '#10B981', borderRadius: 5 }]
+      datasets: [{ label: 'الرصيد المستهدف', data: rows.map(customer => customer.selectedTotal), backgroundColor: '#15803D', borderRadius: 5 }]
     },
     options: { ...chartDefaults, indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { ticks: { callback: v => (v / 1000).toFixed(0) + 'K' } }, y: { ticks: { font: { family: 'Segoe UI, Tahoma, Arial', size: 10 } } } } }
   });

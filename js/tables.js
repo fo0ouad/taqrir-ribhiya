@@ -48,7 +48,7 @@ function renderExecutiveKpis(period = 'all') {
   setText('summary-profit-total', formatK(profitTotal, true));
 
   const netEl = document.getElementById('summary-net-result');
-  if (netEl) netEl.style.color = netResult >= 0 ? '#10B981' : '#dc2626';
+  if (netEl) netEl.style.color = netResult >= 0 ? '#15803D' : '#B91C1C';
   renderBranchSalesSummary(selectedMonths);
 }
 
@@ -156,9 +156,9 @@ function renderExpenseMatrix(data) {
       if (!value) return '<td class="exp-empty">—</td>';
       const month = data.selectedMonths[idx];
       const isMax = value === rowMax;
-      return `<td class="exp-cell ${isMax ? 'exp-cell-max' : ''}" onclick="openExpDetail('${month}','${row.cat}')" style="background:${hexToRgba(CAT_COLORS[row.cat] || '#3B82F6', 0.12)}">${value.toLocaleString('en-US', { maximumFractionDigits: 0 })}</td>`;
+      return `<td class="exp-cell ${isMax ? 'exp-cell-max' : ''}" onclick="openExpDetail('${month}','${row.cat}')" style="background:${hexToRgba(CAT_COLORS[row.cat] || '#4E7CFF', 0.12)}">${value.toLocaleString('en-US', { maximumFractionDigits: 0 })}</td>`;
     }).join('');
-    return `<tr><td class="exp-category" style="color:${CAT_COLORS[row.cat] || '#1e3a5f'}">${row.cat}</td>${cells}<td class="exp-total">${row.total.toLocaleString('en-US', { maximumFractionDigits: 0 })}</td></tr>`;
+    return `<tr><td class="exp-category" style="color:${CAT_COLORS[row.cat] || '#33394C'}">${row.cat}</td>${cells}<td class="exp-total">${row.total.toLocaleString('en-US', { maximumFractionDigits: 0 })}</td></tr>`;
   }).join('');
   foot.innerHTML = `<tr><td>إجمالي الشهر</td>${data.monthTotals.map(item => `<td>${item.total.toLocaleString('en-US', { maximumFractionDigits: 0 })}</td>`).join('')}<td>${data.monthTotals.reduce((sum, item) => sum + item.total, 0).toLocaleString('en-US', { maximumFractionDigits: 0 })}</td></tr>`;
 }
@@ -176,7 +176,7 @@ function renderExpenseCharts(data) {
         datasets: [{
           label: 'إجمالي الفئة',
           data: sortedRows.map(row => row.total),
-          backgroundColor: sortedRows.map(row => CAT_COLORS[row.cat] || '#3B82F6'),
+          backgroundColor: sortedRows.map(row => CAT_COLORS[row.cat] || '#4E7CFF'),
           borderRadius: 5
         }]
       },
@@ -186,7 +186,7 @@ function renderExpenseCharts(data) {
         plugins: { legend: { display: false } },
         scales: {
           x: { ticks: { callback: v => (v / 1000).toFixed(0) + 'K' } },
-          y: { ticks: { font: { family: 'Segoe UI, Tahoma, Arial' } } }
+          y: { ticks: { font: { family: 'IBM Plex Sans Arabic, Tahoma, Arial' } } }
         }
       }
     });
@@ -201,15 +201,15 @@ function renderExpenseCharts(data) {
         datasets: data.categoryRows.map(row => ({
           label: row.cat,
           data: row.values,
-          backgroundColor: CAT_COLORS[row.cat] || '#3B82F6',
+          backgroundColor: CAT_COLORS[row.cat] || '#4E7CFF',
           borderRadius: 2
         }))
       },
       options: {
         ...chartDefaults,
         scales: {
-          x: { stacked: true, ticks: { font: { family: 'Segoe UI, Tahoma, Arial', size: 11 } } },
-          y: { stacked: true, ticks: { font: { family: 'Segoe UI, Tahoma, Arial' }, callback: v => (v / 1000).toFixed(0) + 'K' } }
+          x: { stacked: true, ticks: { font: { family: 'IBM Plex Sans Arabic, Tahoma, Arial', size: 11 } } },
+          y: { stacked: true, ticks: { font: { family: 'IBM Plex Sans Arabic, Tahoma, Arial' }, callback: v => (v / 1000).toFixed(0) + 'K' } }
         }
       }
     });
@@ -225,9 +225,26 @@ function hexToRgba(hex, alpha) {
   return `rgba(${r},${g},${b},${alpha})`;
 }
 
+function renderExpenseRankedList(data) {
+  const el = document.getElementById('exp-ranked-list');
+  if (!el) return;
+  const sorted = data.categoryRows.slice().sort((a, b) => b.total - a.total);
+  const max = sorted.length ? sorted[0].total : 0;
+  el.innerHTML = sorted.map(row => {
+    const pct = max ? (row.total / max) * 100 : 0;
+    return `
+      <div>
+        <div class="exp-ranked-row-head"><span>${row.cat}</span><span>${fmt(row.total)} ر</span></div>
+        <div class="exp-ranked-track"><div class="exp-ranked-fill" style="width:${pct}%;background:${CAT_COLORS[row.cat] || '#4E7CFF'}"></div></div>
+      </div>
+    `;
+  }).join('') || '<div style="color:#94A3B8;font-size:0.85rem">لا توجد بيانات لهذه الفترة</div>';
+}
+
 function renderExpensesPage(period = 'all') {
   const data = getExpenseRows(period);
   renderExpenseKpis(data);
+  renderExpenseRankedList(data);
   renderExpenseMatrix(data);
   renderExpenseCharts(data);
 }
@@ -239,276 +256,23 @@ function setExpensesPeriod(period, btn) {
   renderExpensesPage(period);
 }
 
-// ===== MODAL: تفاصيل بند مصاريف =====
+// ===== INLINE EXPAND: تفاصيل بند مصاريف (بدل نافذة منبثقة) =====
 function openExpDetail(month, cat) {
+  const box = document.getElementById('exp-cell-detail');
+  if (!box) return;
   const items = getExpenseItems(month, cat);
   const total = items.reduce((s, i) => s + i.amount, 0);
-  
-  document.getElementById('modal-title').textContent = cat + ' — ' + month;
-  document.getElementById('modal-total').textContent = 'الإجمالي: ' + total.toLocaleString('en-US', {maximumFractionDigits:0}) + ' ر';
-  
-  let rows = '';
-  if (items.length === 0) {
-    rows = '<tr><td colspan="2" style="text-align:center;color:#94a3b8">لا توجد تفاصيل مسجلة</td></tr>';
-  } else {
-    items.forEach(i => {
-      rows += `<tr><td style="text-align:right">${i.name}</td><td style="font-weight:700">${i.amount.toLocaleString('en-US', {maximumFractionDigits:0})} ر</td></tr>`;
-    });
-  }
-  
-  document.getElementById('modal-body').innerHTML = `
-    <table>
-      <thead><tr><th>البند</th><th>المبلغ (ريال)</th></tr></thead>
-      <tbody>${rows}</tbody>
-    </table>`;
-  
-  document.getElementById('modal-box').classList.remove('month-modal');
-  document.getElementById('modal-overlay').classList.add('open');
-}
 
-// ===== MODAL: تفاصيل شهر كامل =====
-let monthExpenseChart = null;
+  const rows = items.length === 0
+    ? '<tr><td colspan="2" style="text-align:center;color:#94A3B8">لا توجد تفاصيل مسجلة</td></tr>'
+    : items.map(i => `<tr><td style="text-align:right">${i.name}</td><td style="font-weight:700">${i.amount.toLocaleString('en-US', {maximumFractionDigits:0})} ر</td></tr>`).join('');
 
-function openMonthDetail(month) {
-  const d = MONTHLY_DETAIL[month];
-  if (!d) return;
-  
-  // تفاصيل المصاريف
-  let expRows = '';
-  const detailedExpenses = EXP_DETAILS[month] || {};
-  const expBreak = Object.keys(detailedExpenses).length ? detailedExpenses : (d.exp_breakdown || {});
-  const orderedExpenseCategories = [
-    ...CATS,
-    ...Object.keys(expBreak).filter(cat => !CATS.includes(cat))
-  ];
-  const expenseCategoryTotals = [];
-  orderedExpenseCategories.forEach(cat => {
-    const items = expBreak[cat] || [];
-    const total = items.reduce((s, i) => s + i.amount, 0);
-    if (total > 0) {
-      expenseCategoryTotals.push({ cat, total });
-      expRows += `<tr>
-        <td style="text-align:right;font-weight:600;color:${CAT_COLORS[cat]}">${cat}</td>
-        <td style="font-weight:700">${total.toLocaleString('en-US', {maximumFractionDigits:0})} ر</td>
-      </tr>`;
-      items.forEach(i => {
-        expRows += `<tr style="background:#f8faff"><td style="text-align:right;padding-right:24px;color:#64748b;font-size:0.82rem">↳ ${i.name}</td><td style="color:#475569;font-size:0.82rem">${i.amount.toLocaleString('en-US', {maximumFractionDigits:0})} ر</td></tr>`;
-      });
-    }
-  });
-  const sortedExpenseTotals = expenseCategoryTotals.slice().sort((a, b) => b.total - a.total);
-  const expenseBreakdownTotal = expenseCategoryTotals.reduce((sum, item) => sum + item.total, 0) || d.expenses;
-  const topExpenseItems = sortedExpenseTotals.slice(0, 3);
-  const topExpenseRows = topExpenseItems.map((item, idx) => `
-    <tr>
-      <td>${idx + 1}</td>
-      <td style="text-align:right;font-weight:700;color:${CAT_COLORS[item.cat] || '#1e3a5f'}">${item.cat}</td>
-      <td style="font-weight:800">${item.total.toLocaleString('en-US', {maximumFractionDigits:0})} ر</td>
-      <td>${expenseBreakdownTotal ? ((item.total / expenseBreakdownTotal) * 100).toFixed(1) : '0.0'}%</td>
-    </tr>
-  `).join('');
-  
-  // مشاكل وملاحظات
-  let issuesHtml = '';
-  const isTailorNote = text => /خياط|خياطين/.test(text || '');
-  const formatIssue = text => {
-    if ((text || '').includes('دون مستوى التعادل')) {
-      const expectedMargin = d.revenue * 0.15;
-      const expenseOverage = d.expenses - expectedMargin;
-      return `المصاريف تجاوزت الهامش المتوقع بـ ${expenseOverage.toLocaleString('en-US', {maximumFractionDigits:0})} ر <small style="display:block;margin-top:6px;color:#7f1d1d;font-weight:600">الهامش المتوقع = الإيرادات × 15% = ${d.revenue.toLocaleString('en-US', {maximumFractionDigits:0})} × 15% = ${expectedMargin.toLocaleString('en-US', {maximumFractionDigits:0})} ر، والتجاوز = المصاريف − الهامش المتوقع = ${d.expenses.toLocaleString('en-US', {maximumFractionDigits:0})} − ${expectedMargin.toLocaleString('en-US', {maximumFractionDigits:0})}</small>`;
-    }
-    return text;
-  };
-  (d.issues || []).filter(iss => !isTailorNote(iss)).forEach(iss => {
-    issuesHtml += `<div class="issue-box">⚠️ ${formatIssue(iss)}</div>`;
-  });
-  (d.notes || []).filter(note => !isTailorNote(note)).forEach(note => {
-    issuesHtml += `<div class="note-box">📌 ${note}</div>`;
-  });
-  if (!issuesHtml) issuesHtml = '<div class="note-box">✅ لا توجد مشاكل تشغيلية بارزة هذا الشهر</div>';
-  
-  document.getElementById('modal-title').textContent = '📅 تقرير ' + month + ' التفصيلي';
-  document.getElementById('modal-total').innerHTML = '';
-  
-  const monthIndex = MONTHS.indexOf(month);
-  const prevMonth = monthIndex > 0 ? MONTHLY_DETAIL[MONTHS[monthIndex - 1]] : null;
-  const pctChange = (current, previous) => {
-    if (!previous && previous !== 0) return null;
-    if (previous === 0) return current === 0 ? 0 : null;
-    return ((current - previous) / Math.abs(previous)) * 100;
-  };
-  const previousEstimatedProfit = prevMonth ? (prevMonth.metric1 || prevMonth.profit || 0) : null;
-  const previousCashSurplus = prevMonth ? (prevMonth.metric3 || 0) : null;
-
-  // دالة مساعدة لعرض نسبة التغيير
-  const changeBadge = (val, isExpense) => {
-    if (val === null || val === undefined) return '';
-    const positive = isExpense ? val <= 0 : val >= 0;
-    const color = positive ? '#16a34a' : '#dc2626';
-    const bg = positive ? '#dcfce7' : '#fee2e2';
-    const arrow = val >= 0 ? '▲' : '▼';
-    return `<span class="change-badge" style="color:${color};background:${bg}">${arrow} ${Math.abs(val).toFixed(1)}%</span>`;
-  };
-  
-  // فجوة السيولة
-  const liqGap = d.liquidity_gap || 0;
-  const liqColor = liqGap > 0 ? '#dc2626' : '#16a34a';
-  const liqLabel = liqGap > 0 ? 'عجز نقدي' : 'فائض نقدي';
-  const liqIcon = liqGap > 0 ? '⚠️' : '✅';
-  
-  const estimatedProfit = d.metric1 || d.profit || 0;
-  const cashSurplus = d.metric3 || 0;
-  const supplierGap = (d.suppliers_paid || 0) - (d.purchases || 0);
-  const estimatedProfitColor = estimatedProfit >= 0 ? '#16a34a' : '#dc2626';
-  const cashSurplusColor = cashSurplus >= 0 ? '#16a34a' : '#dc2626';
-  const supplierGapColor = supplierGap >= 0 ? '#16a34a' : '#dc2626';
-  const fmtNum = v => (v>=0?'+':'')+v.toLocaleString('en-US',{maximumFractionDigits:0});
-  const currentPurchases = d.purchases || 0;
-  const previousPurchases = prevMonth?.purchases || 0;
-  const purchasesChange = pctChange(currentPurchases, previousPurchases);
-  const purchasesColor = purchasesChange === null ? '#64748b' : (purchasesChange >= 0 ? '#16a34a' : '#dc2626');
-  const purchasesMax = Math.max(currentPurchases, previousPurchases, 1);
-  const purchaseBar = (label, value, color) => `
-    <div class="purchase-compare-row">
-      <div class="purchase-compare-label">${label}</div>
-      <div class="purchase-compare-track">
-        <div class="purchase-compare-fill" style="width:${Math.max((value / purchasesMax) * 100, value ? 4 : 0)}%;background:${color}"></div>
-      </div>
-      <div class="purchase-compare-value">${value.toLocaleString('en-US', {maximumFractionDigits:0})} ر</div>
-    </div>
+  box.innerHTML = `
+    <div class="detail-item-label" style="margin-bottom:8px">${cat} — ${month} · الإجمالي: ${total.toLocaleString('en-US', {maximumFractionDigits:0})} ر</div>
+    <table><thead><tr><th>البند</th><th>المبلغ (ريال)</th></tr></thead><tbody>${rows}</tbody></table>
   `;
-  const purchasesCompareHtml = `
-    <div class="section-title">🛒 مقارنة المشتريات بالشهر السابق</div>
-    <div class="purchase-compare-box">
-      <div class="purchase-compare-head">
-        <span>${previousPurchases ? `التغير عن الشهر السابق` : 'لا يوجد شهر سابق للمقارنة'}</span>
-        <strong style="color:${purchasesColor}">${purchasesChange === null ? '—' : `${purchasesChange >= 0 ? '+' : '-'}${Math.abs(purchasesChange).toFixed(1)}%`}</strong>
-      </div>
-      ${purchaseBar(month, currentPurchases, '#8B5CF6')}
-      ${prevMonth ? purchaseBar(MONTHS[monthIndex - 1], previousPurchases, '#94a3b8') : ''}
-    </div>
-  `;
-  const branchSales = (typeof BRANCH_SALES !== 'undefined' && BRANCH_SALES[month]) ? BRANCH_SALES[month] : null;
-  const branchSalesHtml = branchSales ? (() => {
-    const b1 = branchSales["فرع 1"] || { cash: 0, bank: 0, total: 0 };
-    const b2 = branchSales["فرع 2"] || { cash: 0, bank: 0, total: 0 };
-    const total = (b1.total || 0) + (b2.total || 0);
-    const share = value => total ? ((value / total) * 100).toFixed(1) + '%' : '0.0%';
-    return `
-      <div class="section-title">🏪 أداء الفروع</div>
-      <div class="branch-sales-grid modal-branch-sales">
-        <div class="branch-sales-card">
-          <div class="branch-sales-name">فرع 1</div>
-          <div class="branch-sales-value">${(b1.total || 0).toLocaleString('en-US', {maximumFractionDigits:0})} ر</div>
-          <div class="branch-sales-sub">كاش ${(b1.cash || 0).toLocaleString('en-US', {maximumFractionDigits:0})} · بنك ${(b1.bank || 0).toLocaleString('en-US', {maximumFractionDigits:0})} · ${share(b1.total || 0)}</div>
-        </div>
-        <div class="branch-sales-card">
-          <div class="branch-sales-name">فرع 2</div>
-          <div class="branch-sales-value">${(b2.total || 0).toLocaleString('en-US', {maximumFractionDigits:0})} ر</div>
-          <div class="branch-sales-sub">كاش ${(b2.cash || 0).toLocaleString('en-US', {maximumFractionDigits:0})} · بنك ${(b2.bank || 0).toLocaleString('en-US', {maximumFractionDigits:0})} · ${share(b2.total || 0)}</div>
-        </div>
-      </div>
-    `;
-  })() : '';
-  
-  document.getElementById('modal-body').innerHTML = `
-    <div class="month-kpi">
-      <div class="month-kpi-card">
-        <div class="month-kpi-val" style="color:#3B82F6">${d.revenue.toLocaleString('en-US', {maximumFractionDigits:0})}</div>
-        <div class="month-kpi-lbl">الإيرادات ${changeBadge(pctChange(d.revenue, prevMonth?.revenue))}</div>
-      </div>
-      <div class="month-kpi-card">
-        <div class="month-kpi-val" style="color:${estimatedProfitColor}">${fmtNum(estimatedProfit)}</div>
-        <div class="month-kpi-lbl">ربح ${changeBadge(pctChange(estimatedProfit, previousEstimatedProfit))}</div>
-      </div>
-      <div class="month-kpi-card">
-        <div class="month-kpi-val" style="color:${cashSurplusColor}">${fmtNum(cashSurplus)}</div>
-        <div class="month-kpi-lbl">فائض نقدي ${changeBadge(pctChange(cashSurplus, previousCashSurplus))}</div>
-      </div>
-      <div class="month-kpi-card">
-        <div class="month-kpi-val" style="color:#F59E0B">${d.expenses.toLocaleString('en-US', {maximumFractionDigits:0})}</div>
-        <div class="month-kpi-lbl">المصاريف ${changeBadge(pctChange(d.expenses, prevMonth?.expenses), true)}</div>
-      </div>
-      <div class="month-kpi-card">
-        <div class="month-kpi-val" style="color:#EF4444">${d.suppliers_paid.toLocaleString('en-US', {maximumFractionDigits:0})}</div>
-        <div class="month-kpi-lbl">مدفوع للموردين ${changeBadge(pctChange(d.suppliers_paid, prevMonth?.suppliers_paid), true)}</div>
-      </div>
-      <div class="month-kpi-card">
-        <div class="month-kpi-val" style="color:#8B5CF6">${d.purchases.toLocaleString('en-US', {maximumFractionDigits:0})}</div>
-        <div class="month-kpi-lbl">المشتريات ${changeBadge(pctChange(d.purchases, prevMonth?.purchases))}</div>
-      </div>
-    </div>
-
-    <div class="metric-definitions">
-      <div><strong>ربح:</strong> هامش 15% − المصاريف.</div>
-      <div><strong>فائض نقدي:</strong> الإيراد − المصاريف − المدفوع للموردين.</div>
-      <div><strong>فرق الموردين:</strong> المدفوع للموردين − المشتريات = <span style="font-weight:800;color:${supplierGapColor}">${fmtNum(supplierGap)} ر</span>.</div>
-    </div>
-
-    ${purchasesCompareHtml}
-
-    ${branchSalesHtml}
-
-    <div style="background:${liqGap>0?'#fef2f2':'#f0fdf4'};border:1px solid ${liqGap>0?'#fca5a5':'#86efac'};border-radius:10px;padding:12px 16px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center">
-      <span style="font-weight:700;color:${liqColor}">${liqIcon} ${liqLabel}</span>
-      <span style="font-size:1.1rem;font-weight:800;color:${liqColor}">${Math.abs(liqGap).toLocaleString('en-US',{maximumFractionDigits:0})} ر</span>
-    </div>
-    
-    <div class="section-title">🔍 التشخيص والملاحظات</div>
-    ${issuesHtml}
-    
-    <div class="section-title">📊 ملخص المصاريف</div>
-    <table><thead><tr><th>#</th><th>الفئة</th><th>المبلغ</th><th>النسبة</th></tr></thead><tbody>${topExpenseRows || '<tr><td colspan="4">لا توجد مصاريف مسجلة</td></tr>'}</tbody></table>
-    <div class="expense-chart-wrap">
-      <canvas id="month-expense-chart" height="150"></canvas>
-    </div>
-
-    <div class="section-title">💸 تفصيل المصاريف</div>
-    <table><thead><tr><th>الفئة / البند</th><th>المبلغ</th></tr></thead><tbody>${expRows}</tbody></table>
-  `;
-  
-  document.getElementById('modal-box').classList.add('month-modal');
-  document.getElementById('modal-overlay').classList.add('open');
-
-  if (monthExpenseChart) monthExpenseChart.destroy();
-  const chartEl = document.getElementById('month-expense-chart');
-  if (chartEl && typeof Chart !== 'undefined' && sortedExpenseTotals.length) {
-    monthExpenseChart = new Chart(chartEl, {
-      type: 'bar',
-      data: {
-        labels: sortedExpenseTotals.map(i => i.cat),
-        datasets: [{
-          label: 'مصاريف الشهر',
-          data: sortedExpenseTotals.map(i => i.total),
-          backgroundColor: sortedExpenseTotals.map(i => CAT_COLORS[i.cat] || '#3B82F6'),
-          borderRadius: 5
-        }]
-      },
-      options: {
-        locale: 'en-US',
-        indexAxis: 'y',
-        responsive: true,
-        plugins: { legend: { display: false } },
-        scales: {
-          x: { ticks: { callback: v => (v / 1000).toFixed(0) + 'K' } },
-          y: { ticks: { font: { family: 'Segoe UI, Tahoma, Arial' } } }
-        }
-      }
-    });
-  }
-}
-
-// ===== MODAL: إغلاق =====
-function closeModal(e) {
-  if (e.target === document.getElementById('modal-overlay')) closeModalBtn();
-}
-function closeModalBtn() {
-  if (monthExpenseChart) {
-    monthExpenseChart.destroy();
-    monthExpenseChart = null;
-  }
-  document.getElementById('modal-overlay').classList.remove('open');
-  document.getElementById('modal-box').classList.remove('month-modal');
+  box.classList.add('open');
+  box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
 // ===== SUPPLIERS FILTER =====
@@ -623,7 +387,7 @@ function signedCell(value, options = {}) {
   const { inverse = false, suffix = '' } = options;
   const numeric = Number(value) || 0;
   const isGood = inverse ? numeric <= 0 : numeric >= 0;
-  const color = isGood ? '#16a34a' : '#dc2626';
+  const color = isGood ? '#15803D' : '#B91C1C';
   return `<td style="color:${color};font-weight:700">${fmtSigned(numeric)}${suffix}</td>`;
 }
 
@@ -644,13 +408,14 @@ function renderSummaryTable() {
     const dailyAverage = grossMargin / summaryMonthDays(month);
     const year = summaryYearFromMonth(month);
     const escapedMonth = String(month).replace(/'/g, "\\'");
+    const rowId = 'summary-row-' + index;
 
     return `
-      <tr data-year="${year}" onclick="openMonthDetail('${escapedMonth}')">
-        <td style="font-weight:600;color:#1e3a5f;text-decoration:underline;text-underline-offset:3px">${month}</td>
+      <tr class="summary-month-row row-expand-toggle" id="${rowId}" data-year="${year}" data-month="${month}" onclick="toggleSummaryRow('${rowId}')">
+        <td style="font-weight:600;color:#33394C"><span class="row-expand-arrow">▾</span> ${month}</td>
         <td>${fmt(revenue)}</td>
         <td>${fmt(grossMargin)}</td>
-        <td style="color:#b45309;font-weight:700">${fmt(dailyAverage)} ر</td>
+        <td style="color:#7033FF;font-weight:700">${fmt(dailyAverage)} ر</td>
         <td>${fmt(expenses)}</td>
         ${signedCell(profit)}
         ${signedCell(cashSurplus)}
@@ -658,8 +423,32 @@ function renderSummaryTable() {
         <td>${fmt(purchases)}</td>
         ${signedCell(supplierGap)}
       </tr>
+      <tr class="detail-row" id="${rowId}-detail" data-year="${year}">
+        <td colspan="10">
+          <div class="detail-grid">
+            <div><div class="detail-item-label">هامش 15%</div><div class="detail-item-value">${fmt(grossMargin)} ر</div></div>
+            <div><div class="detail-item-label">متوسط يومي</div><div class="detail-item-value">${fmt(dailyAverage)} ر</div></div>
+            <div><div class="detail-item-label">فائض نقدي</div><div class="detail-item-value" style="color:${cashSurplus >= 0 ? '#15803D' : '#B91C1C'}">${fmtSigned(cashSurplus)} ر</div></div>
+            <div><div class="detail-item-label">فرق الموردين</div><div class="detail-item-value" style="color:${supplierGap >= 0 ? '#15803D' : '#B91C1C'}">${fmtSigned(supplierGap)} ر</div></div>
+            <div><div class="detail-item-label">موردين مدفوع</div><div class="detail-item-value">${fmt(suppliersPaid)} ر</div></div>
+            <div><div class="detail-item-label">مشتريات</div><div class="detail-item-value">${fmt(purchases)} ر</div></div>
+          </div>
+        </td>
+      </tr>
     `;
   }).join('');
+}
+
+// ===== INLINE EXPAND: تفاصيل شهر (بدل نافذة منبثقة) =====
+function toggleSummaryRow(rowId) {
+  const row = document.getElementById(rowId);
+  const detail = document.getElementById(rowId + '-detail');
+  if (!row || !detail) return;
+  const willOpen = !detail.classList.contains('open');
+  document.querySelectorAll('.detail-row.open').forEach(el => { if (el !== detail) el.classList.remove('open'); });
+  document.querySelectorAll('.summary-month-row.open').forEach(el => { if (el !== row) el.classList.remove('open'); });
+  detail.classList.toggle('open', willOpen);
+  row.classList.toggle('open', willOpen);
 }
 
 function updateSummaryYearCounts() {
@@ -724,11 +513,11 @@ function filterWomenSuppliers(filter) {
     const btn = document.getElementById(id);
     if (!btn) return;
     btn.style.background = '#fff';
-    btn.style.color = btn.id.includes('both') ? '#15803d' : '#1e3a5f';
+    btn.style.color = btn.id.includes('both') ? '#15803D' : '#33394C';
   });
   const activeBtn = document.getElementById('ws-filter-' + filter);
   if (activeBtn) {
-    activeBtn.style.background = activeBtn.id.includes('both') ? '#15803d' : '#1e3a5f';
+    activeBtn.style.background = activeBtn.id.includes('both') ? '#15803D' : '#33394C';
     activeBtn.style.color = '#fff';
   }
 
@@ -783,6 +572,9 @@ function switchTab(id, btn) {
   const el = document.getElementById(id);
   if (el) el.classList.add('active');
   if (btn) btn.classList.add('active');
+  if (typeof syncSidebarActive === 'function') syncSidebarActive(id);
+  if (typeof renderMobileSubnav === 'function') renderMobileSubnav(id);
+  if (history.replaceState) history.replaceState(null, '', '#' + id);
 }
 
 // ===== INIT: Row numbers for customers =====

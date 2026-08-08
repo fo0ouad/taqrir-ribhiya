@@ -142,7 +142,7 @@ function renderPurchasesContent() {
   setText("purchases-paid", `${purchaseFmt(summary.paid)} ر`);
   setText("purchases-paid-sub", `فرق ${purchaseFmt(summary.paid - summary.total)} ر`);
   const changeEl = document.getElementById("purchases-change");
-  if (changeEl && latestChange !== null) changeEl.style.color = latestChange >= 0 ? "#10B981" : "#dc2626";
+  if (changeEl && latestChange !== null) changeEl.style.color = latestChange >= 0 ? "#15803D" : "#B91C1C";
 
   const body = document.getElementById("purchases-table-body");
   const foot = document.getElementById("purchases-table-foot");
@@ -151,7 +151,7 @@ function renderPurchasesContent() {
       const prev = idx > 0 ? rows[idx - 1] : null;
       const change = prev ? ((row.purchases - prev.purchases) / Math.abs(prev.purchases || 1)) * 100 : null;
       const gap = row.suppliersPaid - row.purchases;
-      return `<tr><td><strong>${row.month}</strong></td><td>${purchaseFmt(row.branch1)}</td><td>${row.branch2 ? purchaseFmt(row.branch2) : "—"}</td><td>${purchaseFmt(row.purchases)}</td><td style="color:${change === null ? "#64748b" : change >= 0 ? "#15803d" : "#dc2626"};font-weight:900">${change === null ? "—" : `${change >= 0 ? "+" : ""}${change.toFixed(1)}%`}</td><td>${purchaseFmt(row.suppliersPaid)}</td><td>${purchaseFmt(gap)}</td></tr>`;
+      return `<tr><td><strong>${row.month}</strong></td><td>${purchaseFmt(row.branch1)}</td><td>${row.branch2 ? purchaseFmt(row.branch2) : "—"}</td><td>${purchaseFmt(row.purchases)}</td><td style="color:${change === null ? "#64748B" : change >= 0 ? "#15803D" : "#B91C1C"};font-weight:900">${change === null ? "—" : `${change >= 0 ? "+" : ""}${change.toFixed(1)}%`}</td><td>${purchaseFmt(row.suppliersPaid)}</td><td>${purchaseFmt(gap)}</td></tr>`;
     }).join("");
     foot.innerHTML = `<tr><td>الإجمالي</td><td>${purchaseFmt(summary.branch1)}</td><td>${purchaseFmt(summary.branch2)}</td><td>${purchaseFmt(summary.total)}</td><td>—</td><td>${purchaseFmt(summary.paid)}</td><td>${purchaseFmt(summary.paid - summary.total)}</td></tr>`;
   }
@@ -172,7 +172,7 @@ function renderPurchaseItems(latest, previous) {
   section.style.display = "block";
   if (title) title.textContent = `مقارنة أصناف ${latest.month}${previous ? ` مع ${previous.month}` : ""}`;
   body.innerHTML = rows.map(row => {
-    const color = row.quantityChange >= 0 ? "#15803d" : "#dc2626";
+    const color = row.quantityChange >= 0 ? "#15803D" : "#B91C1C";
     return `<tr>
       <td><strong>${row.name}</strong></td>
       <td>${purchaseFmt(row.quantity)}</td>
@@ -188,8 +188,8 @@ function renderPurchaseItems(latest, previous) {
       data: {
         labels: rows.slice(0, 10).map(row => row.name),
         datasets: [
-          { label: latest.month, data: rows.slice(0, 10).map(row => row.quantity), backgroundColor: "#10B981", borderRadius: 4 },
-          { label: previous?.month || "السابق", data: rows.slice(0, 10).map(row => row.previousQuantity), backgroundColor: "#CBD5E1", borderRadius: 4 }
+          { label: latest.month, data: rows.slice(0, 10).map(row => row.quantity), backgroundColor: "#15803D", borderRadius: 4 },
+          { label: previous?.month || "السابق", data: rows.slice(0, 10).map(row => row.previousQuantity), backgroundColor: "#E7E9EE", borderRadius: 4 }
         ]
       },
       options: { ...chartDefaults, plugins: { legend: { position: "bottom" } }, scales: { y: { ticks: { callback: v => purchaseFmt(v) } } } }
@@ -201,7 +201,7 @@ function renderPurchaseCharts(rows) {
   if (typeof Chart === "undefined") return;
   renderPurchaseChart("purchases-monthly-chart", {
     type: "bar",
-    data: { labels: rows.map(row => row.month), datasets: [{ label: "المشتريات", data: rows.map(row => row.purchases), backgroundColor: "#10B981", borderRadius: 5 }] },
+    data: { labels: rows.map(row => row.month), datasets: [{ label: "المشتريات", data: rows.map(row => row.purchases), backgroundColor: "#15803D", borderRadius: 5 }] },
     options: { ...chartDefaults, plugins: { legend: { display: false } }, scales: { y: { ticks: { callback: v => `${(v / 1000).toFixed(0)}K` } } } }
   });
   renderPurchaseChart("purchases-branch-chart", {
@@ -209,8 +209,8 @@ function renderPurchaseCharts(rows) {
     data: {
       labels: rows.map(row => row.month),
       datasets: [
-        { label: "فرع 1", data: rows.map(row => row.branch1), backgroundColor: "#3B82F6", borderRadius: 4 },
-        { label: "فرع 2", data: rows.map(row => row.branch2), backgroundColor: "#F59E0B", borderRadius: 4 }
+        { label: "فرع 1", data: rows.map(row => row.branch1), backgroundColor: "#4E7CFF", borderRadius: 4 },
+        { label: "فرع 2", data: rows.map(row => row.branch2), backgroundColor: "#7033FF", borderRadius: 4 }
       ]
     },
     options: { ...chartDefaults, plugins: { legend: { position: "bottom" } }, scales: { x: { stacked: true }, y: { stacked: true, ticks: { callback: v => `${(v / 1000).toFixed(0)}K` } } } }

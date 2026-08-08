@@ -188,14 +188,14 @@ function renderMenSupplierCharts() {
     type: "bar",
     data: {
       labels: active.slice(0, 8).map(row => row.name),
-      datasets: [{ label: "المتبقي", data: active.slice(0, 8).map(row => row.remaining), backgroundColor: "#EF4444", borderRadius: 5 }]
+      datasets: [{ label: "المتبقي", data: active.slice(0, 8).map(row => row.remaining), backgroundColor: "#B91C1C", borderRadius: 5 }]
     },
     options: { ...chartDefaults, indexAxis: "y", plugins: { legend: { display: false } }, scales: { x: { ticks: { callback: v => `${(v / 1000).toFixed(0)}K` } } } }
   });
   const summary = menSupplierSummary();
   renderMenChart("men-suppliers-status-chart", {
     type: "doughnut",
-    data: { labels: ["لديه رصيد", "تمت التصفية"], datasets: [{ data: [summary.active, summary.closed], backgroundColor: ["#EF4444", "#10B981"] }] },
+    data: { labels: ["لديه رصيد", "تمت التصفية"], datasets: [{ data: [summary.active, summary.closed], backgroundColor: ["#B91C1C", "#15803D"] }] },
     options: { ...chartDefaults, plugins: { legend: { position: "bottom" } } }
   });
 }
@@ -218,7 +218,7 @@ function renderMenSupplierPlan() {
       type: "bar",
       data: {
         labels: ["الرصيد", "دفعة شهرية"],
-        datasets: [{ label: "ريال", data: [balance, payment], backgroundColor: ["#CBD5E1", "#10B981"], borderRadius: 5 }]
+        datasets: [{ label: "ريال", data: [balance, payment], backgroundColor: ["#E7E9EE", "#15803D"], borderRadius: 5 }]
       },
       options: { ...chartDefaults, plugins: { legend: { display: false } }, scales: { y: { ticks: { callback: v => `${(v / 1000).toFixed(0)}K` } } } }
     });
