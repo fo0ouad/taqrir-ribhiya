@@ -2,6 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>داشبورد محلات العائلة — 2025/2026</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -26,37 +27,12 @@
   <input type="text" class="sidebar-search" id="global-search" placeholder="ابحث في التقارير، الموردين، الأرقام..." oninput="runGlobalSearch(this.value)">
   <div class="sidebar-search-results" id="global-search-results"></div>
 
+  <!-- 4 عناصر رئيسية فقط — كل عنصر مركّب يفتح بتنقّل فرعي داخل نفس الصفحة -->
   <div class="sidebar-groups">
-    <div class="sidebar-group" data-nav-group="home">
-      <div class="sidebar-group-title">الرئيسية</div>
-      <div class="sidebar-group-items">
-        <button class="sidebar-item" data-tab="tab-summary" onclick="switchTab('tab-summary', this)">نظرة عامة</button>
-      </div>
-    </div>
-    <div class="sidebar-group" data-nav-group="reports">
-      <div class="sidebar-group-title">التقارير</div>
-      <div class="sidebar-group-items">
-        <button class="sidebar-item" data-tab="tab-monthly-reports" onclick="switchTab('tab-monthly-reports', this)">التقارير الشهرية</button>
-        <button class="sidebar-item" data-tab="tab-expenses" onclick="switchTab('tab-expenses', this)">المصاريف التفصيلية</button>
-        <button class="sidebar-item" data-tab="tab-purchases" onclick="switchTab('tab-purchases', this)">المشتريات</button>
-        <button class="sidebar-item" data-tab="tab-report" onclick="switchTab('tab-report', this)">التقرير التحليلي</button>
-      </div>
-    </div>
-    <div class="sidebar-group" data-nav-group="parties">
-      <div class="sidebar-group-title">الأطراف التجارية</div>
-      <div class="sidebar-group-items">
-        <button class="sidebar-item" data-tab="tab-suppliers" onclick="switchTab('tab-suppliers', this)">موردين الرجالي</button>
-        <button class="sidebar-item" data-tab="tab-women-suppliers" onclick="switchTab('tab-women-suppliers', this)">موردين النسائي</button>
-        <button class="sidebar-item" data-tab="tab-customers" onclick="switchTab('tab-customers', this)">عملاء النسائي</button>
-      </div>
-    </div>
-    <div class="sidebar-group" data-nav-group="tools">
-      <div class="sidebar-group-title">الأدوات والتخطيط</div>
-      <div class="sidebar-group-items">
-        <button class="sidebar-item" data-tab="tab-profit-scenario" onclick="switchTab('tab-profit-scenario', this)">سيناريو الربحية</button>
-        <button class="sidebar-item" data-tab="tab-profit-first" onclick="switchTab('tab-profit-first', this)">🎯 تقييم Profit First</button>
-      </div>
-    </div>
+    <button class="sidebar-item" data-nav-group="home" onclick="switchNavGroup('home')">نظرة عامة</button>
+    <button class="sidebar-item" data-nav-group="reports" onclick="switchNavGroup('reports')">التقارير المالية</button>
+    <button class="sidebar-item" data-nav-group="parties" onclick="switchNavGroup('parties')">الأطراف التجارية</button>
+    <button class="sidebar-item" data-nav-group="tools" onclick="switchNavGroup('tools')">الأدوات والتخطيط</button>
   </div>
 
   <div class="sidebar-footer">

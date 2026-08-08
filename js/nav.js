@@ -35,11 +35,11 @@ function renderMobileSubnav(tabId) {
 }
 
 function syncSidebarActive(tabId) {
-  document.querySelectorAll('.sidebar-item').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.tab === tabId);
+  const group = groupOf(tabId);
+  document.querySelectorAll('.sidebar-item[data-nav-group]').forEach(btn => {
+    btn.classList.toggle('active', group && btn.dataset.navGroup === group.id);
   });
   document.querySelectorAll('.bottom-nav-item').forEach(btn => {
-    const group = groupOf(tabId);
     btn.classList.toggle('active', group && btn.dataset.navGroup === group.id);
   });
 }

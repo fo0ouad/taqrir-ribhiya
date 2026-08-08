@@ -54,7 +54,8 @@ h1, h2, h3, h4 { font-weight: 800; }
 .sidebar-search-result { text-align: right; border: none; background: transparent; border-radius: 6px; padding: 7px 8px; font: inherit; font-size: 0.78rem; color: var(--text); cursor: pointer; }
 .sidebar-search-result:hover { background: var(--box); }
 .sidebar-search-result small { display: block; color: var(--muted-2); font-size: 0.7rem; margin-top: 2px; }
-.sidebar-groups { display: flex; flex-direction: column; gap: 14px; overflow-y: auto; flex: 1; }
+.sidebar-groups { display: flex; flex-direction: column; gap: 2px; overflow-y: auto; flex: 1; }
+.sidebar-item { font-size: 0.9rem; padding: 11px 12px; }
 .sidebar-group-title { font-size: 0.68rem; color: var(--muted-2); font-weight: 800; padding: 0 8px; margin-bottom: 6px; letter-spacing: 0.02em; }
 .sidebar-group-items { display: flex; flex-direction: column; gap: 2px; }
 .sidebar-item { text-align: right; border: none; border-radius: var(--radius-sm); padding: 9px 10px; font: inherit; font-size: 0.83rem; font-weight: 700; cursor: pointer; background: transparent; color: var(--text); border-right: 3px solid transparent; transition: background 0.15s; width: 100%; }
@@ -72,7 +73,11 @@ h1, h2, h3, h4 { font-weight: 800; }
 
 /* ===== Mobile bottom nav ===== */
 .bottom-nav { display: none; }
-.mobile-subnav { display: none; }
+/* شريط التنقل الفرعي — يظهر أعلى المحتوى (ديسكتوب وجوال) كلما كان العنصر الرئيسي المفعّل يضم أكثر من صفحة فرعية */
+.mobile-subnav { display: flex; gap: 8px; overflow-x: auto; margin-bottom: 18px; padding-bottom: 4px; }
+.mobile-subnav-item { flex: none; border: 1px solid var(--border); background: var(--box); color: var(--text); border-radius: var(--radius-pill); padding: 8px 16px; font: inherit; font-size: 0.82rem; font-weight: 700; cursor: pointer; white-space: nowrap; }
+.mobile-subnav-item.active { border-color: var(--primary-1); background: var(--primary-1); color: white; }
+.mobile-subnav:empty { display: none; margin: 0; }
 
 /* ===== Legacy header/tabs (kept for pages not yet converted) ===== */
 .header { background: linear-gradient(135deg, #33394C 0%, #4E7CFF 100%); color: white; padding: 22px 34px; display: flex; justify-content: space-between; align-items: center; gap: 24px; }
@@ -369,9 +374,7 @@ tr:hover { background: #F5F7FB; }
   .bottom-nav-item.active { color: var(--primary-1); }
   .bottom-nav-item .glyph { font-size: 1.15rem; }
   .bottom-nav-item .label { font-size: 0.62rem; font-weight: 800; }
-  .mobile-subnav { display: flex; gap: 8px; overflow-x: auto; margin-bottom: 14px; padding-bottom: 4px; }
-  .mobile-subnav-item { flex: none; border: 1px solid var(--border); background: var(--box); color: var(--text); border-radius: var(--radius-pill); padding: 6px 12px; font: inherit; font-size: 0.76rem; font-weight: 700; cursor: pointer; white-space: nowrap; }
-  .mobile-subnav-item.active { border-color: var(--primary-1); background: var(--primary-1); color: white; }
+  .mobile-subnav-item { padding: 6px 12px; font-size: 0.76rem; }
   .mobile-search-wrap { margin-bottom: 12px; }
 }
 
